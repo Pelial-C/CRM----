@@ -1,0 +1,12 @@
+E:\大学\课程学习资料\大三下\电子商务网站开发课程设计\CRM项目文件\CRM.Lite\CRM.Domain.Shared\bin\Debug\net8.0\CRM.Domain.Shared.deps.json
+E:\大学\课程学习资料\大三下\电子商务网站开发课程设计\CRM项目文件\CRM.Lite\CRM.Domain.Shared\bin\Debug\net8.0\CRM.Domain.Shared.dll
+E:\大学\课程学习资料\大三下\电子商务网站开发课程设计\CRM项目文件\CRM.Lite\CRM.Domain.Shared\bin\Debug\net8.0\CRM.Domain.Shared.pdb
+E:\大学\课程学习资料\大三下\电子商务网站开发课程设计\CRM项目文件\CRM.Lite\CRM.Domain.Shared\obj\Debug\net8.0\CRM.Domain.Shared.GeneratedMSBuildEditorConfig.editorconfig
+E:\大学\课程学习资料\大三下\电子商务网站开发课程设计\CRM项目文件\CRM.Lite\CRM.Domain.Shared\obj\Debug\net8.0\CRM.Domain.Shared.AssemblyInfoInputs.cache
+E:\大学\课程学习资料\大三下\电子商务网站开发课程设计\CRM项目文件\CRM.Lite\CRM.Domain.Shared\obj\Debug\net8.0\CRM.Domain.Shared.AssemblyInfo.cs
+E:\大学\课程学习资料\大三下\电子商务网站开发课程设计\CRM项目文件\CRM.Lite\CRM.Domain.Shared\obj\Debug\net8.0\CRM.Domain.Shared.csproj.CoreCompileInputs.cache
+E:\大学\课程学习资料\大三下\电子商务网站开发课程设计\CRM项目文件\CRM.Lite\CRM.Domain.Shared\obj\Debug\net8.0\CRM.Domain.Shared.sourcelink.json
+E:\大学\课程学习资料\大三下\电子商务网站开发课程设计\CRM项目文件\CRM.Lite\CRM.Domain.Shared\obj\Debug\net8.0\CRM.Domain.Shared.dll
+E:\大学\课程学习资料\大三下\电子商务网站开发课程设计\CRM项目文件\CRM.Lite\CRM.Domain.Shared\obj\Debug\net8.0\refint\CRM.Domain.Shared.dll
+E:\大学\课程学习资料\大三下\电子商务网站开发课程设计\CRM项目文件\CRM.Lite\CRM.Domain.Shared\obj\Debug\net8.0\CRM.Domain.Shared.pdb
+E:\大学\课程学习资料\大三下\电子商务网站开发课程设计\CRM项目文件\CRM.Lite\CRM.Domain.Shared\obj\Debug\net8.0\ref\CRM.Domain.Shared.dll
