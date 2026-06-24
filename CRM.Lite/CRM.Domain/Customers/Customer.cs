@@ -11,10 +11,10 @@ namespace CRM.Domain.Customers;
 
 public class Customer : AggregateRoot<int>
 {
-    public string Name { get; private set; } // 企业名称
-    public string CreditCode { get; private set; } // 统一社会信用代码
-    public string Industry { get; private set; } // 行业
-    public Address Address { get; private set; } // 地址值对象
+    public string? Name { get; private set; } // 企业名称
+    public string? CreditCode { get; private set; } // 统一社会信用代码
+    public string? Industry { get; private set; } // 行业
+    public Address? Address { get; private set; } // 地址值对象
 
     // 私有集合 (充血模型核心)
     private readonly List<Contact> _contacts = new();
@@ -39,5 +39,16 @@ public class Customer : AggregateRoot<int>
         if (_contacts.Any(c => c.Name == name)) throw new BusinessException("联系人姓名不能重复");
 
         _contacts.Add(new Contact(name, phone, title, isKeyDecisionMaker));
+    }
+
+    //充血行为：状态的变更必须通过实体自身的行为方法来驱动，并在方法内进行规则校验
+    public void UpdateInfo(string name, string creditCode, string industry, Address address)
+    {
+        if (string.IsNullOrWhiteSpace(name)) throw new BusinessException("企业名称不能为空");
+
+        Name = name;
+        CreditCode = creditCode;
+        Industry = industry;
+        Address = address;
     }
 }

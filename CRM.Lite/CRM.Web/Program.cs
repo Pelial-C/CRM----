@@ -1,3 +1,7 @@
+using CRM.Application.Contracts.Customers;
+using CRM.Application.Customers;
+
+
 namespace CRM.Web
 {
     public class Program
@@ -8,6 +12,9 @@ namespace CRM.Web
 
             // Add services to the container.
             builder.Services.AddControllersWithViews();
+
+            // 注册客户应用服务
+            builder.Services.AddScoped<ICustomerAppService, CustomerAppService>();
 
             var app = builder.Build();
 

@@ -11,21 +11,21 @@ namespace CRM.Domain.Contracts;
 
 public class Contract : AggregateRoot<int>
 {
-    public string ContractNo { get; private set; }
-    public string ContractName { get; private set; }
-    public string CabinetNo { get; private set; } // 合同柜编号
+    public string? ContractNo { get; private set; }
+    public string? ContractName { get; private set; }
+    public string? CabinetNo { get; private set; } // 合同柜编号
 
     // 关联客户 (甲方)
     public int CustomerId { get; private set; }
-    public string PartyAName { get; private set; }
+    public string? PartyAName { get; private set; }
 
     // 关联联系人
     public int ContactId { get; private set; }
-    public string ContactName { get; private set; }
+    public string? ContactName { get; private set; }
 
     // 组织归属
-    public string RegionalCompany { get; private set; }
-    public string AffiliatedCompany { get; private set; }
+    public string? RegionalCompany { get; private set; }
+    public string? AffiliatedCompany { get; private set; }
 
     // 业务属性
     public ServiceType ServiceType { get; private set; }

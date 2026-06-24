@@ -12,7 +12,7 @@ public class PaymentPlan : Entity<int>
     public decimal PlanAmount { get; private set; }
     public decimal ActualAmount { get; private set; }
     public DateTime? ActualDate { get; private set; }
-    public string Description { get; private set; }
+    public string? Description { get; private set; }
 
     protected PaymentPlan() { }
 

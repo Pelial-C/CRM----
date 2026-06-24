@@ -2,7 +2,7 @@
 
 public abstract class Entity<TKey>
 {
-    public TKey Id { get; protected set; }
+    public TKey? Id { get; protected set; }
 }
 
 // AggregateRoot.cs
