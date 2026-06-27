@@ -1,12 +1,8 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using CRM.Application.Contracts.Contacts.Dtos;
 
 namespace CRM.Application.Contracts.Customers.Dtos;
 
-public class CustomerDto
+public class CustomerDetailDto
 {
     public int Id { get; set; }
     public string? Name { get; set; }
@@ -19,4 +15,17 @@ public class CustomerDto
     public string? Remark { get; set; }
     public bool IsDeleted { get; set; }
     public DateTime CreationTime { get; set; }
+
+    public List<ContactDto> Contacts { get; set; } = new();
+    public List<ContractSummaryDto> Contracts { get; set; } = new();
+}
+
+public class ContractSummaryDto
+{
+    public int Id { get; set; }
+    public string? ContractNo { get; set; }
+    public string? ContractName { get; set; }
+    public decimal TotalAmount { get; set; }
+    public int Status { get; set; }
+    public DateTime SignDate { get; set; }
 }

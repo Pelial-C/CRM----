@@ -1,5 +1,7 @@
-﻿using CRM.Application.Contracts.Customers;
+using CRM.Application.Contracts.Contacts;
+using CRM.Application.Contracts.Customers;
 using CRM.Application.Contracts.Contracts;
+using CRM.Application.Contacts;
 using CRM.Application.Customers;
 using CRM.Domain.Repositories;
 using CRM.Infrastructure.Persistence;
@@ -22,6 +24,7 @@ namespace CRM.Web
 
             builder.Services.AddScoped(typeof(IRepository<,>), typeof(EfRepository<,>));
             builder.Services.AddScoped<ICustomerAppService, CustomerAppService>();
+            builder.Services.AddScoped<IContactAppService, ContactAppService>();
             builder.Services.AddScoped<IContractAppService, ContractAppService>();
 
             var app = builder.Build();

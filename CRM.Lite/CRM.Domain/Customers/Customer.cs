@@ -32,12 +32,30 @@ public class Customer : AggregateRoot<int>
         return contact;
     }
 
+    public void UpdateContact(int contactId, string name, string? phone, string? title, string? email = null, bool isKeyDecisionMaker = false)
+    {
+        if (IsDeleted) throw new BusinessException("已删除客户不能维护联系人");
+
+        var contact = _contacts.FirstOrDefault(c => c.Id == contactId);
+        if (contact == null) throw new BusinessException("联系人不存在");
+
+        if (_contacts.Any(c => c.Id != contactId && c.Name == name.Trim()))
+            throw new BusinessException("同一客户下联系人姓名不能重复");
+
+        contact.Update(name, phone, title, email, isKeyDecisionMaker);
+    }
+
     public void RemoveContact(int contactId)
     {
         var contact = _contacts.FirstOrDefault(c => c.Id == contactId);
         if (contact == null) throw new BusinessException("联系人不存在");
 
         _contacts.Remove(contact);
+    }
+
+    public bool CanDelete(bool hasContracts)
+    {
+        return !hasContracts;
     }
 
     public void UpdateInfo(string name, string? creditCode, string? industry, Address address, string? remark = null)

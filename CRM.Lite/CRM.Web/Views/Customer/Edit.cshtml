@@ -1,0 +1,39 @@
+@model CRM.Application.Contracts.Customers.Dtos.UpdateCustomerDto
+@{
+    ViewData["Title"] = "编辑客户";
+}
+
+<h2>编辑客户</h2>
+
+<form asp-action="Edit" method="post">
+    <input type="hidden" asp-for="Id" />
+    <div class="mb-2">
+        <label asp-for="Name" class="form-label"></label>
+        <input asp-for="Name" class="form-control" />
+        <span asp-validation-for="Name" class="text-danger"></span>
+    </div>
+    <div class="mb-2">
+        <label asp-for="CreditCode" class="form-label"></label>
+        <input asp-for="CreditCode" class="form-control" />
+    </div>
+    <div class="mb-2">
+        <label asp-for="Industry" class="form-label"></label>
+        <input asp-for="Industry" class="form-control" />
+    </div>
+    <div class="row mb-2">
+        <div class="col"><label asp-for="Province" class="form-label"></label><input asp-for="Province" class="form-control" /></div>
+        <div class="col"><label asp-for="City" class="form-label"></label><input asp-for="City" class="form-control" /></div>
+        <div class="col"><label asp-for="District" class="form-label"></label><input asp-for="District" class="form-control" /></div>
+    </div>
+    <div class="mb-2">
+        <label asp-for="DetailAddress" class="form-label"></label>
+        <input asp-for="DetailAddress" class="form-control" />
+    </div>
+    <div class="mb-2">
+        <label asp-for="Remark" class="form-label"></label>
+        <textarea asp-for="Remark" class="form-control" rows="3"></textarea>
+    </div>
+    <div asp-validation-summary="ModelOnly" class="text-danger mb-2"></div>
+    <button type="submit" class="btn btn-primary">保存</button>
+    <a asp-action="Index" class="btn btn-secondary">返回</a>
+</form>

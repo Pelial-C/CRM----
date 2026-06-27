@@ -1,0 +1,36 @@
+@model CRM.Application.Contracts.Contacts.Dtos.CreateContactDto
+@{
+    ViewData["Title"] = "新增联系人";
+}
+
+<h2>新增联系人 <small class="text-muted">客户Id: @Model.CustomerId</small></h2>
+
+<form asp-action="Create" method="post">
+    <input type="hidden" asp-for="CustomerId" />
+    <div class="mb-2">
+        <label asp-for="Name" class="form-label"></label>
+        <input asp-for="Name" class="form-control" />
+        <span asp-validation-for="Name" class="text-danger"></span>
+    </div>
+    <div class="mb-2">
+        <label asp-for="Title" class="form-label"></label>
+        <input asp-for="Title" class="form-control" />
+    </div>
+    <div class="mb-2">
+        <label asp-for="Phone" class="form-label"></label>
+        <input asp-for="Phone" class="form-control" />
+        <span asp-validation-for="Phone" class="text-danger"></span>
+    </div>
+    <div class="mb-2">
+        <label asp-for="Email" class="form-label"></label>
+        <input asp-for="Email" class="form-control" />
+        <span asp-validation-for="Email" class="text-danger"></span>
+    </div>
+    <div class="mb-2 form-check">
+        <input asp-for="IsKeyDecisionMaker" class="form-check-input" />
+        <label asp-for="IsKeyDecisionMaker" class="form-check-label"></label>
+    </div>
+    <div asp-validation-summary="ModelOnly" class="text-danger mb-2"></div>
+    <button type="submit" class="btn btn-primary">提交</button>
+    <a asp-controller="Customer" asp-action="Detail" asp-route-id="@Model.CustomerId" class="btn btn-secondary">返回</a>
+</form>

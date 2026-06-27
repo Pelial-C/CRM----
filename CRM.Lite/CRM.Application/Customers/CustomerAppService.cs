@@ -1,66 +1,52 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
+using CRM.Application.Contracts.Common.Dtos;
+using CRM.Application.Contracts.Contacts.Dtos;
 using CRM.Application.Contracts.Customers;
 using CRM.Application.Contracts.Customers.Dtos;
+using CRM.Domain.Contracts;
 using CRM.Domain.Customers;
 using CRM.Domain.Repositories;
 using CRM.Domain.Shared.Exceptions;
 using CRM.Domain.ValueObjects;
+using System.Linq.Expressions;
 
 namespace CRM.Application.Customers;
 
 public class CustomerAppService : ICustomerAppService
 {
     private readonly IRepository<Customer, int> _customerRepo;
+    private readonly IRepository<Contract, int> _contractRepo;
 
-    // 通过构造函数注入泛型仓储
-    public CustomerAppService(IRepository<Customer, int> customerRepo)
+    public CustomerAppService(IRepository<Customer, int> customerRepo, IRepository<Contract, int> contractRepo)
     {
         _customerRepo = customerRepo;
+        _contractRepo = contractRepo;
     }
 
-    public async Task<List<CustomerDto>> GetListAsync(string? keyword = null)
+    public async Task<PagedResultDto<CustomerDto>> GetPagedListAsync(CustomerQueryDto input)
     {
-        var customers = await _customerRepo.GetListAsync();
+        var predicate = BuildPredicate(input);
 
-        // 简单的内存过滤 (如果数据量大，需要在 IRepository 中扩展带 Expression 的查询方法)
-        if (!string.IsNullOrWhiteSpace(keyword))
+        var (items, totalCount) = await _customerRepo.GetPagedAsync(predicate, input.PageIndex, input.PageSize);
+
+        var dtos = items.Select(MapToDto).ToList();
+
+        return new PagedResultDto<CustomerDto>
         {
-            // 1. 提取为一个明确非空的局部变量，打消编译器对 keyword 的疑虑
-            string searchKey = keyword;
-
-            customers = customers.Where(c =>
-                // 2. 使用 ?. 防止 c.Name 或 c.CreditCode 本身为 null 时引发空指针
-                (c.Name?.Contains(searchKey) == true) ||
-                (c.CreditCode?.Contains(searchKey) == true)
-            ).ToList();
-        }
-
-        // 手动映射 Entity 到 DTO (企业级项目通常用 AutoMapper，这里手写更直观)
-        return customers.Select(c => new CustomerDto
-        {
-            Id = c.Id,
-            Name = c.Name,
-            CreditCode = c.CreditCode,
-            Industry = c.Industry,
-            Province = c.Address?.Province,
-            City = c.Address?.City,
-            District = c.Address?.District,
-            DetailAddress = c.Address?.Detail,
-            CreationTime = c.CreationTime
-        }).ToList();
+            Items = dtos,
+            TotalCount = totalCount,
+            PageIndex = input.PageIndex,
+            PageSize = input.PageSize
+        };
     }
 
-    public async Task<CustomerDto> GetByIdAsync(int id)
+    public async Task<CustomerDetailDto> GetDetailAsync(int id)
     {
         var customer = await _customerRepo.GetByIdAsync(id);
         if (customer == null) throw new BusinessException("客户不存在");
 
-        return new CustomerDto
+        var contracts = await _contractRepo.GetListAsync(c => c.CustomerId == id);
+
+        return new CustomerDetailDto
         {
             Id = customer.Id,
             Name = customer.Name,
@@ -70,19 +56,29 @@ public class CustomerAppService : ICustomerAppService
             City = customer.Address?.City,
             District = customer.Address?.District,
             DetailAddress = customer.Address?.Detail,
-            CreationTime = customer.CreationTime
+            Remark = customer.Remark,
+            IsDeleted = customer.IsDeleted,
+            CreationTime = customer.CreationTime,
+            Contacts = customer.Contacts.Select(MapContactToDto).ToList(),
+            Contracts = contracts.Select(MapContractToSummaryDto).ToList()
         };
+    }
+
+    public async Task<CustomerDto> GetByIdAsync(int id)
+    {
+        var customer = await _customerRepo.GetByIdAsync(id);
+        if (customer == null) throw new BusinessException("客户不存在");
+
+        return MapToDto(customer);
     }
 
     public async Task CreateAsync(CreateCustomerDto input)
     {
-        // 1. 组装值对象
-        var address = new Address(input.Province ?? "", input.City ?? "", input.District ?? "", input.DetailAddress ?? "");
+        await CheckNameUniqueAsync(input.Name!, null);
 
-        // 2. 调用充血构造函数创建聚合根 (内部会自动进行基础校验)
-        var customer = new Customer(input.Name ?? "", input.CreditCode ?? "", input.Industry ?? "", address);
+        var address = new Address(input.Province, input.City, input.District, input.DetailAddress);
+        var customer = new Customer(input.Name!, input.CreditCode, input.Industry, address, input.Remark);
 
-        // 3. 持久化
         await _customerRepo.InsertAsync(customer);
     }
 
@@ -91,21 +87,90 @@ public class CustomerAppService : ICustomerAppService
         var customer = await _customerRepo.GetByIdAsync(input.Id);
         if (customer == null) throw new BusinessException("客户不存在");
 
-        // 1. 组装值对象
-        var address = new Address(input.Province ?? "", input.City ?? "", input.District ?? "", input.DetailAddress ?? "");
+        await CheckNameUniqueAsync(input.Name!, input.Id);
 
-        // 2. 调用聚合根的充血行为方法更新状态
-        customer.UpdateInfo(input.Name ?? "", input.CreditCode ?? "", input.Industry ?? "", address);
+        var address = new Address(input.Province, input.City, input.District, input.DetailAddress);
+        customer.UpdateInfo(input.Name!, input.CreditCode, input.Industry, address, input.Remark);
 
-        // 3. 持久化
         await _customerRepo.UpdateAsync(customer);
     }
 
     public async Task DeleteAsync(int id)
     {
         var customer = await _customerRepo.GetByIdAsync(id);
-        if (customer == null) return; // 幂等性设计：不存在就不报错
+        if (customer == null) return;
 
-        await _customerRepo.DeleteAsync(customer);
+        var hasContracts = await _contractRepo.AnyAsync(c => c.CustomerId == id);
+
+        if (customer.CanDelete(hasContracts))
+        {
+            await _customerRepo.DeleteAsync(customer);
+        }
+        else
+        {
+            customer.MarkAsDeleted();
+            await _customerRepo.UpdateAsync(customer);
+        }
+    }
+
+    private async Task CheckNameUniqueAsync(string name, int? excludeId)
+    {
+        var trimmed = name.Trim();
+        var exists = await _customerRepo.AnyAsync(c => c.Name == trimmed && (!excludeId.HasValue || c.Id != excludeId.Value));
+        if (exists) throw new BusinessException("企业名称已存在");
+    }
+
+    private static Expression<Func<Customer, bool>> BuildPredicate(CustomerQueryDto input)
+    {
+        return c =>
+            (string.IsNullOrWhiteSpace(input.Name) || c.Name.Contains(input.Name.Trim())) &&
+            (string.IsNullOrWhiteSpace(input.Industry) || c.Industry == input.Industry.Trim()) &&
+            (!input.StartTime.HasValue || c.CreationTime >= input.StartTime.Value) &&
+            (!input.EndTime.HasValue || c.CreationTime <= input.EndTime.Value);
+    }
+
+    private static CustomerDto MapToDto(Customer c)
+    {
+        return new CustomerDto
+        {
+            Id = c.Id,
+            Name = c.Name,
+            CreditCode = c.CreditCode,
+            Industry = c.Industry,
+            Province = c.Address?.Province,
+            City = c.Address?.City,
+            District = c.Address?.District,
+            DetailAddress = c.Address?.Detail,
+            Remark = c.Remark,
+            IsDeleted = c.IsDeleted,
+            CreationTime = c.CreationTime
+        };
+    }
+
+    private static ContactDto MapContactToDto(Contact c)
+    {
+        return new ContactDto
+        {
+            Id = c.Id,
+            CustomerId = c.CustomerId,
+            Name = c.Name,
+            Title = c.Title,
+            Phone = c.Phone,
+            Email = c.Email,
+            IsKeyDecisionMaker = c.IsKeyDecisionMaker
+        };
+    }
+
+    private static ContractSummaryDto MapContractToSummaryDto(Contract c)
+    {
+        return new ContractSummaryDto
+        {
+            Id = c.Id,
+            ContractNo = c.ContractNo,
+            ContractName = c.ContractName,
+            TotalAmount = c.TotalAmount,
+            Status = (int)c.Status,
+            SignDate = c.SignDate
+        };
     }
 }
