@@ -1,0 +1,253 @@
+@{
+    Layout = "_VerifyLayout";
+    ViewData["Title"] = "合同模块后端验收";
+}
+
+<div id="heroBanner" class="verify-hero pending p-4 mb-4 text-center shadow">
+    <div class="big-icon mb-2" id="heroIcon">⏳</div>
+    <h1 class="h2 mb-2" id="heroTitle">合同模块后端验收</h1>
+    <p class="mb-3 opacity-75" id="heroSubtitle">页面加载后将自动运行全部 API 检测…</p>
+    <div class="progress mb-2" style="height: 8px; max-width: 480px; margin: 0 auto;">
+        <div id="progressBar" class="progress-bar progress-bar-striped progress-bar-animated" style="width: 0%"></div>
+    </div>
+    <div class="small opacity-75" id="progressText">0 / 13</div>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-4">
+        <div class="card shadow-sm h-100 border-0">
+            <div class="card-body text-center">
+                <div class="display-5 fw-bold text-success" id="passCount">0</div>
+                <div class="text-muted">通过</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card shadow-sm h-100 border-0">
+            <div class="card-body text-center">
+                <div class="display-5 fw-bold text-danger" id="failCount">0</div>
+                <div class="text-muted">失败</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card shadow-sm h-100 border-0">
+            <div class="card-body text-center">
+                <div class="fs-5 fw-bold text-secondary" id="overallStatus">等待检测</div>
+                <div class="text-muted">总体结论</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card shadow-sm mb-4 border-0">
+    <div class="card-header bg-white d-flex justify-content-between align-items-center">
+        <strong>API 检测明细</strong>
+        <button type="button" class="btn btn-outline-primary btn-sm" id="btnRunAll">重新检测</button>
+    </div>
+    <div class="card-body p-0">
+        <ul class="list-group list-group-flush" id="checkList">
+            <li class="list-group-item text-muted">正在准备…</li>
+        </ul>
+    </div>
+</div>
+
+<div class="card shadow-sm mb-4 border-0">
+    <div class="card-header bg-white"><strong>合同列表（GET /Contract/GetList）</strong></div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-sm table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Id</th>
+                        <th>编号</th>
+                        <th>名称</th>
+                        <th>客户</th>
+                        <th>金额</th>
+                        <th>状态</th>
+                        <th>明细</th>
+                        <th>回款</th>
+                    </tr>
+                </thead>
+                <tbody id="contractTableBody">
+                    <tr><td colspan="8" class="text-muted text-center">加载中…</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="card shadow-sm border-0">
+    <div class="card-header bg-white"><strong>最近 API 响应</strong></div>
+    <div class="card-body">
+        <pre class="bg-light p-3 rounded small mb-0" id="lastResponse" style="max-height:240px;overflow:auto;">{}</pre>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+(function () {
+    const TOTAL = 13;
+    const statusMap = { 0: '草稿', 1: '执行中', 2: '已完结', 3: '已作废', 4: '已终止' };
+    let passCount = 0, failCount = 0, doneCount = 0;
+
+    function setProgress() {
+        const pct = Math.round((doneCount / TOTAL) * 100);
+        $('#progressBar').css('width', pct + '%');
+        $('#progressText').text(doneCount + ' / ' + TOTAL);
+    }
+
+    function setHero(state, icon, title, subtitle) {
+        $('#heroBanner').removeClass('pending pass fail running').addClass(state);
+        $('#heroIcon').text(icon);
+        $('#heroTitle').text(title);
+        $('#heroSubtitle').text(subtitle);
+    }
+
+    function showResponse(data) {
+        $('#lastResponse').text(JSON.stringify(data, null, 2));
+    }
+
+    function api(method, url, body) {
+        return $.ajax({
+            url: url, method: method,
+            contentType: 'application/json; charset=utf-8',
+            data: body ? JSON.stringify(body) : undefined,
+            dataType: 'json'
+        }).then(function (res) { showResponse(res); return res; });
+    }
+
+    function addCheck(name, ok, detail) {
+        doneCount++;
+        if (ok) passCount++; else failCount++;
+        $('#passCount').text(passCount);
+        $('#failCount').text(failCount);
+        setProgress();
+        const cls = ok ? 'list-group-item-success' : 'list-group-item-danger';
+        $('#checkList').append(
+            `<li class="list-group-item ${cls}"><strong>${ok ? '✓' : '✗'} ${name}</strong>${detail ? `<br><small class="text-muted">${detail}</small>` : ''}</li>`
+        );
+    }
+
+    function resetChecks() {
+        passCount = failCount = doneCount = 0;
+        $('#passCount,#failCount').text('0');
+        $('#checkList').empty();
+        $('#overallStatus').text('检测中…');
+        setHero('running', '⚙️', '正在检测…', '请稍候，正在调用合同模块全部 API');
+        setProgress();
+    }
+
+    function finishChecks() {
+        $('#progressBar').removeClass('progress-bar-animated');
+        if (failCount === 0 && passCount > 0) {
+            $('#overallStatus').text('验收通过').addClass('text-success');
+            setHero('pass', '✅', '恭喜！合同模块后端验收通过', `全部 ${passCount} 项检测通过，可以截图答辩 / 提交`);
+        } else {
+            $('#overallStatus').text('存在失败').addClass('text-danger');
+            setHero('fail', '❌', '验收未通过', `通过 ${passCount} 项，失败 ${failCount} 项，请查看下方红色条目`);
+        }
+    }
+
+    function renderTable(page) {
+        const items = (page && page.items) || [];
+        const $body = $('#contractTableBody').empty();
+        if (!items.length) {
+            $body.append('<tr><td colspan="8" class="text-muted text-center">暂无数据</td></tr>');
+            return;
+        }
+        items.forEach(function (c) {
+            $body.append(`<tr>
+                <td>${c.id}</td><td>${c.contractNo||''}</td><td>${c.contractName||''}</td>
+                <td>${c.customerName||''}</td><td>${c.totalAmount}</td>
+                <td>${statusMap[c.status]??c.status}</td>
+                <td>${(c.items||[]).length}</td><td>${(c.paymentPlans||[]).length}</td>
+            </tr>`);
+        });
+    }
+
+    function loadList() {
+        return api('GET', '/Contract/GetList?pageIndex=1&pageSize=10').then(function (res) {
+            if (res.code === 200) renderTable(res.data);
+        });
+    }
+
+    async function runAllChecks() {
+        resetChecks();
+        const suffix = Date.now().toString().slice(-6);
+        const customerName = '自证客户' + suffix;
+        const creditCode = '91110000SV' + suffix;
+        let customerId, contractId, contractNo, planId;
+
+        try {
+            let res = await api('GET', '/Contract/GetList?pageIndex=1&pageSize=1');
+            addCheck('GetList 列表接口', res.code === 200);
+
+            res = await api('POST', '/Customer/Create', {
+                name: customerName, creditCode: creditCode, industry: '制造业',
+                province: '广东省', city: '深圳市', detailAddress: '科技园'
+            });
+            addCheck('Create 创建客户', res.code === 200, res.msg);
+
+            res = await api('GET', '/Customer/GetList');
+            const customer = (res.data||[]).find(c => c.creditCode === creditCode) || (res.data||[]).slice(-1)[0];
+            customerId = customer && customer.id;
+            addCheck('获取客户 Id', customerId > 0, 'id=' + customerId);
+
+            contractNo = 'HT-SV-' + suffix;
+            res = await api('POST', '/Contract/Create', {
+                contractNo, contractName: '自证测试合同', customerId,
+                totalAmount: 100000, signDate: '2026-06-27', startDate: '2026-01-01', endDate: '2026-12-31',
+                paymentFrequency: 3, serviceType: 0, contractType: 0, warningDays: 30,
+                items: [{ productName: 'CRM软件', quantity: 1, unitPrice: 100000 }], paymentPlans: []
+            });
+            addCheck('Create 创建合同', res.code === 200, res.msg);
+
+            res = await api('GET', '/Contract/GetList?keyword=' + encodeURIComponent(contractNo) + '&status=0');
+            const contract = ((res.data||{}).items||[]).find(c => c.contractNo === contractNo);
+            contractId = contract && contract.id;
+            addCheck('列表 keyword/status 筛选', contractId > 0, 'id=' + contractId);
+
+            res = await api('GET', '/Contract/Get?id=' + contractId);
+            addCheck('Get 详情含明细', (res.data.items||[]).length >= 1);
+            addCheck('服务端写入客户名', res.data.customerName === customerName, res.data.customerName);
+
+            await api('POST', '/Contract/GeneratePaymentPlans', { contractId });
+            res = await api('GET', '/Contract/Get?id=' + contractId);
+            const plans = res.data.paymentPlans || [];
+            const planSum = plans.reduce((s, p) => s + p.planAmount, 0);
+            addCheck('GeneratePaymentPlans 生成回款', plans.length >= 1, '期数=' + plans.length);
+            addCheck('回款计划金额合计', Math.abs(planSum - 100000) < 0.01, '合计=' + planSum);
+
+            planId = plans[0] && plans[0].id;
+            await api('POST', '/Contract/RecordPayment', {
+                contractId, planId, actualAmount: 25000, actualDate: '2026-04-01'
+            });
+            res = await api('GET', '/Contract/Get?id=' + contractId);
+            const paid = (res.data.paymentPlans||[]).find(p => p.id === planId);
+            addCheck('RecordPayment 回款核销', paid && paid.actualAmount === 25000);
+
+            res = await api('POST', '/Contract/RecordPayment', {
+                contractId, planId, actualAmount: 999999, actualDate: '2026-04-02'
+            });
+            addCheck('超额回款业务拦截', res.code === 400, res.msg);
+
+            res = await api('GET', '/Contract/GetContactsByCustomerId?customerId=' + customerId);
+            addCheck('GetContactsByCustomerId 下拉', res.code === 200);
+
+            await api('POST', '/Contract/Cancel', { id: contractId, reason: '自证作废' });
+            res = await api('GET', '/Contract/Get?id=' + contractId);
+            addCheck('Cancel 作废合同', res.data.status === 3, 'status=已作废');
+        } catch (e) {
+            addCheck('请求异常', false, e.responseJSON?.msg || e.statusText || String(e));
+        }
+
+        finishChecks();
+        await loadList();
+    }
+
+    $('#btnRunAll').on('click', runAllChecks);
+    loadList().then(runAllChecks);
+})();
+</script>
+}
