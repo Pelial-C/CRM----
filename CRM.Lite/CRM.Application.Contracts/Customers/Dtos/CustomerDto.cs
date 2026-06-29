@@ -12,6 +12,7 @@ public class CustomerDto
     public string? Name { get; set; }
     public string? CreditCode { get; set; }
     public string? Industry { get; set; }
+    public bool IsDeleted { get; set; }
 
     // 将值对象 Address 展平为普通字符串，方便前端展示
     public string? Province { get; set; }

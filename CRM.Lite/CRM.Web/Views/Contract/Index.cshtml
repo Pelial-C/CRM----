@@ -1,0 +1,91 @@
+@using CRM.Application.Contracts.Contracts.Dtos
+@using CRM.Domain.Contracts
+@model PagedResultDto<ContractDto>
+
+@{
+    ViewData["Title"] = "合同管理";
+    var currentStatus = ViewBag.Status as int?;
+}
+
+<div class="d-flex align-items-center justify-content-between mb-3">
+    <h2 class="mb-0">合同管理</h2>
+    <a class="btn btn-primary" asp-action="Create">新增合同</a>
+</div>
+
+<form method="get" class="row g-2 align-items-end mb-3">
+    <div class="col-md-5">
+        <label class="form-label">关键字</label>
+        <input name="keyword" value="@ViewBag.Keyword" class="form-control" placeholder="合同编号、合同名称、客户名称" />
+    </div>
+    <div class="col-md-3">
+        <label class="form-label">合同状态</label>
+        <select name="status" class="form-select">
+            <option value="">全部状态</option>
+            @foreach (var status in Enum.GetValues<ContractStatus>())
+            {
+                var value = (int)status;
+                <option value="@value" selected="@(currentStatus == value)">@EnumDisplayHelper.ContractStatusText(status)</option>
+            }
+        </select>
+    </div>
+    <div class="col-md-4 d-flex gap-2">
+        <button class="btn btn-outline-primary" type="submit">查询</button>
+        <a class="btn btn-outline-secondary" asp-action="Index">重置</a>
+    </div>
+</form>
+
+<div class="table-responsive">
+    <table class="table table-hover align-middle">
+        <thead class="table-light">
+            <tr>
+                <th>合同编号</th>
+                <th>合同名称</th>
+                <th>客户名称</th>
+                <th>联系人</th>
+                <th class="text-end">合同金额</th>
+                <th>签订日期</th>
+                <th>开始日期</th>
+                <th>结束日期</th>
+                <th>状态</th>
+                <th class="text-end">操作</th>
+            </tr>
+        </thead>
+        <tbody>
+        @if (!Model.Items.Any())
+        {
+            <tr>
+                <td colspan="10" class="text-center text-muted py-4">暂无合同数据</td>
+            </tr>
+        }
+        else
+        {
+            foreach (var item in Model.Items)
+            {
+                <tr>
+                    <td>@item.ContractNo</td>
+                    <td>@item.ContractName</td>
+                    <td>@item.CustomerName</td>
+                    <td>@item.ContactName</td>
+                    <td class="text-end">@item.TotalAmount.ToString("N2")</td>
+                    <td>@item.SignDate.ToString("yyyy-MM-dd")</td>
+                    <td>@item.StartDate.ToString("yyyy-MM-dd")</td>
+                    <td>@item.EndDate.ToString("yyyy-MM-dd")</td>
+                    <td><span class="badge bg-secondary">@EnumDisplayHelper.ContractStatusText(item.Status)</span></td>
+                    <td class="text-end">
+                        <a class="btn btn-sm btn-outline-secondary" asp-action="Detail" asp-route-id="@item.Id">详情</a>
+                        <a class="btn btn-sm btn-outline-primary" asp-action="Edit" asp-route-id="@item.Id">编辑</a>
+                        <form asp-action="Cancel" method="post" class="d-inline" onsubmit="return confirm('确认作废该合同？作废后不能登记回款。');">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="id" value="@item.Id" />
+                            <input type="hidden" name="reason" value="页面作废" />
+                            <button type="submit" class="btn btn-sm btn-outline-danger">作废</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        }
+        </tbody>
+    </table>
+</div>
+
+<div class="text-muted small">共 @Model.TotalCount 条记录</div>

@@ -19,13 +19,18 @@ public class EfRepository<TEntity, TKey> : IRepository<TEntity, TKey>
 
     public async Task<TEntity> GetByIdAsync(TKey id)
     {
-        var entity = await _dbSet.FindAsync(id);
+        var entity = await Query().FirstOrDefaultAsync(e => EF.Property<TKey>(e, "Id")!.Equals(id));
         return entity!;
+    }
+
+    public IQueryable<TEntity> Query()
+    {
+        return _dbSet.AsQueryable();
     }
 
     public Task<List<TEntity>> GetListAsync()
     {
-        return _dbSet.ToListAsync();
+        return Query().ToListAsync();
     }
 
     public async Task InsertAsync(TEntity entity)

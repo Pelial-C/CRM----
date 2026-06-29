@@ -63,9 +63,13 @@ namespace CRM.Web.Controllers
         /// 获取客户列表数据 (JSON API)
         /// </summary>
         [HttpGet]
-        public async Task<IActionResult> GetList(string? keyword)
+        public async Task<IActionResult> GetList(string? keyword, bool includeDeleted = false)
         {
-            var data = await _customerAppService.GetListAsync(keyword);
+            var data = await _customerAppService.GetListAsync(new CustomerQueryDto
+            {
+                Keyword = keyword,
+                IncludeDeleted = includeDeleted
+            });
             // 返回统一的 JSON 格式，方便前端处理
             return Json(new { code = 200, msg = "success", data = data });
         }

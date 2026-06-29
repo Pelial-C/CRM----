@@ -52,8 +52,11 @@ public class Contract : AggregateRoot<int>
         string? affiliatedCompany = null,
         ServiceType serviceType = ServiceType.Software,
         ContractType contractType = ContractType.NewSign,
+        string? cabinetNo = null,
+        int warningDays = 30,
         string? remark = null)
     {
+        Status = ContractStatus.Draft;
         UpdateBasicInfo(
             contractNo,
             contractName,
@@ -70,43 +73,9 @@ public class Contract : AggregateRoot<int>
             affiliatedCompany,
             serviceType,
             contractType,
+            cabinetNo,
+            warningDays,
             remark);
-
-        Status = ContractStatus.Draft;
-        WarningDays = 30;
-        CabinetNo = "UNASSIGNED";
-    }
-
-    public Contract(
-        string contractNo,
-        string contractName,
-        int customerId,
-        string customerName,
-        int contactId,
-        string contactName,
-        decimal totalAmount,
-        DateTime startDate,
-        DateTime endDate,
-        PaymentFrequency frequency,
-        string regionalCompany,
-        string affiliatedCompany,
-        ServiceType serviceType)
-        : this(
-            contractNo,
-            contractName,
-            customerId,
-            customerName,
-            contactId,
-            contactName,
-            totalAmount,
-            DateTime.Today,
-            startDate,
-            endDate,
-            frequency,
-            regionalCompany,
-            affiliatedCompany,
-            serviceType)
-    {
     }
 
     public void UpdateBasicInfo(
@@ -125,8 +94,11 @@ public class Contract : AggregateRoot<int>
         string? affiliatedCompany = null,
         ServiceType serviceType = ServiceType.Software,
         ContractType contractType = ContractType.NewSign,
+        string? cabinetNo = null,
+        int warningDays = 30,
         string? remark = null)
     {
+        if (!CanEdit()) throw new BusinessException("当前合同状态不允许编辑基础信息");
         if (string.IsNullOrWhiteSpace(contractNo)) throw new BusinessException("合同编号不能为空");
         if (string.IsNullOrWhiteSpace(contractName)) throw new BusinessException("合同名称不能为空");
         if (customerId <= 0) throw new BusinessException("合同必须关联客户");
@@ -134,6 +106,7 @@ public class Contract : AggregateRoot<int>
         if (contactId.HasValue && contactId.Value <= 0) throw new BusinessException("联系人Id必须有效");
         if (totalAmount <= 0) throw new BusinessException("合同金额必须大于0");
         if (endDate < startDate) throw new BusinessException("合同结束日期不能早于开始日期");
+        if (warningDays < 0 || warningDays > 365) throw new BusinessException("预警天数必须在0到365之间");
 
         var plannedAmount = _paymentPlans.Sum(p => p.PlanAmount);
         if (plannedAmount > totalAmount) throw new BusinessException("回款计划累计金额不能超过合同总金额");
@@ -153,11 +126,15 @@ public class Contract : AggregateRoot<int>
         AffiliatedCompany = string.IsNullOrWhiteSpace(affiliatedCompany) ? null : affiliatedCompany.Trim();
         ServiceType = serviceType;
         ContractType = contractType;
+        CabinetNo = string.IsNullOrWhiteSpace(cabinetNo) ? "UNASSIGNED" : cabinetNo.Trim();
+        WarningDays = warningDays;
         Remark = string.IsNullOrWhiteSpace(remark) ? null : remark.Trim();
     }
 
     public ContractItem AddItem(string productName, int quantity, decimal unitPrice)
     {
+        if (!CanEdit()) throw new BusinessException("当前合同状态不允许维护合同明细");
+
         var item = new ContractItem(productName, quantity, unitPrice);
         _items.Add(item);
         return item;
@@ -165,14 +142,27 @@ public class Contract : AggregateRoot<int>
 
     public void RemoveItem(int itemId)
     {
+        if (!CanEdit()) throw new BusinessException("当前合同状态不允许维护合同明细");
+
         var item = _items.FirstOrDefault(i => i.Id == itemId);
         if (item == null) throw new BusinessException("合同明细不存在");
-
         _items.Remove(item);
+    }
+
+    public void ReplaceItems(IEnumerable<(string ProductName, int Quantity, decimal UnitPrice)> items)
+    {
+        if (!CanEdit()) throw new BusinessException("当前合同状态不允许维护合同明细");
+
+        _items.Clear();
+        foreach (var item in items)
+        {
+            AddItem(item.ProductName, item.Quantity, item.UnitPrice);
+        }
     }
 
     public PaymentPlan AddPaymentPlan(DateTime planDate, decimal planAmount, string? description = null)
     {
+        if (Status is ContractStatus.Cancelled or ContractStatus.Terminated) throw new BusinessException("已作废或已终止合同不能新增回款计划");
         EnsurePaymentPlanTotal(planAmount);
 
         var paymentPlan = new PaymentPlan(planDate, planAmount, description);
@@ -182,6 +172,7 @@ public class Contract : AggregateRoot<int>
 
     public void GeneratePaymentPlans()
     {
+        if (Status is ContractStatus.Cancelled or ContractStatus.Terminated) throw new BusinessException("已作废或已终止合同不能生成回款计划");
         if (_paymentPlans.Any()) throw new BusinessException("回款计划已生成，请勿重复操作");
 
         var intervalMonths = (int)PaymentFrequency;
@@ -212,21 +203,80 @@ public class Contract : AggregateRoot<int>
         }
     }
 
-    public void ChangeStatus(ContractStatus status)
+    public void StartExecution()
     {
-        Status = status;
+        if (Status != ContractStatus.Draft) throw new BusinessException("只有草稿合同可以开始执行");
+        Status = ContractStatus.Executing;
+    }
+
+    public void Complete()
+    {
+        if (Status != ContractStatus.Executing) throw new BusinessException("只有执行中合同可以完成");
+        Status = ContractStatus.Completed;
     }
 
     public void Cancel(string? reason = null)
     {
+        if (Status is not (ContractStatus.Draft or ContractStatus.Executing)) throw new BusinessException("当前合同状态不允许作废");
         Status = ContractStatus.Cancelled;
         Remark = string.IsNullOrWhiteSpace(reason) ? Remark : reason.Trim();
     }
 
     public void Terminate(string? reason = null)
     {
+        if (Status != ContractStatus.Executing) throw new BusinessException("只有执行中合同可以终止");
         Status = ContractStatus.Terminated;
         Remark = string.IsNullOrWhiteSpace(reason) ? Remark : reason.Trim();
+    }
+
+    public bool CanEdit()
+    {
+        return Status is ContractStatus.Draft or ContractStatus.Executing;
+    }
+
+    public bool CanRecordPayment()
+    {
+        return Status is ContractStatus.Draft or ContractStatus.Executing;
+    }
+
+    public void RecordPayment(int planId, decimal amount, DateTime actualDate)
+    {
+        if (!CanRecordPayment()) throw new BusinessException("当前合同状态不允许登记回款");
+
+        var plan = _paymentPlans.FirstOrDefault(p => p.Id == planId);
+        if (plan == null) throw new BusinessException("回款计划不存在");
+
+        if (Status == ContractStatus.Draft)
+        {
+            StartExecution();
+        }
+
+        plan.RecordActualPayment(amount, actualDate);
+        TryCompleteByPayments();
+    }
+
+    public void RefreshOverduePaymentPlans(DateTime today)
+    {
+        foreach (var plan in _paymentPlans)
+        {
+            plan.MarkOverdue(today);
+        }
+    }
+
+    private void TryCompleteByPayments()
+    {
+        if (_paymentPlans.Count > 0 && _paymentPlans.All(p => p.Status == PaymentPlanStatus.Paid))
+        {
+            if (Status == ContractStatus.Draft)
+            {
+                StartExecution();
+            }
+
+            if (Status == ContractStatus.Executing)
+            {
+                Status = ContractStatus.Completed;
+            }
+        }
     }
 
     private void EnsurePaymentPlanTotal(decimal amountToAdd)

@@ -8,6 +8,7 @@ namespace CRM.Domain.Repositories;
 
 public interface IRepository<TEntity, TKey> where TEntity : AggregateRoot<TKey>
 {
+    IQueryable<TEntity> Query();
     Task<TEntity> GetByIdAsync(TKey id);
     Task<List<TEntity>> GetListAsync();
     Task InsertAsync(TEntity entity);

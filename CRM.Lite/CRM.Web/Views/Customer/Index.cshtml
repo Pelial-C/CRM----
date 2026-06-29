@@ -1,0 +1,80 @@
+@{
+    ViewData["Title"] = "客户管理";
+}
+
+<div class="d-flex align-items-center justify-content-between mb-3">
+    <h2 class="mb-0">客户管理</h2>
+    <a class="btn btn-primary" asp-action="Create">新增客户</a>
+</div>
+
+<div class="row g-2 align-items-end mb-3">
+    <div class="col-md-5">
+        <label class="form-label">关键字</label>
+        <input id="keyword" class="form-control" placeholder="客户名称、信用代码" />
+    </div>
+    <div class="col-md-3 form-check mt-4">
+        <input id="includeDeleted" class="form-check-input" type="checkbox" />
+        <label class="form-check-label" for="includeDeleted">显示已删除客户</label>
+    </div>
+    <div class="col-md-4">
+        <button class="btn btn-outline-primary" id="searchCustomer" type="button">查询</button>
+    </div>
+</div>
+
+<div class="table-responsive">
+    <table class="table table-hover align-middle">
+        <thead class="table-light">
+            <tr>
+                <th>客户名称</th>
+                <th>信用代码</th>
+                <th>行业</th>
+                <th>地址</th>
+                <th>创建时间</th>
+                <th>状态</th>
+                <th class="text-end">操作</th>
+            </tr>
+        </thead>
+        <tbody id="customerRows"></tbody>
+    </table>
+</div>
+
+@section Scripts {
+    <script>
+        function loadCustomers() {
+            $.getJSON('/Customer/GetList', {
+                keyword: $('#keyword').val(),
+                includeDeleted: $('#includeDeleted').is(':checked')
+            }, function (res) {
+                const rows = $('#customerRows');
+                rows.empty();
+                if (!res.data || res.data.length === 0) {
+                    rows.append('<tr><td colspan="7" class="text-center text-muted py-4">暂无客户数据</td></tr>');
+                    return;
+                }
+                res.data.forEach(function (item) {
+                    const status = item.isDeleted ? '<span class="badge bg-danger">已删除/禁用</span>' : '<span class="badge bg-success">正常</span>';
+                    const address = [item.province, item.city, item.district, item.detailAddress].filter(Boolean).join('');
+                    const actions = item.isDeleted ? '' : `
+                        <a class="btn btn-sm btn-outline-primary" href="/Customer/Edit/${item.id}">编辑</a>
+                        <button class="btn btn-sm btn-outline-danger delete-customer" data-id="${item.id}">删除</button>`;
+                    rows.append(`<tr>
+                        <td>${item.name || ''}</td>
+                        <td>${item.creditCode || ''}</td>
+                        <td>${item.industry || ''}</td>
+                        <td>${address}</td>
+                        <td>${item.creationTime ? item.creationTime.substring(0, 10) : ''}</td>
+                        <td>${status}</td>
+                        <td class="text-end">${actions}</td>
+                    </tr>`);
+                });
+            });
+        }
+
+        $('#searchCustomer,#includeDeleted').on('click change', loadCustomers);
+        $(document).on('click', '.delete-customer', function () {
+            if (!confirm('确认删除该客户？存在合同时将按逻辑删除处理。')) return;
+            $.post('/Customer/Delete', { id: $(this).data('id') }, loadCustomers);
+        });
+        loadCustomers();
+    </script>
+}

@@ -1,0 +1,214 @@
+@using CRM.Application.Contracts.Contracts.Dtos
+@using CRM.Application.Contracts.Customers.Dtos
+@using CRM.Domain.Shared.Enums
+@model UpdateContractDto
+
+@{
+    ViewData["Title"] = "编辑合同";
+    var customers = ViewBag.Customers as List<CustomerSelectDto> ?? new List<CustomerSelectDto>();
+    var contacts = ViewBag.Contacts as List<ContactSelectDto> ?? new List<ContactSelectDto>();
+}
+
+<h2 class="mb-3">编辑合同</h2>
+
+<form asp-action="Edit" method="post">
+    @Html.AntiForgeryToken()
+    <input asp-for="Id" type="hidden" />
+    <input asp-for="Status" type="hidden" />
+    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+    <div class="row g-3">
+        <div class="col-md-3">
+            <label asp-for="ContractNo" class="form-label">合同编号</label>
+            <input asp-for="ContractNo" class="form-control" />
+            <span asp-validation-for="ContractNo" class="text-danger"></span>
+        </div>
+        <div class="col-md-5">
+            <label asp-for="ContractName" class="form-label">合同名称</label>
+            <input asp-for="ContractName" class="form-control" />
+            <span asp-validation-for="ContractName" class="text-danger"></span>
+        </div>
+        <div class="col-md-4">
+            <label asp-for="CabinetNo" class="form-label">合同柜编号</label>
+            <input asp-for="CabinetNo" class="form-control" />
+        </div>
+
+        <div class="col-md-4">
+            <label asp-for="CustomerId" class="form-label">客户</label>
+            <select asp-for="CustomerId" id="customerSelect" class="form-select">
+                <option value="">请选择客户</option>
+                @foreach (var customer in customers)
+                {
+                    <option value="@customer.Id">@customer.Name</option>
+                }
+            </select>
+            <span asp-validation-for="CustomerId" class="text-danger"></span>
+        </div>
+        <div class="col-md-4">
+            <label asp-for="ContactId" class="form-label">联系人</label>
+            <select asp-for="ContactId" id="contactSelect" class="form-select">
+                <option value="">请选择联系人</option>
+                @foreach (var contact in contacts)
+                {
+                    <option value="@contact.ContactId">@contact.ContactName (@contact.Phone)</option>
+                }
+            </select>
+        </div>
+        <div class="col-md-4">
+            <label asp-for="TotalAmount" class="form-label">合同总金额</label>
+            <input asp-for="TotalAmount" class="form-control" />
+            <span asp-validation-for="TotalAmount" class="text-danger"></span>
+        </div>
+
+        <div class="col-md-3">
+            <label asp-for="SignDate" class="form-label">签订日期</label>
+            <input asp-for="SignDate" type="date" class="form-control" />
+        </div>
+        <div class="col-md-3">
+            <label asp-for="StartDate" class="form-label">开始日期</label>
+            <input asp-for="StartDate" type="date" class="form-control" />
+        </div>
+        <div class="col-md-3">
+            <label asp-for="EndDate" class="form-label">结束日期</label>
+            <input asp-for="EndDate" type="date" class="form-control" />
+            <span asp-validation-for="EndDate" class="text-danger"></span>
+        </div>
+        <div class="col-md-3">
+            <label asp-for="WarningDays" class="form-label">预警天数</label>
+            <input asp-for="WarningDays" class="form-control" />
+            <span asp-validation-for="WarningDays" class="text-danger"></span>
+        </div>
+
+        <div class="col-md-4">
+            <label asp-for="PaymentFrequency" class="form-label">回款频率</label>
+            <select asp-for="PaymentFrequency" class="form-select">
+                @foreach (var value in Enum.GetValues<PaymentFrequency>())
+                {
+                    <option value="@value">@EnumDisplayHelper.PaymentFrequencyText(value)</option>
+                }
+            </select>
+        </div>
+        <div class="col-md-4">
+            <label asp-for="ServiceType" class="form-label">服务类型</label>
+            <select asp-for="ServiceType" class="form-select">
+                @foreach (var value in Enum.GetValues<ServiceType>())
+                {
+                    <option value="@value">@EnumDisplayHelper.ServiceTypeText(value)</option>
+                }
+            </select>
+        </div>
+        <div class="col-md-4">
+            <label asp-for="ContractType" class="form-label">合同类型</label>
+            <select asp-for="ContractType" class="form-select">
+                @foreach (var value in Enum.GetValues<ContractType>())
+                {
+                    <option value="@value">@EnumDisplayHelper.ContractTypeText(value)</option>
+                }
+            </select>
+        </div>
+
+        <div class="col-md-6">
+            <label asp-for="RegionalCompany" class="form-label">区域公司</label>
+            <input asp-for="RegionalCompany" class="form-control" />
+        </div>
+        <div class="col-md-6">
+            <label asp-for="AffiliatedCompany" class="form-label">所属公司</label>
+            <input asp-for="AffiliatedCompany" class="form-control" />
+        </div>
+        <div class="col-12">
+            <label asp-for="Remark" class="form-label">备注</label>
+            <textarea asp-for="Remark" class="form-control" rows="3"></textarea>
+        </div>
+    </div>
+
+    <div class="d-flex justify-content-between align-items-center mt-4 mb-2">
+        <h5 class="mb-0">合同明细</h5>
+        <button type="button" class="btn btn-sm btn-outline-primary" id="addItem">添加明细</button>
+    </div>
+    <div class="table-responsive">
+        <table class="table align-middle" id="itemsTable">
+            <thead class="table-light">
+                <tr>
+                    <th>产品或服务名称</th>
+                    <th style="width: 140px;">数量</th>
+                    <th style="width: 160px;">单价</th>
+                    <th style="width: 160px;">小计</th>
+                    <th style="width: 90px;">操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (var i = 0; i < Model.Items.Count; i++)
+                {
+                    <tr>
+                        <td><input name="Items[@i].ProductName" value="@Model.Items[i].ProductName" class="form-control product-name" /></td>
+                        <td><input name="Items[@i].Quantity" value="@Model.Items[i].Quantity" class="form-control quantity" type="number" min="1" /></td>
+                        <td><input name="Items[@i].UnitPrice" value="@Model.Items[i].UnitPrice" class="form-control unit-price" type="number" min="0" step="0.01" /></td>
+                        <td><input name="Items[@i].Subtotal" value="@Model.Items[i].Subtotal" class="form-control subtotal" readonly /></td>
+                        <td><button type="button" class="btn btn-sm btn-outline-danger remove-item">删除</button></td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <div class="mt-4 d-flex gap-2">
+        <button type="submit" class="btn btn-primary">保存</button>
+        <a asp-action="Detail" asp-route-id="@Model.Id" class="btn btn-outline-secondary">返回详情</a>
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        const selectedContactId = '@Model.ContactId';
+        const contactSelect = $('#contactSelect');
+        $('#customerSelect').on('change', function () {
+            const customerId = $(this).val();
+            contactSelect.html('<option value="">请选择联系人</option>');
+            if (!customerId) return;
+            $.getJSON('/Contract/GetContactsByCustomerId', { customerId }, function (items) {
+                items.forEach(function (item) {
+                    const selected = selectedContactId && selectedContactId == item.contactId ? 'selected' : '';
+                    contactSelect.append(`<option value="${item.contactId}" ${selected}>${item.contactName || ''} ${item.phone ? '(' + item.phone + ')' : ''}</option>`);
+                });
+            });
+        });
+
+        function reindexItems() {
+            $('#itemsTable tbody tr').each(function (index) {
+                $(this).find('.product-name').attr('name', `Items[${index}].ProductName`);
+                $(this).find('.quantity').attr('name', `Items[${index}].Quantity`);
+                $(this).find('.unit-price').attr('name', `Items[${index}].UnitPrice`);
+                $(this).find('.subtotal').attr('name', `Items[${index}].Subtotal`);
+            });
+        }
+
+        function calculateRow(row) {
+            const quantity = parseFloat(row.find('.quantity').val()) || 0;
+            const unitPrice = parseFloat(row.find('.unit-price').val()) || 0;
+            row.find('.subtotal').val((quantity * unitPrice).toFixed(2));
+        }
+
+        $('#addItem').on('click', function () {
+            $('#itemsTable tbody').append(`<tr>
+                <td><input class="form-control product-name" /></td>
+                <td><input class="form-control quantity" type="number" min="1" value="1" /></td>
+                <td><input class="form-control unit-price" type="number" min="0" step="0.01" value="0" /></td>
+                <td><input class="form-control subtotal" readonly value="0.00" /></td>
+                <td><button type="button" class="btn btn-sm btn-outline-danger remove-item">删除</button></td>
+            </tr>`);
+            reindexItems();
+        });
+
+        $(document).on('click', '.remove-item', function () {
+            $(this).closest('tr').remove();
+            reindexItems();
+        });
+
+        $(document).on('input', '.quantity,.unit-price', function () {
+            calculateRow($(this).closest('tr'));
+        });
+
+        $('#itemsTable tbody tr').each(function () { calculateRow($(this)); });
+    </script>
+}
