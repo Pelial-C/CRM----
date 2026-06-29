@@ -1,0 +1,86 @@
+@model CRM.Application.Contracts.Customers.Dtos.CustomerDetailDto
+@{
+    ViewData["Title"] = "客户详情";
+}
+
+<h2>客户详情</h2>
+
+<div class="card mb-3">
+    <div class="card-body">
+        <dl class="row">
+            <dt class="col-sm-3">企业名称</dt><dd class="col-sm-9">@Model.Name</dd>
+            <dt class="col-sm-3">统一社会信用代码</dt><dd class="col-sm-9">@Model.CreditCode</dd>
+            <dt class="col-sm-3">所属行业</dt><dd class="col-sm-9">@Model.Industry</dd>
+            <dt class="col-sm-3">地区</dt><dd class="col-sm-9">@Model.Province @Model.City @Model.District @Model.DetailAddress</dd>
+            <dt class="col-sm-3">备注</dt><dd class="col-sm-9">@Model.Remark</dd>
+            <dt class="col-sm-3">是否删除</dt><dd class="col-sm-9">@(Model.IsDeleted ? "是" : "否")</dd>
+            <dt class="col-sm-3">创建时间</dt><dd class="col-sm-9">@Model.CreationTime.ToString("yyyy-MM-dd HH:mm")</dd>
+        </dl>
+        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning btn-sm">编辑</a>
+        <a asp-action="Index" class="btn btn-secondary btn-sm">返回列表</a>
+    </div>
+</div>
+
+<h4>联系人列表</h4>
+<a asp-controller="Contact" asp-action="Create" asp-route-customerId="@Model.Id" class="btn btn-success btn-sm mb-2">新增联系人</a>
+
+<table class="table table-bordered table-sm">
+    <thead>
+        <tr>
+            <th>姓名</th>
+            <th>职务</th>
+            <th>手机号</th>
+            <th>邮箱</th>
+            <th>关键决策人</th>
+            <th>操作</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var c in Model.Contacts)
+        {
+            <tr>
+                <td>@c.Name</td>
+                <td>@c.Title</td>
+                <td>@c.Phone</td>
+                <td>@c.Email</td>
+                <td>@(c.IsKeyDecisionMaker ? "是" : "否")</td>
+                <td>
+                    <a asp-controller="Contact" asp-action="Edit" asp-route-id="@c.Id" asp-route-customerId="@Model.Id" class="btn btn-sm btn-warning">编辑</a>
+                    <form asp-controller="Contact" asp-action="Delete" asp-route-id="@c.Id" asp-route-customerId="@Model.Id" method="post" style="display:inline" onsubmit="return confirm('确认删除？')">
+                        <button type="submit" class="btn btn-sm btn-danger">删除</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<h4>合同列表</h4>
+<p class="text-muted">（合同模块由后端开发二负责，此处预留展示位置）</p>
+
+@if (Model.Contracts.Any())
+{
+    <table class="table table-bordered table-sm">
+        <thead>
+            <tr>
+                <th>合同编号</th>
+                <th>合同名称</th>
+                <th>合同金额</th>
+                <th>状态</th>
+                <th>签订日期</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var c in Model.Contracts)
+            {
+                <tr>
+                    <td>@c.ContractNo</td>
+                    <td>@c.ContractName</td>
+                    <td>@c.TotalAmount</td>
+                    <td>@c.Status</td>
+                    <td>@c.SignDate.ToString("yyyy-MM-dd")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

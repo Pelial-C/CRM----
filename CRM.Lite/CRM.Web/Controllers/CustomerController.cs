@@ -1,114 +1,103 @@
-﻿using CRM.Application.Contracts.Customers;
+using CRM.Application.Contracts.Customers;
 using CRM.Application.Contracts.Customers.Dtos;
 using Microsoft.AspNetCore.Mvc;
 
-namespace CRM.Web.Controllers
+namespace CRM.Web.Controllers;
+
+public class CustomerController : Controller
 {
-    public class CustomerController : Controller
+    private readonly ICustomerAppService _customerAppService;
+
+    public CustomerController(ICustomerAppService customerAppService)
     {
-        private readonly ICustomerAppService _customerAppService;
+        _customerAppService = customerAppService;
+    }
 
-        // 依赖注入 AppService
-        public CustomerController(ICustomerAppService customerAppService)
+    [HttpGet]
+    public async Task<IActionResult> Index(string? name, string? industry, int pageIndex = 1, int pageSize = 10)
+    {
+        var query = new CustomerQueryDto
         {
-            _customerAppService = customerAppService;
-        }
+            Name = name,
+            Industry = industry,
+            PageIndex = pageIndex,
+            PageSize = pageSize
+        };
 
-        // ================= 1. 页面路由 (为明天前端准备) =================
+        var result = await _customerAppService.GetPagedListAsync(query);
+        return View(result);
+    }
 
-        /// <summary>
-        /// 客户列表页面
-        /// </summary>
-        [HttpGet]
-        public IActionResult Index()
+    [HttpGet]
+    public async Task<IActionResult> Detail(int id)
+    {
+        var customer = await _customerAppService.GetDetailAsync(id);
+        return View(customer);
+    }
+
+    [HttpGet]
+    public IActionResult Create()
+    {
+        return View();
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> Create(CreateCustomerDto input)
+    {
+        if (!ModelState.IsValid) return View(input);
+
+        try
         {
-            return View();
-        }
-
-        /// <summary>
-        /// 新增客户页面
-        /// </summary>
-        [HttpGet]
-        public IActionResult Create()
-        {
-            return View();
-        }
-
-        /// <summary>
-        /// 编辑客户页面
-        /// </summary>
-        [HttpGet]
-        public async Task<IActionResult> Edit(int id)
-        {
-            var customer = await _customerAppService.GetByIdAsync(id);
-            // 将 DTO 转换为 UpdateCustomerDto 传给视图 (明天前端用)
-            var updateDto = new UpdateCustomerDto
-            {
-                Id = customer.Id,
-                Name = customer.Name,
-                CreditCode = customer.CreditCode,
-                Industry = customer.Industry,
-                Province = customer.Province,
-                City = customer.City,
-                District = customer.District,
-                DetailAddress = customer.DetailAddress
-            };
-            return View(updateDto);
-        }
-
-
-        // ================= 2. 数据 API (供前端 Ajax 调用) =================
-
-        /// <summary>
-        /// 获取客户列表数据 (JSON API)
-        /// </summary>
-        [HttpGet]
-        public async Task<IActionResult> GetList(string? keyword)
-        {
-            var data = await _customerAppService.GetListAsync(keyword);
-            // 返回统一的 JSON 格式，方便前端处理
-            return Json(new { code = 200, msg = "success", data = data });
-        }
-
-        /// <summary>
-        /// 提交新增客户 (JSON API)
-        /// </summary>
-        [HttpPost]
-        public async Task<IActionResult> Create([FromBody] CreateCustomerDto input)
-        {
-            // ModelState 校验 (基于 DTO 上的 [Required] 等注解)
-            if (!ModelState.IsValid)
-            {
-                return Json(new { code = 400, msg = "参数校验失败", data = ModelState });
-            }
-
             await _customerAppService.CreateAsync(input);
-            return Json(new { code = 200, msg = "创建成功" });
+            return RedirectToAction(nameof(Index));
         }
-
-        /// <summary>
-        /// 提交编辑客户 (JSON API)
-        /// </summary>
-        [HttpPost]
-        public async Task<IActionResult> Edit([FromBody] UpdateCustomerDto input)
+        catch (Exception ex)
         {
-            if (!ModelState.IsValid)
-            {
-                return Json(new { code = 400, msg = "参数校验失败", data = ModelState });
-            }
+            ModelState.AddModelError("", ex.Message);
+            return View(input);
+        }
+    }
 
+    [HttpGet]
+    public async Task<IActionResult> Edit(int id)
+    {
+        var customer = await _customerAppService.GetByIdAsync(id);
+        var dto = new UpdateCustomerDto
+        {
+            Id = customer.Id,
+            Name = customer.Name,
+            CreditCode = customer.CreditCode,
+            Industry = customer.Industry,
+            Province = customer.Province,
+            City = customer.City,
+            District = customer.District,
+            DetailAddress = customer.DetailAddress,
+            Remark = customer.Remark
+        };
+        return View(dto);
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> Edit(UpdateCustomerDto input)
+    {
+        if (!ModelState.IsValid) return View(input);
+
+        try
+        {
             await _customerAppService.UpdateAsync(input);
-            return Json(new { code = 200, msg = "更新成功" });
+            return RedirectToAction(nameof(Index));
         }
-
-        /// <summary>
-        /// 删除客户 (JSON API)
-        /// </summary>
-        [HttpPost] // 删除操作建议用 POST 或 DELETE，不要用 GET 防止爬虫误删
-        public async Task<IActionResult> Delete(int id)
+        catch (Exception ex)
         {
-            await _customerAppService.DeleteAsync(id);
-            return Json(new { code = 200, msg = "删除成功" });
+            ModelState.AddModelError("", ex.Message);
+            return View(input);
         }
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> Delete(int id)
+    {
+        await _customerAppService.DeleteAsync(id);
+        return RedirectToAction(nameof(Index));
     }
 }

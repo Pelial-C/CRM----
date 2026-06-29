@@ -1,6 +1,13 @@
+using CRM.Application.Contracts.Contacts;
 using CRM.Application.Contracts.Customers;
+using CRM.Application.Contracts.Contracts;
+using CRM.Application.Contacts;
 using CRM.Application.Customers;
-
+using CRM.Domain.Repositories;
+using CRM.Infrastructure.Persistence;
+using CRM.Infrastructure.Repositories;
+using Microsoft.EntityFrameworkCore;
+using ContractAppService = CRM.Application.Contracts.ContractAppService;
 
 namespace CRM.Web
 {
@@ -10,19 +17,21 @@ namespace CRM.Web
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            // Add services to the container.
             builder.Services.AddControllersWithViews();
 
-            // 注册客户应用服务
+            builder.Services.AddDbContext<CrmDbContext>(options =>
+                options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+            builder.Services.AddScoped(typeof(IRepository<,>), typeof(EfRepository<,>));
             builder.Services.AddScoped<ICustomerAppService, CustomerAppService>();
+            builder.Services.AddScoped<IContactAppService, ContactAppService>();
+            builder.Services.AddScoped<IContractAppService, ContractAppService>();
 
             var app = builder.Build();
 
-            // Configure the HTTP request pipeline.
             if (!app.Environment.IsDevelopment())
             {
                 app.UseExceptionHandler("/Home/Error");
-                // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
 

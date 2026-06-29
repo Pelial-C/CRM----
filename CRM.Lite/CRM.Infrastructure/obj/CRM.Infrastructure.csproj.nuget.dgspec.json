@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "E:\\大学\\课程学习资料\\大三下\\电子商务网站开发课程设计\\CRM项目文件\\CRM.Lite\\CRM.Infrastructure\\CRM.Infrastructure.csproj": {}
+    "E:\\大学\\课程学习资料\\大三下\\电子商务网站开发课程设计\\CRM-----onepiece-ops_CustomerContact\\CRM.Lite\\CRM.Infrastructure\\CRM.Infrastructure.csproj": {}
   },
   "projects": {
-    "E:\\大学\\课程学习资料\\大三下\\电子商务网站开发课程设计\\CRM项目文件\\CRM.Lite\\CRM.Domain.Shared\\CRM.Domain.Shared.csproj": {
+    "E:\\大学\\课程学习资料\\大三下\\电子商务网站开发课程设计\\CRM-----onepiece-ops_CustomerContact\\CRM.Lite\\CRM.Domain.Shared\\CRM.Domain.Shared.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "E:\\大学\\课程学习资料\\大三下\\电子商务网站开发课程设计\\CRM项目文件\\CRM.Lite\\CRM.Domain.Shared\\CRM.Domain.Shared.csproj",
+        "projectUniqueName": "E:\\大学\\课程学习资料\\大三下\\电子商务网站开发课程设计\\CRM-----onepiece-ops_CustomerContact\\CRM.Lite\\CRM.Domain.Shared\\CRM.Domain.Shared.csproj",
         "projectName": "CRM.Domain.Shared",
-        "projectPath": "E:\\大学\\课程学习资料\\大三下\\电子商务网站开发课程设计\\CRM项目文件\\CRM.Lite\\CRM.Domain.Shared\\CRM.Domain.Shared.csproj",
+        "projectPath": "E:\\大学\\课程学习资料\\大三下\\电子商务网站开发课程设计\\CRM-----onepiece-ops_CustomerContact\\CRM.Lite\\CRM.Domain.Shared\\CRM.Domain.Shared.csproj",
         "packagesPath": "C:\\Users\\Lenovo\\.nuget\\packages\\",
-        "outputPath": "E:\\大学\\课程学习资料\\大三下\\电子商务网站开发课程设计\\CRM项目文件\\CRM.Lite\\CRM.Domain.Shared\\obj\\",
+        "outputPath": "E:\\大学\\课程学习资料\\大三下\\电子商务网站开发课程设计\\CRM-----onepiece-ops_CustomerContact\\CRM.Lite\\CRM.Domain.Shared\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "D:\\C\\Visual Studio Shared\\Entity Framework Tools\\NuGet Packages"
@@ -69,14 +69,14 @@
         }
       }
     },
-    "E:\\大学\\课程学习资料\\大三下\\电子商务网站开发课程设计\\CRM项目文件\\CRM.Lite\\CRM.Domain\\CRM.Domain.csproj": {
+    "E:\\大学\\课程学习资料\\大三下\\电子商务网站开发课程设计\\CRM-----onepiece-ops_CustomerContact\\CRM.Lite\\CRM.Domain\\CRM.Domain.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "E:\\大学\\课程学习资料\\大三下\\电子商务网站开发课程设计\\CRM项目文件\\CRM.Lite\\CRM.Domain\\CRM.Domain.csproj",
+        "projectUniqueName": "E:\\大学\\课程学习资料\\大三下\\电子商务网站开发课程设计\\CRM-----onepiece-ops_CustomerContact\\CRM.Lite\\CRM.Domain\\CRM.Domain.csproj",
         "projectName": "CRM.Domain",
-        "projectPath": "E:\\大学\\课程学习资料\\大三下\\电子商务网站开发课程设计\\CRM项目文件\\CRM.Lite\\CRM.Domain\\CRM.Domain.csproj",
+        "projectPath": "E:\\大学\\课程学习资料\\大三下\\电子商务网站开发课程设计\\CRM-----onepiece-ops_CustomerContact\\CRM.Lite\\CRM.Domain\\CRM.Domain.csproj",
         "packagesPath": "C:\\Users\\Lenovo\\.nuget\\packages\\",
-        "outputPath": "E:\\大学\\课程学习资料\\大三下\\电子商务网站开发课程设计\\CRM项目文件\\CRM.Lite\\CRM.Domain\\obj\\",
+        "outputPath": "E:\\大学\\课程学习资料\\大三下\\电子商务网站开发课程设计\\CRM-----onepiece-ops_CustomerContact\\CRM.Lite\\CRM.Domain\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "D:\\C\\Visual Studio Shared\\Entity Framework Tools\\NuGet Packages"
@@ -97,8 +97,8 @@
           "net8.0": {
             "targetAlias": "net8.0",
             "projectReferences": {
-              "E:\\大学\\课程学习资料\\大三下\\电子商务网站开发课程设计\\CRM项目文件\\CRM.Lite\\CRM.Domain.Shared\\CRM.Domain.Shared.csproj": {
-                "projectPath": "E:\\大学\\课程学习资料\\大三下\\电子商务网站开发课程设计\\CRM项目文件\\CRM.Lite\\CRM.Domain.Shared\\CRM.Domain.Shared.csproj"
+              "E:\\大学\\课程学习资料\\大三下\\电子商务网站开发课程设计\\CRM-----onepiece-ops_CustomerContact\\CRM.Lite\\CRM.Domain.Shared\\CRM.Domain.Shared.csproj": {
+                "projectPath": "E:\\大学\\课程学习资料\\大三下\\电子商务网站开发课程设计\\CRM-----onepiece-ops_CustomerContact\\CRM.Lite\\CRM.Domain.Shared\\CRM.Domain.Shared.csproj"
               }
             }
           }
@@ -138,14 +138,14 @@
         }
       }
     },
-    "E:\\大学\\课程学习资料\\大三下\\电子商务网站开发课程设计\\CRM项目文件\\CRM.Lite\\CRM.Infrastructure\\CRM.Infrastructure.csproj": {
+    "E:\\大学\\课程学习资料\\大三下\\电子商务网站开发课程设计\\CRM-----onepiece-ops_CustomerContact\\CRM.Lite\\CRM.Infrastructure\\CRM.Infrastructure.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "E:\\大学\\课程学习资料\\大三下\\电子商务网站开发课程设计\\CRM项目文件\\CRM.Lite\\CRM.Infrastructure\\CRM.Infrastructure.csproj",
+        "projectUniqueName": "E:\\大学\\课程学习资料\\大三下\\电子商务网站开发课程设计\\CRM-----onepiece-ops_CustomerContact\\CRM.Lite\\CRM.Infrastructure\\CRM.Infrastructure.csproj",
         "projectName": "CRM.Infrastructure",
-        "projectPath": "E:\\大学\\课程学习资料\\大三下\\电子商务网站开发课程设计\\CRM项目文件\\CRM.Lite\\CRM.Infrastructure\\CRM.Infrastructure.csproj",
+        "projectPath": "E:\\大学\\课程学习资料\\大三下\\电子商务网站开发课程设计\\CRM-----onepiece-ops_CustomerContact\\CRM.Lite\\CRM.Infrastructure\\CRM.Infrastructure.csproj",
         "packagesPath": "C:\\Users\\Lenovo\\.nuget\\packages\\",
-        "outputPath": "E:\\大学\\课程学习资料\\大三下\\电子商务网站开发课程设计\\CRM项目文件\\CRM.Lite\\CRM.Infrastructure\\obj\\",
+        "outputPath": "E:\\大学\\课程学习资料\\大三下\\电子商务网站开发课程设计\\CRM-----onepiece-ops_CustomerContact\\CRM.Lite\\CRM.Infrastructure\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "D:\\C\\Visual Studio Shared\\Entity Framework Tools\\NuGet Packages"
@@ -166,8 +166,8 @@
           "net8.0": {
             "targetAlias": "net8.0",
             "projectReferences": {
-              "E:\\大学\\课程学习资料\\大三下\\电子商务网站开发课程设计\\CRM项目文件\\CRM.Lite\\CRM.Domain\\CRM.Domain.csproj": {
-                "projectPath": "E:\\大学\\课程学习资料\\大三下\\电子商务网站开发课程设计\\CRM项目文件\\CRM.Lite\\CRM.Domain\\CRM.Domain.csproj"
+              "E:\\大学\\课程学习资料\\大三下\\电子商务网站开发课程设计\\CRM-----onepiece-ops_CustomerContact\\CRM.Lite\\CRM.Domain\\CRM.Domain.csproj": {
+                "projectPath": "E:\\大学\\课程学习资料\\大三下\\电子商务网站开发课程设计\\CRM-----onepiece-ops_CustomerContact\\CRM.Lite\\CRM.Domain\\CRM.Domain.csproj"
               }
             }
           }
@@ -187,6 +187,28 @@
       "frameworks": {
         "net8.0": {
           "targetAlias": "net8.0",
+          "dependencies": {
+            "Microsoft.EntityFrameworkCore": {
+              "target": "Package",
+              "version": "[8.0.26, )"
+            },
+            "Microsoft.EntityFrameworkCore.Design": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[8.0.26, )"
+            },
+            "Microsoft.EntityFrameworkCore.SqlServer": {
+              "target": "Package",
+              "version": "[8.0.26, )"
+            },
+            "Microsoft.EntityFrameworkCore.Tools": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[8.0.26, )"
+            }
+          },
           "imports": [
             "net461",
             "net462",

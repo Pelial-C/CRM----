@@ -1,9 +1,3 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 using CRM.Domain.Shared.Exceptions;
 using CRM.Domain.ValueObjects;
 
@@ -11,44 +5,72 @@ namespace CRM.Domain.Customers;
 
 public class Customer : AggregateRoot<int>
 {
-    public string? Name { get; private set; } // 企业名称
-    public string? CreditCode { get; private set; } // 统一社会信用代码
-    public string? Industry { get; private set; } // 行业
-    public Address? Address { get; private set; } // 地址值对象
+    public string Name { get; private set; } = string.Empty;
+    public string? CreditCode { get; private set; }
+    public string? Industry { get; private set; }
+    public Address Address { get; private set; } = Address.Empty;
+    public string? Remark { get; private set; }
+    public bool IsDeleted { get; private set; }
 
-    // 私有集合 (充血模型核心)
     private readonly List<Contact> _contacts = new();
     public IReadOnlyCollection<Contact> Contacts => _contacts.AsReadOnly();
 
     protected Customer() { }
 
-    public Customer(string name, string creditCode, string industry, Address address)
+    public Customer(string name, string? creditCode, string? industry, Address address, string? remark = null)
     {
-        if (string.IsNullOrWhiteSpace(name)) throw new BusinessException("企业名称不能为空");
-
-        Name = name;
-        CreditCode = creditCode;
-        Industry = industry;
-        Address = address;
+        UpdateInfo(name, creditCode, industry, address, remark);
     }
 
-    // 充血行为：添加联系人
-    public void AddContact(string name, string phone, string title, bool isKeyDecisionMaker)
+    public Contact AddContact(string name, string? phone, string? title, string? email = null, bool isKeyDecisionMaker = false)
     {
-        if (_contacts.Count >= 5) throw new BusinessException("单个客户联系人不能超过5个");
+        if (IsDeleted) throw new BusinessException("已删除客户不能维护联系人");
         if (_contacts.Any(c => c.Name == name)) throw new BusinessException("联系人姓名不能重复");
 
-        _contacts.Add(new Contact(name, phone, title, isKeyDecisionMaker));
+        var contact = new Contact(name, phone, title, email, isKeyDecisionMaker);
+        _contacts.Add(contact);
+        return contact;
     }
 
-    //充血行为：状态的变更必须通过实体自身的行为方法来驱动，并在方法内进行规则校验
-    public void UpdateInfo(string name, string creditCode, string industry, Address address)
+    public void UpdateContact(int contactId, string name, string? phone, string? title, string? email = null, bool isKeyDecisionMaker = false)
     {
-        if (string.IsNullOrWhiteSpace(name)) throw new BusinessException("企业名称不能为空");
+        if (IsDeleted) throw new BusinessException("已删除客户不能维护联系人");
 
-        Name = name;
-        CreditCode = creditCode;
-        Industry = industry;
-        Address = address;
+        var contact = _contacts.FirstOrDefault(c => c.Id == contactId);
+        if (contact == null) throw new BusinessException("联系人不存在");
+
+        if (_contacts.Any(c => c.Id != contactId && c.Name == name.Trim()))
+            throw new BusinessException("同一客户下联系人姓名不能重复");
+
+        contact.Update(name, phone, title, email, isKeyDecisionMaker);
+    }
+
+    public void RemoveContact(int contactId)
+    {
+        var contact = _contacts.FirstOrDefault(c => c.Id == contactId);
+        if (contact == null) throw new BusinessException("联系人不存在");
+
+        _contacts.Remove(contact);
+    }
+
+    public bool CanDelete(bool hasContracts)
+    {
+        return !hasContracts;
+    }
+
+    public void UpdateInfo(string name, string? creditCode, string? industry, Address address, string? remark = null)
+    {
+        if (string.IsNullOrWhiteSpace(name)) throw new BusinessException("客户名称不能为空");
+
+        Name = name.Trim();
+        CreditCode = string.IsNullOrWhiteSpace(creditCode) ? null : creditCode.Trim();
+        Industry = string.IsNullOrWhiteSpace(industry) ? null : industry.Trim();
+        Address = address ?? Address.Empty;
+        Remark = string.IsNullOrWhiteSpace(remark) ? null : remark.Trim();
+    }
+
+    public void MarkAsDeleted()
+    {
+        IsDeleted = true;
     }
 }

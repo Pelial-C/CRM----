@@ -1,58 +1,22 @@
 {
   "Version": 1,
-  "WorkspaceRootPath": "E:\\\u5927\u5B66\\\u8BFE\u7A0B\u5B66\u4E60\u8D44\u6599\\\u5927\u4E09\u4E0B\\\u7535\u5B50\u5546\u52A1\u7F51\u7AD9\u5F00\u53D1\u8BFE\u7A0B\u8BBE\u8BA1\\CRM\u9879\u76EE\u6587\u4EF6\\CRM.Lite\\",
+  "WorkspaceRootPath": "E:\\\u5927\u5B66\\\u8BFE\u7A0B\u5B66\u4E60\u8D44\u6599\\\u5927\u4E09\u4E0B\\\u7535\u5B50\u5546\u52A1\u7F51\u7AD9\u5F00\u53D1\u8BFE\u7A0B\u8BBE\u8BA1\\CRM-----onepiece-ops_CustomerContact\\CRM.Lite\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{66404662-D5D3-402F-A99C-89E6E153386F}|CRM.Application\\CRM.Application.csproj|e:\\\u5927\u5B66\\\u8BFE\u7A0B\u5B66\u4E60\u8D44\u6599\\\u5927\u4E09\u4E0B\\\u7535\u5B50\u5546\u52A1\u7F51\u7AD9\u5F00\u53D1\u8BFE\u7A0B\u8BBE\u8BA1\\crm\u9879\u76EE\u6587\u4EF6\\crm.lite\\crm.application\\customers\\customerappservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{66404662-D5D3-402F-A99C-89E6E153386F}|CRM.Application\\CRM.Application.csproj|solutionrelative:crm.application\\customers\\customerappservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{9569D8E2-ADE5-4780-BFAE-040ACBBB8B6F}|CRM.Application.Contracts\\CRM.Application.Contracts.csproj|e:\\\u5927\u5B66\\\u8BFE\u7A0B\u5B66\u4E60\u8D44\u6599\\\u5927\u4E09\u4E0B\\\u7535\u5B50\u5546\u52A1\u7F51\u7AD9\u5F00\u53D1\u8BFE\u7A0B\u8BBE\u8BA1\\crm\u9879\u76EE\u6587\u4EF6\\crm.lite\\crm.application.contracts\\customers\\icustomerappservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{9569D8E2-ADE5-4780-BFAE-040ACBBB8B6F}|CRM.Application.Contracts\\CRM.Application.Contracts.csproj|solutionrelative:crm.application.contracts\\customers\\icustomerappservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{9569D8E2-ADE5-4780-BFAE-040ACBBB8B6F}|CRM.Application.Contracts\\CRM.Application.Contracts.csproj|e:\\\u5927\u5B66\\\u8BFE\u7A0B\u5B66\u4E60\u8D44\u6599\\\u5927\u4E09\u4E0B\\\u7535\u5B50\u5546\u52A1\u7F51\u7AD9\u5F00\u53D1\u8BFE\u7A0B\u8BBE\u8BA1\\crm\u9879\u76EE\u6587\u4EF6\\crm.lite\\crm.application.contracts\\customers\\dtos\\customerdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{9569D8E2-ADE5-4780-BFAE-040ACBBB8B6F}|CRM.Application.Contracts\\CRM.Application.Contracts.csproj|solutionrelative:crm.application.contracts\\customers\\dtos\\customerdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{9569D8E2-ADE5-4780-BFAE-040ACBBB8B6F}|CRM.Application.Contracts\\CRM.Application.Contracts.csproj|e:\\\u5927\u5B66\\\u8BFE\u7A0B\u5B66\u4E60\u8D44\u6599\\\u5927\u4E09\u4E0B\\\u7535\u5B50\u5546\u52A1\u7F51\u7AD9\u5F00\u53D1\u8BFE\u7A0B\u8BBE\u8BA1\\crm\u9879\u76EE\u6587\u4EF6\\crm.lite\\crm.application.contracts\\customers\\dtos\\createcustomerdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{9569D8E2-ADE5-4780-BFAE-040ACBBB8B6F}|CRM.Application.Contracts\\CRM.Application.Contracts.csproj|solutionrelative:crm.application.contracts\\customers\\dtos\\createcustomerdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{A9FAD500-5116-466A-9C8B-583352BC6BF2}|CRM.Domain\\CRM.Domain.csproj|e:\\\u5927\u5B66\\\u8BFE\u7A0B\u5B66\u4E60\u8D44\u6599\\\u5927\u4E09\u4E0B\\\u7535\u5B50\u5546\u52A1\u7F51\u7AD9\u5F00\u53D1\u8BFE\u7A0B\u8BBE\u8BA1\\crm\u9879\u76EE\u6587\u4EF6\\crm.lite\\crm.domain\\customers\\customer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{A9FAD500-5116-466A-9C8B-583352BC6BF2}|CRM.Domain\\CRM.Domain.csproj|solutionrelative:crm.domain\\customers\\customer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{A9FAD500-5116-466A-9C8B-583352BC6BF2}|CRM.Domain\\CRM.Domain.csproj|e:\\\u5927\u5B66\\\u8BFE\u7A0B\u5B66\u4E60\u8D44\u6599\\\u5927\u4E09\u4E0B\\\u7535\u5B50\u5546\u52A1\u7F51\u7AD9\u5F00\u53D1\u8BFE\u7A0B\u8BBE\u8BA1\\crm\u9879\u76EE\u6587\u4EF6\\crm.lite\\crm.domain\\contracts\\contract.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{A9FAD500-5116-466A-9C8B-583352BC6BF2}|CRM.Domain\\CRM.Domain.csproj|e:\\\u5927\u5B66\\\u8BFE\u7A0B\u5B66\u4E60\u8D44\u6599\\\u5927\u4E09\u4E0B\\\u7535\u5B50\u5546\u52A1\u7F51\u7AD9\u5F00\u53D1\u8BFE\u7A0B\u8BBE\u8BA1\\crm-----onepiece-ops_customercontact\\crm.lite\\crm.domain\\contracts\\contract.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{A9FAD500-5116-466A-9C8B-583352BC6BF2}|CRM.Domain\\CRM.Domain.csproj|solutionrelative:crm.domain\\contracts\\contract.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{A9FAD500-5116-466A-9C8B-583352BC6BF2}|CRM.Domain\\CRM.Domain.csproj|e:\\\u5927\u5B66\\\u8BFE\u7A0B\u5B66\u4E60\u8D44\u6599\\\u5927\u4E09\u4E0B\\\u7535\u5B50\u5546\u52A1\u7F51\u7AD9\u5F00\u53D1\u8BFE\u7A0B\u8BBE\u8BA1\\crm\u9879\u76EE\u6587\u4EF6\\crm.lite\\crm.domain\\customers\\contact.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{A9FAD500-5116-466A-9C8B-583352BC6BF2}|CRM.Domain\\CRM.Domain.csproj|solutionrelative:crm.domain\\customers\\contact.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{66404662-D5D3-402F-A99C-89E6E153386F}|CRM.Application\\CRM.Application.csproj|e:\\\u5927\u5B66\\\u8BFE\u7A0B\u5B66\u4E60\u8D44\u6599\\\u5927\u4E09\u4E0B\\\u7535\u5B50\u5546\u52A1\u7F51\u7AD9\u5F00\u53D1\u8BFE\u7A0B\u8BBE\u8BA1\\crm-----onepiece-ops_customercontact\\crm.lite\\crm.application\\contracts\\contractappservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{66404662-D5D3-402F-A99C-89E6E153386F}|CRM.Application\\CRM.Application.csproj|solutionrelative:crm.application\\contracts\\contractappservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{A9FAD500-5116-466A-9C8B-583352BC6BF2}|CRM.Domain\\CRM.Domain.csproj|e:\\\u5927\u5B66\\\u8BFE\u7A0B\u5B66\u4E60\u8D44\u6599\\\u5927\u4E09\u4E0B\\\u7535\u5B50\u5546\u52A1\u7F51\u7AD9\u5F00\u53D1\u8BFE\u7A0B\u8BBE\u8BA1\\crm\u9879\u76EE\u6587\u4EF6\\crm.lite\\crm.domain\\contracts\\contractitem.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{A9FAD500-5116-466A-9C8B-583352BC6BF2}|CRM.Domain\\CRM.Domain.csproj|solutionrelative:crm.domain\\contracts\\contractitem.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{C21569AC-FB44-4E9D-ADD5-74B4DCC204B2}|CRM.Web\\CRM.Web.csproj|e:\\\u5927\u5B66\\\u8BFE\u7A0B\u5B66\u4E60\u8D44\u6599\\\u5927\u4E09\u4E0B\\\u7535\u5B50\u5546\u52A1\u7F51\u7AD9\u5F00\u53D1\u8BFE\u7A0B\u8BBE\u8BA1\\crm-----onepiece-ops_customercontact\\crm.lite\\crm.web\\controllers\\contractcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{C21569AC-FB44-4E9D-ADD5-74B4DCC204B2}|CRM.Web\\CRM.Web.csproj|solutionrelative:crm.web\\controllers\\contractcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{A9FAD500-5116-466A-9C8B-583352BC6BF2}|CRM.Domain\\CRM.Domain.csproj|e:\\\u5927\u5B66\\\u8BFE\u7A0B\u5B66\u4E60\u8D44\u6599\\\u5927\u4E09\u4E0B\\\u7535\u5B50\u5546\u52A1\u7F51\u7AD9\u5F00\u53D1\u8BFE\u7A0B\u8BBE\u8BA1\\crm\u9879\u76EE\u6587\u4EF6\\crm.lite\\crm.domain\\contracts\\paymentplan.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{A9FAD500-5116-466A-9C8B-583352BC6BF2}|CRM.Domain\\CRM.Domain.csproj|solutionrelative:crm.domain\\contracts\\paymentplan.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{A9FAD500-5116-466A-9C8B-583352BC6BF2}|CRM.Domain\\CRM.Domain.csproj|e:\\\u5927\u5B66\\\u8BFE\u7A0B\u5B66\u4E60\u8D44\u6599\\\u5927\u4E09\u4E0B\\\u7535\u5B50\u5546\u52A1\u7F51\u7AD9\u5F00\u53D1\u8BFE\u7A0B\u8BBE\u8BA1\\crm\u9879\u76EE\u6587\u4EF6\\crm.lite\\crm.domain\\common\\entity.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{A9FAD500-5116-466A-9C8B-583352BC6BF2}|CRM.Domain\\CRM.Domain.csproj|solutionrelative:crm.domain\\common\\entity.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{A9FAD500-5116-466A-9C8B-583352BC6BF2}|CRM.Domain\\CRM.Domain.csproj|e:\\\u5927\u5B66\\\u8BFE\u7A0B\u5B66\u4E60\u8D44\u6599\\\u5927\u4E09\u4E0B\\\u7535\u5B50\u5546\u52A1\u7F51\u7AD9\u5F00\u53D1\u8BFE\u7A0B\u8BBE\u8BA1\\crm\u9879\u76EE\u6587\u4EF6\\crm.lite\\crm.domain\\valueobjects\\address.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{A9FAD500-5116-466A-9C8B-583352BC6BF2}|CRM.Domain\\CRM.Domain.csproj|solutionrelative:crm.domain\\valueobjects\\address.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{C21569AC-FB44-4E9D-ADD5-74B4DCC204B2}|CRM.Web\\CRM.Web.csproj|e:\\\u5927\u5B66\\\u8BFE\u7A0B\u5B66\u4E60\u8D44\u6599\\\u5927\u4E09\u4E0B\\\u7535\u5B50\u5546\u52A1\u7F51\u7AD9\u5F00\u53D1\u8BFE\u7A0B\u8BBE\u8BA1\\crm\u9879\u76EE\u6587\u4EF6\\crm.lite\\crm.web\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{C21569AC-FB44-4E9D-ADD5-74B4DCC204B2}|CRM.Web\\CRM.Web.csproj|solutionrelative:crm.web\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{9569D8E2-ADE5-4780-BFAE-040ACBBB8B6F}|CRM.Application.Contracts\\CRM.Application.Contracts.csproj|e:\\\u5927\u5B66\\\u8BFE\u7A0B\u5B66\u4E60\u8D44\u6599\\\u5927\u4E09\u4E0B\\\u7535\u5B50\u5546\u52A1\u7F51\u7AD9\u5F00\u53D1\u8BFE\u7A0B\u8BBE\u8BA1\\crm\u9879\u76EE\u6587\u4EF6\\crm.lite\\crm.application.contracts\\customers\\dtos\\updatecustomerdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{9569D8E2-ADE5-4780-BFAE-040ACBBB8B6F}|CRM.Application.Contracts\\CRM.Application.Contracts.csproj|solutionrelative:crm.application.contracts\\customers\\dtos\\updatecustomerdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{C21569AC-FB44-4E9D-ADD5-74B4DCC204B2}|CRM.Web\\CRM.Web.csproj|e:\\\u5927\u5B66\\\u8BFE\u7A0B\u5B66\u4E60\u8D44\u6599\\\u5927\u4E09\u4E0B\\\u7535\u5B50\u5546\u52A1\u7F51\u7AD9\u5F00\u53D1\u8BFE\u7A0B\u8BBE\u8BA1\\crm-----onepiece-ops_customercontact\\crm.lite\\crm.web\\controllers\\customercontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{C21569AC-FB44-4E9D-ADD5-74B4DCC204B2}|CRM.Web\\CRM.Web.csproj|solutionrelative:crm.web\\controllers\\customercontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -62,162 +26,32 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 5,
+          "SelectedChildIndex": 3,
           "Children": [
             {
               "$type": "Document",
-              "DocumentIndex": 5,
-              "Title": "Contract.cs",
-              "DocumentMoniker": "E:\\\u5927\u5B66\\\u8BFE\u7A0B\u5B66\u4E60\u8D44\u6599\\\u5927\u4E09\u4E0B\\\u7535\u5B50\u5546\u52A1\u7F51\u7AD9\u5F00\u53D1\u8BFE\u7A0B\u8BBE\u8BA1\\CRM\u9879\u76EE\u6587\u4EF6\\CRM.Lite\\CRM.Domain\\Contracts\\Contract.cs",
-              "RelativeDocumentMoniker": "CRM.Domain\\Contracts\\Contract.cs",
-              "ToolTip": "E:\\\u5927\u5B66\\\u8BFE\u7A0B\u5B66\u4E60\u8D44\u6599\\\u5927\u4E09\u4E0B\\\u7535\u5B50\u5546\u52A1\u7F51\u7AD9\u5F00\u53D1\u8BFE\u7A0B\u8BBE\u8BA1\\CRM\u9879\u76EE\u6587\u4EF6\\CRM.Lite\\CRM.Domain\\Contracts\\Contract.cs",
-              "RelativeToolTip": "CRM.Domain\\Contracts\\Contract.cs",
-              "ViewState": "AgIAAAwAAAAAAAAAAAAlwBsAAAASAAAAAAAAAA==",
+              "DocumentIndex": 2,
+              "Title": "ContractController.cs",
+              "DocumentMoniker": "E:\\\u5927\u5B66\\\u8BFE\u7A0B\u5B66\u4E60\u8D44\u6599\\\u5927\u4E09\u4E0B\\\u7535\u5B50\u5546\u52A1\u7F51\u7AD9\u5F00\u53D1\u8BFE\u7A0B\u8BBE\u8BA1\\CRM-----onepiece-ops_CustomerContact\\CRM.Lite\\CRM.Web\\Controllers\\ContractController.cs",
+              "RelativeDocumentMoniker": "CRM.Web\\Controllers\\ContractController.cs",
+              "ToolTip": "E:\\\u5927\u5B66\\\u8BFE\u7A0B\u5B66\u4E60\u8D44\u6599\\\u5927\u4E09\u4E0B\\\u7535\u5B50\u5546\u52A1\u7F51\u7AD9\u5F00\u53D1\u8BFE\u7A0B\u8BBE\u8BA1\\CRM-----onepiece-ops_CustomerContact\\CRM.Lite\\CRM.Web\\Controllers\\ContractController.cs",
+              "RelativeToolTip": "CRM.Web\\Controllers\\ContractController.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAYAAAAqAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-06-24T15:23:36.542Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 6,
-              "Title": "Contact.cs",
-              "DocumentMoniker": "E:\\\u5927\u5B66\\\u8BFE\u7A0B\u5B66\u4E60\u8D44\u6599\\\u5927\u4E09\u4E0B\\\u7535\u5B50\u5546\u52A1\u7F51\u7AD9\u5F00\u53D1\u8BFE\u7A0B\u8BBE\u8BA1\\CRM\u9879\u76EE\u6587\u4EF6\\CRM.Lite\\CRM.Domain\\Customers\\Contact.cs",
-              "RelativeDocumentMoniker": "CRM.Domain\\Customers\\Contact.cs",
-              "ToolTip": "E:\\\u5927\u5B66\\\u8BFE\u7A0B\u5B66\u4E60\u8D44\u6599\\\u5927\u4E09\u4E0B\\\u7535\u5B50\u5546\u52A1\u7F51\u7AD9\u5F00\u53D1\u8BFE\u7A0B\u8BBE\u8BA1\\CRM\u9879\u76EE\u6587\u4EF6\\CRM.Lite\\CRM.Domain\\Customers\\Contact.cs",
-              "RelativeToolTip": "CRM.Domain\\Customers\\Contact.cs",
-              "ViewState": "AgIAAAIAAAAAAAAAAAAtwAwAAAASAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-06-24T15:23:21.012Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 4,
-              "Title": "Customer.cs",
-              "DocumentMoniker": "E:\\\u5927\u5B66\\\u8BFE\u7A0B\u5B66\u4E60\u8D44\u6599\\\u5927\u4E09\u4E0B\\\u7535\u5B50\u5546\u52A1\u7F51\u7AD9\u5F00\u53D1\u8BFE\u7A0B\u8BBE\u8BA1\\CRM\u9879\u76EE\u6587\u4EF6\\CRM.Lite\\CRM.Domain\\Customers\\Customer.cs",
-              "RelativeDocumentMoniker": "CRM.Domain\\Customers\\Customer.cs",
-              "ToolTip": "E:\\\u5927\u5B66\\\u8BFE\u7A0B\u5B66\u4E60\u8D44\u6599\\\u5927\u4E09\u4E0B\\\u7535\u5B50\u5546\u52A1\u7F51\u7AD9\u5F00\u53D1\u8BFE\u7A0B\u8BBE\u8BA1\\CRM\u9879\u76EE\u6587\u4EF6\\CRM.Lite\\CRM.Domain\\Customers\\Customer.cs",
-              "RelativeToolTip": "CRM.Domain\\Customers\\Customer.cs",
-              "ViewState": "AgIAAAYAAAAAAAAAAAAEwBEAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-06-24T15:09:09.342Z",
+              "WhenOpened": "2026-06-29T03:44:07.192Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 1,
-              "Title": "ICustomerAppService.cs",
-              "DocumentMoniker": "E:\\\u5927\u5B66\\\u8BFE\u7A0B\u5B66\u4E60\u8D44\u6599\\\u5927\u4E09\u4E0B\\\u7535\u5B50\u5546\u52A1\u7F51\u7AD9\u5F00\u53D1\u8BFE\u7A0B\u8BBE\u8BA1\\CRM\u9879\u76EE\u6587\u4EF6\\CRM.Lite\\CRM.Application.Contracts\\Customers\\ICustomerAppService.cs",
-              "RelativeDocumentMoniker": "CRM.Application.Contracts\\Customers\\ICustomerAppService.cs",
-              "ToolTip": "E:\\\u5927\u5B66\\\u8BFE\u7A0B\u5B66\u4E60\u8D44\u6599\\\u5927\u4E09\u4E0B\\\u7535\u5B50\u5546\u52A1\u7F51\u7AD9\u5F00\u53D1\u8BFE\u7A0B\u8BBE\u8BA1\\CRM\u9879\u76EE\u6587\u4EF6\\CRM.Lite\\CRM.Application.Contracts\\Customers\\ICustomerAppService.cs",
-              "RelativeToolTip": "CRM.Application.Contracts\\Customers\\ICustomerAppService.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAADwvwwAAAAwAAAAAAAAAA==",
+              "Title": "ContractAppService.cs",
+              "DocumentMoniker": "E:\\\u5927\u5B66\\\u8BFE\u7A0B\u5B66\u4E60\u8D44\u6599\\\u5927\u4E09\u4E0B\\\u7535\u5B50\u5546\u52A1\u7F51\u7AD9\u5F00\u53D1\u8BFE\u7A0B\u8BBE\u8BA1\\CRM-----onepiece-ops_CustomerContact\\CRM.Lite\\CRM.Application\\Contracts\\ContractAppService.cs",
+              "RelativeDocumentMoniker": "CRM.Application\\Contracts\\ContractAppService.cs",
+              "ToolTip": "E:\\\u5927\u5B66\\\u8BFE\u7A0B\u5B66\u4E60\u8D44\u6599\\\u5927\u4E09\u4E0B\\\u7535\u5B50\u5546\u52A1\u7F51\u7AD9\u5F00\u53D1\u8BFE\u7A0B\u8BBE\u8BA1\\CRM-----onepiece-ops_CustomerContact\\CRM.Lite\\CRM.Application\\Contracts\\ContractAppService.cs",
+              "RelativeToolTip": "CRM.Application\\Contracts\\ContractAppService.cs",
+              "ViewState": "AgIAAAYAAAAAAAAAAAAAAAUAAAAeAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-06-24T15:08:18.455Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 3,
-              "Title": "CreateCustomerDto.cs",
-              "DocumentMoniker": "E:\\\u5927\u5B66\\\u8BFE\u7A0B\u5B66\u4E60\u8D44\u6599\\\u5927\u4E09\u4E0B\\\u7535\u5B50\u5546\u52A1\u7F51\u7AD9\u5F00\u53D1\u8BFE\u7A0B\u8BBE\u8BA1\\CRM\u9879\u76EE\u6587\u4EF6\\CRM.Lite\\CRM.Application.Contracts\\Customers\\Dtos\\CreateCustomerDto.cs",
-              "RelativeDocumentMoniker": "CRM.Application.Contracts\\Customers\\Dtos\\CreateCustomerDto.cs",
-              "ToolTip": "E:\\\u5927\u5B66\\\u8BFE\u7A0B\u5B66\u4E60\u8D44\u6599\\\u5927\u4E09\u4E0B\\\u7535\u5B50\u5546\u52A1\u7F51\u7AD9\u5F00\u53D1\u8BFE\u7A0B\u8BBE\u8BA1\\CRM\u9879\u76EE\u6587\u4EF6\\CRM.Lite\\CRM.Application.Contracts\\Customers\\Dtos\\CreateCustomerDto.cs",
-              "RelativeToolTip": "CRM.Application.Contracts\\Customers\\Dtos\\CreateCustomerDto.cs",
-              "ViewState": "AgIAAAkAAAAAAAAAAAAAABgAAAASAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-06-24T15:06:43.109Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": "CustomerAppService.cs",
-              "DocumentMoniker": "E:\\\u5927\u5B66\\\u8BFE\u7A0B\u5B66\u4E60\u8D44\u6599\\\u5927\u4E09\u4E0B\\\u7535\u5B50\u5546\u52A1\u7F51\u7AD9\u5F00\u53D1\u8BFE\u7A0B\u8BBE\u8BA1\\CRM\u9879\u76EE\u6587\u4EF6\\CRM.Lite\\CRM.Application\\Customers\\CustomerAppService.cs",
-              "RelativeDocumentMoniker": "CRM.Application\\Customers\\CustomerAppService.cs",
-              "ToolTip": "E:\\\u5927\u5B66\\\u8BFE\u7A0B\u5B66\u4E60\u8D44\u6599\\\u5927\u4E09\u4E0B\\\u7535\u5B50\u5546\u52A1\u7F51\u7AD9\u5F00\u53D1\u8BFE\u7A0B\u8BBE\u8BA1\\CRM\u9879\u76EE\u6587\u4EF6\\CRM.Lite\\CRM.Application\\Customers\\CustomerAppService.cs",
-              "RelativeToolTip": "CRM.Application\\Customers\\CustomerAppService.cs",
-              "ViewState": "AgIAABQAAAAAAAAAAAAiwCgAAAAJAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-06-24T15:11:26.213Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "CustomerDto.cs",
-              "DocumentMoniker": "E:\\\u5927\u5B66\\\u8BFE\u7A0B\u5B66\u4E60\u8D44\u6599\\\u5927\u4E09\u4E0B\\\u7535\u5B50\u5546\u52A1\u7F51\u7AD9\u5F00\u53D1\u8BFE\u7A0B\u8BBE\u8BA1\\CRM\u9879\u76EE\u6587\u4EF6\\CRM.Lite\\CRM.Application.Contracts\\Customers\\Dtos\\CustomerDto.cs",
-              "RelativeDocumentMoniker": "CRM.Application.Contracts\\Customers\\Dtos\\CustomerDto.cs",
-              "ToolTip": "E:\\\u5927\u5B66\\\u8BFE\u7A0B\u5B66\u4E60\u8D44\u6599\\\u5927\u4E09\u4E0B\\\u7535\u5B50\u5546\u52A1\u7F51\u7AD9\u5F00\u53D1\u8BFE\u7A0B\u8BBE\u8BA1\\CRM\u9879\u76EE\u6587\u4EF6\\CRM.Lite\\CRM.Application.Contracts\\Customers\\Dtos\\CustomerDto.cs",
-              "RelativeToolTip": "CRM.Application.Contracts\\Customers\\Dtos\\CustomerDto.cs",
-              "ViewState": "AgIAAAoAAAAAAAAAAAAzwBMAAAASAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-06-24T15:05:57.477Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 7,
-              "Title": "ContractItem.cs",
-              "DocumentMoniker": "E:\\\u5927\u5B66\\\u8BFE\u7A0B\u5B66\u4E60\u8D44\u6599\\\u5927\u4E09\u4E0B\\\u7535\u5B50\u5546\u52A1\u7F51\u7AD9\u5F00\u53D1\u8BFE\u7A0B\u8BBE\u8BA1\\CRM\u9879\u76EE\u6587\u4EF6\\CRM.Lite\\CRM.Domain\\Contracts\\ContractItem.cs",
-              "RelativeDocumentMoniker": "CRM.Domain\\Contracts\\ContractItem.cs",
-              "ToolTip": "E:\\\u5927\u5B66\\\u8BFE\u7A0B\u5B66\u4E60\u8D44\u6599\\\u5927\u4E09\u4E0B\\\u7535\u5B50\u5546\u52A1\u7F51\u7AD9\u5F00\u53D1\u8BFE\u7A0B\u8BBE\u8BA1\\CRM\u9879\u76EE\u6587\u4EF6\\CRM.Lite\\CRM.Domain\\Contracts\\ContractItem.cs",
-              "RelativeToolTip": "CRM.Domain\\Contracts\\ContractItem.cs",
-              "ViewState": "AgIAAAIAAAAAAAAAAAAtwAoAAAASAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-06-24T15:22:55.187Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 8,
-              "Title": "PaymentPlan.cs",
-              "DocumentMoniker": "E:\\\u5927\u5B66\\\u8BFE\u7A0B\u5B66\u4E60\u8D44\u6599\\\u5927\u4E09\u4E0B\\\u7535\u5B50\u5546\u52A1\u7F51\u7AD9\u5F00\u53D1\u8BFE\u7A0B\u8BBE\u8BA1\\CRM\u9879\u76EE\u6587\u4EF6\\CRM.Lite\\CRM.Domain\\Contracts\\PaymentPlan.cs",
-              "RelativeDocumentMoniker": "CRM.Domain\\Contracts\\PaymentPlan.cs",
-              "ToolTip": "E:\\\u5927\u5B66\\\u8BFE\u7A0B\u5B66\u4E60\u8D44\u6599\\\u5927\u4E09\u4E0B\\\u7535\u5B50\u5546\u52A1\u7F51\u7AD9\u5F00\u53D1\u8BFE\u7A0B\u8BBE\u8BA1\\CRM\u9879\u76EE\u6587\u4EF6\\CRM.Lite\\CRM.Domain\\Contracts\\PaymentPlan.cs",
-              "RelativeToolTip": "CRM.Domain\\Contracts\\PaymentPlan.cs",
-              "ViewState": "AgIAAAkAAAAAAAAAAADgvw4AAAASAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-06-24T15:22:42.516Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 9,
-              "Title": "Entity.cs",
-              "DocumentMoniker": "E:\\\u5927\u5B66\\\u8BFE\u7A0B\u5B66\u4E60\u8D44\u6599\\\u5927\u4E09\u4E0B\\\u7535\u5B50\u5546\u52A1\u7F51\u7AD9\u5F00\u53D1\u8BFE\u7A0B\u8BBE\u8BA1\\CRM\u9879\u76EE\u6587\u4EF6\\CRM.Lite\\CRM.Domain\\Common\\Entity.cs",
-              "RelativeDocumentMoniker": "CRM.Domain\\Common\\Entity.cs",
-              "ToolTip": "E:\\\u5927\u5B66\\\u8BFE\u7A0B\u5B66\u4E60\u8D44\u6599\\\u5927\u4E09\u4E0B\\\u7535\u5B50\u5546\u52A1\u7F51\u7AD9\u5F00\u53D1\u8BFE\u7A0B\u8BBE\u8BA1\\CRM\u9879\u76EE\u6587\u4EF6\\CRM.Lite\\CRM.Domain\\Common\\Entity.cs",
-              "RelativeToolTip": "CRM.Domain\\Common\\Entity.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAQAAAAQAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-06-24T15:21:57.492Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 10,
-              "Title": "Address.cs",
-              "DocumentMoniker": "E:\\\u5927\u5B66\\\u8BFE\u7A0B\u5B66\u4E60\u8D44\u6599\\\u5927\u4E09\u4E0B\\\u7535\u5B50\u5546\u52A1\u7F51\u7AD9\u5F00\u53D1\u8BFE\u7A0B\u8BBE\u8BA1\\CRM\u9879\u76EE\u6587\u4EF6\\CRM.Lite\\CRM.Domain\\ValueObjects\\Address.cs",
-              "RelativeDocumentMoniker": "CRM.Domain\\ValueObjects\\Address.cs",
-              "ToolTip": "E:\\\u5927\u5B66\\\u8BFE\u7A0B\u5B66\u4E60\u8D44\u6599\\\u5927\u4E09\u4E0B\\\u7535\u5B50\u5546\u52A1\u7F51\u7AD9\u5F00\u53D1\u8BFE\u7A0B\u8BBE\u8BA1\\CRM\u9879\u76EE\u6587\u4EF6\\CRM.Lite\\CRM.Domain\\ValueObjects\\Address.cs",
-              "RelativeToolTip": "CRM.Domain\\ValueObjects\\Address.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAtwA0AAAASAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-06-24T15:21:21.587Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 11,
-              "Title": "Program.cs",
-              "DocumentMoniker": "E:\\\u5927\u5B66\\\u8BFE\u7A0B\u5B66\u4E60\u8D44\u6599\\\u5927\u4E09\u4E0B\\\u7535\u5B50\u5546\u52A1\u7F51\u7AD9\u5F00\u53D1\u8BFE\u7A0B\u8BBE\u8BA1\\CRM\u9879\u76EE\u6587\u4EF6\\CRM.Lite\\CRM.Web\\Program.cs",
-              "RelativeDocumentMoniker": "CRM.Web\\Program.cs",
-              "ToolTip": "E:\\\u5927\u5B66\\\u8BFE\u7A0B\u5B66\u4E60\u8D44\u6599\\\u5927\u4E09\u4E0B\\\u7535\u5B50\u5546\u52A1\u7F51\u7AD9\u5F00\u53D1\u8BFE\u7A0B\u8BBE\u8BA1\\CRM\u9879\u76EE\u6587\u4EF6\\CRM.Lite\\CRM.Web\\Program.cs",
-              "RelativeToolTip": "CRM.Web\\Program.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABAAAABSAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-06-24T15:12:38.164Z",
+              "WhenOpened": "2026-06-29T03:42:13.852Z",
               "EditorCaption": ""
             },
             {
@@ -226,15 +60,28 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 12,
-              "Title": "UpdateCustomerDto.cs",
-              "DocumentMoniker": "E:\\\u5927\u5B66\\\u8BFE\u7A0B\u5B66\u4E60\u8D44\u6599\\\u5927\u4E09\u4E0B\\\u7535\u5B50\u5546\u52A1\u7F51\u7AD9\u5F00\u53D1\u8BFE\u7A0B\u8BBE\u8BA1\\CRM\u9879\u76EE\u6587\u4EF6\\CRM.Lite\\CRM.Application.Contracts\\Customers\\Dtos\\UpdateCustomerDto.cs",
-              "RelativeDocumentMoniker": "CRM.Application.Contracts\\Customers\\Dtos\\UpdateCustomerDto.cs",
-              "ToolTip": "E:\\\u5927\u5B66\\\u8BFE\u7A0B\u5B66\u4E60\u8D44\u6599\\\u5927\u4E09\u4E0B\\\u7535\u5B50\u5546\u52A1\u7F51\u7AD9\u5F00\u53D1\u8BFE\u7A0B\u8BBE\u8BA1\\CRM\u9879\u76EE\u6587\u4EF6\\CRM.Lite\\CRM.Application.Contracts\\Customers\\Dtos\\UpdateCustomerDto.cs",
-              "RelativeToolTip": "CRM.Application.Contracts\\Customers\\Dtos\\UpdateCustomerDto.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAADwvw8AAAAAAAAAAAAAAA==",
+              "DocumentIndex": 0,
+              "Title": "Contract.cs",
+              "DocumentMoniker": "E:\\\u5927\u5B66\\\u8BFE\u7A0B\u5B66\u4E60\u8D44\u6599\\\u5927\u4E09\u4E0B\\\u7535\u5B50\u5546\u52A1\u7F51\u7AD9\u5F00\u53D1\u8BFE\u7A0B\u8BBE\u8BA1\\CRM-----onepiece-ops_CustomerContact\\CRM.Lite\\CRM.Domain\\Contracts\\Contract.cs",
+              "RelativeDocumentMoniker": "CRM.Domain\\Contracts\\Contract.cs",
+              "ToolTip": "E:\\\u5927\u5B66\\\u8BFE\u7A0B\u5B66\u4E60\u8D44\u6599\\\u5927\u4E09\u4E0B\\\u7535\u5B50\u5546\u52A1\u7F51\u7AD9\u5F00\u53D1\u8BFE\u7A0B\u8BBE\u8BA1\\CRM-----onepiece-ops_CustomerContact\\CRM.Lite\\CRM.Domain\\Contracts\\Contract.cs",
+              "RelativeToolTip": "CRM.Domain\\Contracts\\Contract.cs",
+              "ViewState": "AgIAACkAAAAAAAAAAADgv0wAAAAZAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-06-24T15:07:18.007Z",
+              "WhenOpened": "2026-06-29T03:16:31.042Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "CustomerController.cs",
+              "DocumentMoniker": "E:\\\u5927\u5B66\\\u8BFE\u7A0B\u5B66\u4E60\u8D44\u6599\\\u5927\u4E09\u4E0B\\\u7535\u5B50\u5546\u52A1\u7F51\u7AD9\u5F00\u53D1\u8BFE\u7A0B\u8BBE\u8BA1\\CRM-----onepiece-ops_CustomerContact\\CRM.Lite\\CRM.Web\\Controllers\\CustomerController.cs",
+              "RelativeDocumentMoniker": "CRM.Web\\Controllers\\CustomerController.cs",
+              "ToolTip": "E:\\\u5927\u5B66\\\u8BFE\u7A0B\u5B66\u4E60\u8D44\u6599\\\u5927\u4E09\u4E0B\\\u7535\u5B50\u5546\u52A1\u7F51\u7AD9\u5F00\u53D1\u8BFE\u7A0B\u8BBE\u8BA1\\CRM-----onepiece-ops_CustomerContact\\CRM.Lite\\CRM.Web\\Controllers\\CustomerController.cs",
+              "RelativeToolTip": "CRM.Web\\Controllers\\CustomerController.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABYAAAAiAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-06-29T02:54:49.328Z",
               "EditorCaption": ""
             }
           ]
