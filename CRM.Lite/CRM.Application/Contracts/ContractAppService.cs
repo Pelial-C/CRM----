@@ -56,7 +56,30 @@ public class ContractAppService : IContractAppService
             .OrderByDescending(c => c.CreationTime)
             .Skip((pageIndex - 1) * pageSize)
             .Take(pageSize)
-            .Select(c => MapToDto(c))
+            .Select(c => new ContractDto
+            {
+                Id = c.Id,
+                ContractNo = c.ContractNo,
+                ContractName = c.ContractName,
+                CabinetNo = c.CabinetNo,
+                SignDate = c.SignDate,
+                StartDate = c.StartDate,
+                EndDate = c.EndDate,
+                TotalAmount = c.TotalAmount,
+                Status = (int)c.Status,
+                CustomerId = c.CustomerId,
+                CustomerName = c.CustomerName,
+                ContactId = c.ContactId,
+                ContactName = c.ContactName,
+                PaymentFrequency = c.PaymentFrequency,
+                ServiceType = c.ServiceType,
+                ContractType = c.ContractType,
+                WarningDays = c.WarningDays,
+                RegionalCompany = c.RegionalCompany,
+                AffiliatedCompany = c.AffiliatedCompany,
+                CreationTime = c.CreationTime,
+                Remark = c.Remark
+            })
             .ToListAsync();
 
         return new PagedResultDto<ContractDto>
@@ -81,7 +104,7 @@ public class ContractAppService : IContractAppService
 
     public async Task CreateAsync(CreateContractDto input)
     {
-        if (!await CheckContractNoUniqueAsync(input.ContractNo ?? null!))
+        if (!await CheckContractNoUniqueAsync(input.ContractNo ?? string.Empty))
         {
             throw new BusinessException("合同编号已存在");
         }
@@ -90,8 +113,8 @@ public class ContractAppService : IContractAppService
         var contact = GetValidContact(customer, input.ContactId);
 
         var contract = new Contract(
-            input.ContractNo ?? "",
-            input.ContractName ?? "",
+            input.ContractNo ?? string.Empty,
+            input.ContractName ?? string.Empty,
             customer.Id,
             customer.Name,
             contact?.Id,
@@ -109,10 +132,11 @@ public class ContractAppService : IContractAppService
             input.WarningDays,
             input.Remark);
 
-        foreach (var item in input.Items.Where(i => !string.IsNullOrWhiteSpace(i.ProductName)))
-        {
-            contract.AddItem(item.ProductName ?? "", item.Quantity, item.UnitPrice);
-        }
+        var items = input.Items
+            .Where(i => !string.IsNullOrWhiteSpace(i.ProductName))
+            .Select(i => (i.ProductName ?? string.Empty, i.Quantity, i.UnitPrice))
+            .ToList();
+        contract.ReplaceItems(items);
 
         foreach (var plan in input.PaymentPlans.Where(p => p.PlanAmount > 0))
         {
@@ -127,7 +151,7 @@ public class ContractAppService : IContractAppService
         var contract = await _contractRepo.GetByIdAsync(input.Id);
         if (contract == null) throw new BusinessException("合同不存在");
 
-        if (!await CheckContractNoUniqueAsync(input.ContractNo ?? null!, input.Id))
+        if (!await CheckContractNoUniqueAsync(input.ContractNo ?? string.Empty, input.Id))
         {
             throw new BusinessException("合同编号已存在");
         }
@@ -136,8 +160,8 @@ public class ContractAppService : IContractAppService
         var contact = GetValidContact(customer, input.ContactId);
 
         contract.UpdateBasicInfo(
-            input.ContractNo ?? "",
-            input.ContractName ?? "",
+            input.ContractNo ?? string.Empty,
+            input.ContractName ?? string.Empty,
             customer.Id,
             customer.Name,
             contact?.Id,
@@ -155,12 +179,9 @@ public class ContractAppService : IContractAppService
             input.WarningDays,
             input.Remark);
 
-        if (input.Items.Count > 0)
-        {
-            contract.ReplaceItems(input.Items
-                .Where(i => !string.IsNullOrWhiteSpace(i.ProductName))
-                .Select(i => (i.ProductName ?? "", i.Quantity, i.UnitPrice)));
-        }
+        contract.ReplaceItems(input.Items
+            .Where(i => !string.IsNullOrWhiteSpace(i.ProductName))
+            .Select(i => (i.ProductName ?? string.Empty, i.Quantity, i.UnitPrice)));
 
         await _contractRepo.UpdateAsync(contract);
     }
@@ -173,12 +194,30 @@ public class ContractAppService : IContractAppService
         await _contractRepo.DeleteAsync(contract);
     }
 
+    public async Task StartAsync(int id)
+    {
+        var contract = await _contractRepo.GetByIdAsync(id);
+        if (contract == null) throw new BusinessException("合同不存在");
+
+        contract.StartExecution();
+        await _contractRepo.UpdateAsync(contract);
+    }
+
     public async Task CancelAsync(int id, string? reason = null)
     {
         var contract = await _contractRepo.GetByIdAsync(id);
         if (contract == null) throw new BusinessException("合同不存在");
 
         contract.Cancel(reason);
+        await _contractRepo.UpdateAsync(contract);
+    }
+
+    public async Task TerminateAsync(int id, string? reason = null)
+    {
+        var contract = await _contractRepo.GetByIdAsync(id);
+        if (contract == null) throw new BusinessException("合同不存在");
+
+        contract.Terminate(reason);
         await _contractRepo.UpdateAsync(contract);
     }
 
@@ -232,13 +271,16 @@ public class ContractAppService : IContractAppService
         var customer = await _customerRepo.GetByIdAsync(customerId);
         if (customer == null || customer.IsDeleted) return new List<ContactSelectDto>();
 
-        return customer.Contacts.Select(c => new ContactSelectDto
-        {
-            ContactId = c.Id,
-            ContactName = c.Name,
-            Phone = c.Phone,
-            Email = c.Email
-        }).ToList();
+        return customer.Contacts
+            .OrderBy(c => c.Id)
+            .Select(c => new ContactSelectDto
+            {
+                ContactId = c.Id,
+                ContactName = c.Name,
+                Phone = c.Phone,
+                Email = c.Email
+            })
+            .ToList();
     }
 
     private async Task<Customer> GetValidCustomerAsync(int customerId)

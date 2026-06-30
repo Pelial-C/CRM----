@@ -24,7 +24,7 @@ public class Customer : AggregateRoot<int>
 
     public Contact AddContact(string name, string? phone, string? title, string? email = null, bool isKeyDecisionMaker = false)
     {
-        if (IsDeleted) throw new BusinessException("已删除客户不能维护联系人");
+        if (IsDeleted) throw new BusinessException("已删除客户不能新增联系人");
         if (_contacts.Any(c => c.Name == name)) throw new BusinessException("联系人姓名不能重复");
 
         var contact = new Contact(name, phone, title, email, isKeyDecisionMaker);
@@ -34,6 +34,8 @@ public class Customer : AggregateRoot<int>
 
     public void RemoveContact(int contactId)
     {
+        if (IsDeleted) throw new BusinessException("已删除客户不能维护联系人");
+
         var contact = _contacts.FirstOrDefault(c => c.Id == contactId);
         if (contact == null) throw new BusinessException("联系人不存在");
 

@@ -56,8 +56,10 @@ public class CustomerAppService : ICustomerAppService
 
     public async Task CreateAsync(CreateCustomerDto input)
     {
-        var address = new Address(input.Province ?? "", input.City ?? "", input.District ?? "", input.DetailAddress ?? "");
-        var customer = new Customer(input.Name ?? "", input.CreditCode ?? "", input.Industry ?? "", address);
+        await CheckCustomerNameUniqueAsync(input.Name ?? string.Empty);
+
+        var address = new Address(input.Province ?? string.Empty, input.City ?? string.Empty, input.District ?? string.Empty, input.DetailAddress ?? string.Empty);
+        var customer = new Customer(input.Name ?? string.Empty, input.CreditCode, input.Industry, address, input.Remark);
         await _customerRepo.InsertAsync(customer);
     }
 
@@ -66,8 +68,10 @@ public class CustomerAppService : ICustomerAppService
         var customer = await _customerRepo.GetByIdAsync(input.Id);
         if (customer == null) throw new BusinessException("客户不存在");
 
-        var address = new Address(input.Province ?? "", input.City ?? "", input.District ?? "", input.DetailAddress ?? "");
-        customer.UpdateInfo(input.Name ?? "", input.CreditCode ?? "", input.Industry ?? "", address);
+        await CheckCustomerNameUniqueAsync(input.Name ?? string.Empty, input.Id);
+
+        var address = new Address(input.Province ?? string.Empty, input.City ?? string.Empty, input.District ?? string.Empty, input.DetailAddress ?? string.Empty);
+        customer.UpdateInfo(input.Name ?? string.Empty, input.CreditCode, input.Industry, address, input.Remark);
         await _customerRepo.UpdateAsync(customer);
     }
 
@@ -82,7 +86,7 @@ public class CustomerAppService : ICustomerAppService
 
     private IQueryable<Customer> BuildPredicate(CustomerQueryDto query)
     {
-        var customers = _customerRepo.Query().IgnoreAutoIncludes();
+        var customers = _customerRepo.Query();
 
         if (!query.IncludeDeleted)
         {
@@ -97,7 +101,24 @@ public class CustomerAppService : ICustomerAppService
                 (c.CreditCode != null && c.CreditCode.Contains(searchKey)));
         }
 
+        if (!string.IsNullOrWhiteSpace(query.Industry))
+        {
+            var industry = query.Industry.Trim();
+            customers = customers.Where(c => c.Industry != null && c.Industry.Contains(industry));
+        }
+
         return customers;
+    }
+
+    private async Task CheckCustomerNameUniqueAsync(string name, int? excludeId = null)
+    {
+        if (string.IsNullOrWhiteSpace(name)) return;
+
+        var normalized = name.Trim();
+        var exists = await _customerRepo.Query()
+            .AnyAsync(c => c.Name == normalized && (!excludeId.HasValue || c.Id != excludeId.Value));
+
+        if (exists) throw new BusinessException("客户名称已存在");
     }
 
     private static CustomerDto MapToDto(Customer customer)
@@ -108,12 +129,23 @@ public class CustomerAppService : ICustomerAppService
             Name = customer.Name,
             CreditCode = customer.CreditCode,
             Industry = customer.Industry,
+            Remark = customer.Remark,
             IsDeleted = customer.IsDeleted,
             Province = customer.Address.Province,
             City = customer.Address.City,
             District = customer.Address.District,
             DetailAddress = customer.Address.Detail,
-            CreationTime = customer.CreationTime
+            CreationTime = customer.CreationTime,
+            Contacts = customer.Contacts.Select(c => new CustomerContactDto
+            {
+                Id = c.Id,
+                CustomerId = c.CustomerId,
+                Name = c.Name,
+                Title = c.Title,
+                Phone = c.Phone,
+                Email = c.Email,
+                IsKeyDecisionMaker = c.IsKeyDecisionMaker
+            }).ToList()
         };
     }
 }

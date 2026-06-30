@@ -1,59 +1,101 @@
 # 企业客户与合同管理系统 CRM Lite
 
-CRM Lite 是一个 ASP.NET Core MVC 课程设计项目，用于制造企业统一管理客户、联系人、合同、合同明细和回款计划，替代 Excel 台账，提高数据一致性和查询效率。
+CRM Lite 是一个课程设计项目，用于替代 Excel 台账，集中管理客户、联系人、合同、合同明细和回款计划，并提供基础统计看板。
 
 ## 技术栈
 
-- ASP.NET Core MVC
-- Entity Framework Core
+- ASP.NET Core Web API
+- EF Core
 - SQL Server LocalDB
 - DDD 分层架构
-- Bootstrap / jQuery
+- React
+- Vite
+- TypeScript
+- Axios
+- React Router
+- Bootstrap
 
-## 分层结构
+## 后端结构
 
-- `CRM.Domain`：聚合根、实体、值对象、领域规则
-- `CRM.Domain.Shared`：共享枚举、异常等基础类型
-- `CRM.Application.Contracts`：DTO 和应用服务接口
+- `CRM.Domain`：领域实体、聚合根、领域规则
+- `CRM.Domain.Shared`：枚举、业务异常
+- `CRM.Application.Contracts`：DTO、应用服务接口、数据注解
 - `CRM.Application`：应用服务实现
-- `CRM.Infrastructure`：EF Core DbContext、Repository、Migrations
-- `CRM.Web`：MVC Controller、Views、Program.cs
+- `CRM.Infrastructure`：EF Core DbContext、仓储、迁移
+- `CRM.Web`：Web API 控制器、CORS、Swagger、启动配置
 
-## 核心模块
+## 前端结构
 
-- 客户管理
-- 联系人管理
-- 合同管理
-- 回款计划管理
+- `CRM.Client/src/api`：Axios 实例和 API 封装
+- `CRM.Client/src/components`：布局、导航、表单、加载和错误组件
+- `CRM.Client/src/pages`：看板、客户、联系人、合同和系统说明页面
+- `CRM.Client/src/types`：前端 TypeScript 类型
+- `CRM.Client/src/utils`：枚举、金额、日期格式化工具
 
-## 数据库初始化
+## 后端启动
 
-```bash
+```powershell
 cd CRM.Lite
 dotnet restore
 dotnet ef database update --project CRM.Infrastructure --startup-project CRM.Web
 dotnet run --project CRM.Web
 ```
 
-默认连接字符串使用 SQL Server LocalDB：`CrmLiteDb`。
+开发环境默认 API 地址为 `http://localhost:5268/api`，Swagger 位于 `http://localhost:5268/swagger`。
+
+## 前端启动
+
+```powershell
+cd CRM.Client
+npm install
+npm run dev
+```
+
+如果后端端口变化，可在 `CRM.Client/.env.local` 中设置：
+
+```text
+VITE_API_BASE_URL=http://localhost:5268/api
+```
 
 ## 演示流程
 
 1. 新增客户。
-2. 新增联系人。
+2. 进入客户详情并新增联系人。
 3. 进入合同管理并新增合同。
-4. 选择客户后联动加载联系人。
-5. 添加合同明细并保存合同。
-6. 进入合同详情。
-7. 自动生成回款计划或手工新增回款计划。
-8. 登记实际回款。
-9. 查看回款状态和合同完成状态。
+4. 选择客户后确认联系人下拉自动加载。
+5. 添加合同明细，并用明细合计填充合同金额。
+6. 保存合同并进入合同详情。
+7. 启动合同。
+8. 自动生成回款计划。
+9. 登记实际回款。
+10. 查看回款状态和合同状态变化。
+11. 所有回款计划结清后，合同自动变为已完成。
+12. 删除有关联合同的客户时执行逻辑删除，普通客户列表默认不显示。
+
+## 当前已完成模块
+
+- 客户管理
+- 联系人管理
+- 合同管理
+- 回款计划管理
+- 基础统计看板
+- 基础数据枚举接口
+- React 前端页面
 
 ## 当前限制
 
-- 权限模块暂未完整实现。
-- 基础数据暂以枚举和页面下拉方式实现，未做后台字典维护。
+- 权限模块暂未完整实现，当前版本以创建时间等审计字段和后续扩展说明代替。
+- 后续可接入 ASP.NET Core Identity，实现用户、角色、权限和 CreatedByName 等字段。
+- 基础数据暂以枚举方式实现，后续可扩展为数据字典表。
+- 审批流程、电子签章、附件管理作为后续扩展。
 
 ## 成员分工
 
-- 领域建模师：负责客户聚合、合同聚合、回款计划领域规则、状态流转、EF Core Code First 映射与领域模型说明。
+领域建模师负责：
+
+- 客户聚合建模
+- 合同聚合建模
+- 回款计划建模
+- 合同状态流转
+- 领域规则说明
+- 领域模型文档维护

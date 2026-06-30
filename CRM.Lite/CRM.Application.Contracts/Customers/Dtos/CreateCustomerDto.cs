@@ -23,4 +23,7 @@ public class CreateCustomerDto
     public string? City { get; set; }
     public string? District { get; set; }
     public string? DetailAddress { get; set; }
+
+    [MaxLength(500, ErrorMessage = "备注不能超过500个字符")]
+    public string? Remark { get; set; }
 }

@@ -10,7 +10,9 @@ public interface IContractAppService
     Task CreateAsync(CreateContractDto input);
     Task UpdateAsync(UpdateContractDto input);
     Task DeleteAsync(int id);
+    Task StartAsync(int id);
     Task CancelAsync(int id, string? reason = null);
+    Task TerminateAsync(int id, string? reason = null);
     Task GeneratePaymentPlansAsync(int contractId);
     Task AddPaymentPlanAsync(AddPaymentPlanDto input);
     Task RecordPaymentAsync(RecordPaymentDto input);

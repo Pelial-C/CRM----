@@ -126,7 +126,7 @@ public class Contract : AggregateRoot<int>
         AffiliatedCompany = string.IsNullOrWhiteSpace(affiliatedCompany) ? null : affiliatedCompany.Trim();
         ServiceType = serviceType;
         ContractType = contractType;
-        CabinetNo = string.IsNullOrWhiteSpace(cabinetNo) ? "UNASSIGNED" : cabinetNo.Trim();
+        CabinetNo = string.IsNullOrWhiteSpace(cabinetNo) ? null : cabinetNo.Trim();
         WarningDays = warningDays;
         Remark = string.IsNullOrWhiteSpace(remark) ? null : remark.Trim();
     }
@@ -146,6 +146,8 @@ public class Contract : AggregateRoot<int>
 
         var item = _items.FirstOrDefault(i => i.Id == itemId);
         if (item == null) throw new BusinessException("合同明细不存在");
+        if (_items.Count == 1) throw new BusinessException("合同明细至少保留一项");
+
         _items.Remove(item);
     }
 
@@ -153,8 +155,11 @@ public class Contract : AggregateRoot<int>
     {
         if (!CanEdit()) throw new BusinessException("当前合同状态不允许维护合同明细");
 
+        var materializedItems = items.ToList();
+        if (materializedItems.Count == 0) throw new BusinessException("合同明细至少包含一项");
+
         _items.Clear();
-        foreach (var item in items)
+        foreach (var item in materializedItems)
         {
             AddItem(item.ProductName, item.Quantity, item.UnitPrice);
         }
@@ -162,7 +167,11 @@ public class Contract : AggregateRoot<int>
 
     public PaymentPlan AddPaymentPlan(DateTime planDate, decimal planAmount, string? description = null)
     {
-        if (Status is ContractStatus.Cancelled or ContractStatus.Terminated) throw new BusinessException("已作废或已终止合同不能新增回款计划");
+        if (Status is not (ContractStatus.Draft or ContractStatus.Executing))
+        {
+            throw new BusinessException("当前合同状态不允许新增回款计划");
+        }
+
         EnsurePaymentPlanTotal(planAmount);
 
         var paymentPlan = new PaymentPlan(planDate, planAmount, description);
@@ -172,7 +181,11 @@ public class Contract : AggregateRoot<int>
 
     public void GeneratePaymentPlans()
     {
-        if (Status is ContractStatus.Cancelled or ContractStatus.Terminated) throw new BusinessException("已作废或已终止合同不能生成回款计划");
+        if (Status is not (ContractStatus.Draft or ContractStatus.Executing))
+        {
+            throw new BusinessException("当前合同状态不允许生成回款计划");
+        }
+
         if (_paymentPlans.Any()) throw new BusinessException("回款计划已生成，请勿重复操作");
 
         var intervalMonths = (int)PaymentFrequency;
@@ -217,7 +230,11 @@ public class Contract : AggregateRoot<int>
 
     public void Cancel(string? reason = null)
     {
-        if (Status is not (ContractStatus.Draft or ContractStatus.Executing)) throw new BusinessException("当前合同状态不允许作废");
+        if (Status is not (ContractStatus.Draft or ContractStatus.Executing))
+        {
+            throw new BusinessException("当前合同状态不允许作废");
+        }
+
         Status = ContractStatus.Cancelled;
         Remark = string.IsNullOrWhiteSpace(reason) ? Remark : reason.Trim();
     }
@@ -274,7 +291,7 @@ public class Contract : AggregateRoot<int>
 
             if (Status == ContractStatus.Executing)
             {
-                Status = ContractStatus.Completed;
+                Complete();
             }
         }
     }

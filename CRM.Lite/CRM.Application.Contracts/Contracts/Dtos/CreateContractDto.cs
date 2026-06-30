@@ -16,8 +16,13 @@ public class CreateContractDto : IValidatableObject
     [MaxLength(50, ErrorMessage = "合同柜编号不能超过50个字符")]
     public string? CabinetNo { get; set; }
 
+    [Required(ErrorMessage = "签订日期不能为空")]
     public DateTime SignDate { get; set; } = DateTime.Today;
+
+    [Required(ErrorMessage = "开始日期不能为空")]
     public DateTime StartDate { get; set; } = DateTime.Today;
+
+    [Required(ErrorMessage = "结束日期不能为空")]
     public DateTime EndDate { get; set; } = DateTime.Today;
 
     [Range(typeof(decimal), "0.01", "999999999999", ErrorMessage = "合同总金额必须大于0")]
@@ -53,6 +58,11 @@ public class CreateContractDto : IValidatableObject
         if (EndDate < StartDate)
         {
             yield return new ValidationResult("结束日期不能早于开始日期", new[] { nameof(EndDate) });
+        }
+
+        if (Items == null || Items.Count == 0 || Items.All(i => string.IsNullOrWhiteSpace(i.ProductName)))
+        {
+            yield return new ValidationResult("合同明细至少包含一项", new[] { nameof(Items) });
         }
     }
 }
