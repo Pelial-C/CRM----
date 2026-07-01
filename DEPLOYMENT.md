@@ -79,6 +79,12 @@ Smoke test after deployment:
 .\scripts\smoke-test-crm-lite.ps1
 ```
 
+Go-live audit:
+
+```powershell
+.\scripts\go-live-audit.ps1 -RunSmokeTest
+```
+
 Database backup:
 
 ```powershell
