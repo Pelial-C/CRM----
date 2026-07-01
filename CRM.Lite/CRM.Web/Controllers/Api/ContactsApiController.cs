@@ -33,7 +33,7 @@ public class ContactsApiController : ApiControllerBase
     }
 
     [HttpDelete("{id:int}")]
-    [Authorize(Roles = "Admin,Sales")]
+    [Authorize(Roles = "Admin")]
     public async Task<ActionResult<ApiResponse<object>>> Delete(int id)
     {
         await _contactAppService.DeleteAsync(id);

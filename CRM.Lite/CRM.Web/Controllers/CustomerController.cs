@@ -103,7 +103,7 @@ public class CustomerController : Controller
     }
 
     [HttpPost]
-    [Authorize(Roles = "Admin,Sales")]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Delete(int id)
     {
         try

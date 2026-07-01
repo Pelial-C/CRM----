@@ -11,86 +11,92 @@
 <body>
 @{
     var isAuthenticated = User.Identity?.IsAuthenticated == true;
-    var displayName = User.FindFirst("DisplayName")?.Value ?? User.Identity?.Name;
-    var role = User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value;
+    var displayName = User.FindFirst("DisplayName")?.Value ?? User.Identity?.Name ?? "未登录用户";
+    var role = User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value ?? "Guest";
+    var pageTitle = ViewData["Title"]?.ToString() ?? "工作台";
 }
-    <header>
-        <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand fw-bold" asp-area="" asp-controller="Home" asp-action="Index">CRM Lite</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar" aria-controls="mainNavbar"
-                        aria-expanded="false" aria-label="展开导航">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="collapse navbar-collapse" id="mainNavbar">
-                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                        @if (isAuthenticated)
-                        {
-                            @if (User.IsInRole("Admin"))
-                            {
-                                <li class="nav-item">
-                                    <a class="nav-link text-dark" asp-area="Admin" asp-controller="Dashboard" asp-action="Index">管理员首页</a>
-                                </li>
-                                <li class="nav-item"><a class="nav-link text-dark" asp-area="" asp-controller="Customer" asp-action="Index">客户管理</a></li>
-                                <li class="nav-item"><a class="nav-link text-dark" asp-area="" asp-controller="Contact" asp-action="Index">联系人管理</a></li>
-                                <li class="nav-item"><a class="nav-link text-dark" asp-area="" asp-controller="Contract" asp-action="Index">合同管理</a></li>
-                                <li class="nav-item"><a class="nav-link text-dark" asp-area="" asp-controller="Contract" asp-action="Index">回款管理</a></li>
-                                <li class="nav-item"><a class="nav-link text-dark" asp-area="Admin" asp-controller="Dashboard" asp-action="Index">用户管理</a></li>
-                                <li class="nav-item"><a class="nav-link text-dark" asp-area="Admin" asp-controller="Dashboard" asp-action="Index">基础数据</a></li>
-                            }
-                            else if (User.IsInRole("Sales"))
-                            {
-                                <li class="nav-item"><a class="nav-link text-dark" asp-area="Sales" asp-controller="Dashboard" asp-action="Index">销售首页</a></li>
-                                <li class="nav-item"><a class="nav-link text-dark" asp-area="" asp-controller="Customer" asp-action="Index">我的客户</a></li>
-                                <li class="nav-item"><a class="nav-link text-dark" asp-area="" asp-controller="Contact" asp-action="Index">联系人管理</a></li>
-                                <li class="nav-item"><a class="nav-link text-dark" asp-area="" asp-controller="Contract" asp-action="Index">合同管理</a></li>
-                                <li class="nav-item"><a class="nav-link text-dark" asp-area="" asp-controller="Contract" asp-action="Index">回款登记</a></li>
-                                <li class="nav-item"><a class="nav-link text-dark" asp-area="Sales" asp-controller="Dashboard" asp-action="Index">合同到期提醒</a></li>
-                            }
-                            else if (User.IsInRole("EnterpriseUser"))
-                            {
-                                <li class="nav-item"><a class="nav-link text-dark" asp-area="Enterprise" asp-controller="Dashboard" asp-action="Index">企业首页</a></li>
-                                <li class="nav-item"><a class="nav-link text-dark" asp-area="" asp-controller="Customer" asp-action="Index">客户信息查看</a></li>
-                                <li class="nav-item"><a class="nav-link text-dark" asp-area="" asp-controller="Contract" asp-action="Index">合同信息查看</a></li>
-                                <li class="nav-item"><a class="nav-link text-dark" asp-area="" asp-controller="Contract" asp-action="Index">回款计划查看</a></li>
-                            }
-                            else if (User.IsInRole("CustomerUser"))
-                            {
-                                <li class="nav-item"><a class="nav-link text-dark" asp-area="CustomerPortal" asp-controller="Dashboard" asp-action="Index">客户门户首页</a></li>
-                                <li class="nav-item"><a class="nav-link text-dark" asp-area="CustomerPortal" asp-controller="Contracts" asp-action="Index">我的合同</a></li>
-                                <li class="nav-item"><a class="nav-link text-dark" asp-area="CustomerPortal" asp-controller="Contracts" asp-action="Index">我的回款计划</a></li>
-                                <li class="nav-item"><a class="nav-link text-dark" asp-area="CustomerPortal" asp-controller="Dashboard" asp-action="Index">企业联系人</a></li>
-                            }
-                        }
-                    </ul>
-                    <div class="d-flex align-items-center gap-2">
-                        @if (isAuthenticated)
-                        {
-                            <span class="text-muted small">@displayName（@role）</span>
-                            <form asp-area="" asp-controller="Account" asp-action="Logout" method="post" class="mb-0">
-                                @Html.AntiForgeryToken()
-                                <button class="btn btn-outline-secondary btn-sm" type="submit">退出登录</button>
-                            </form>
-                        }
-                        else
-                        {
-                            <a class="btn btn-primary btn-sm" asp-area="" asp-controller="Account" asp-action="Login">登录</a>
-                        }
-                    </div>
+
+<div class="app-shell @(isAuthenticated ? "" : "app-shell-public")">
+    @if (isAuthenticated)
+    {
+        <aside class="app-sidebar d-none d-lg-flex">
+            <div class="sidebar-brand">
+                <div class="sidebar-brand-mark">CL</div>
+                <div>
+                    <div class="sidebar-brand-title">CRM Lite</div>
+                    <div class="sidebar-brand-subtitle">合同管理平台</div>
                 </div>
             </div>
-        </nav>
-    </header>
-    <div class="container">
-        <main role="main" class="pb-3">
+            <div class="sidebar-role">
+                <span>@displayName</span>
+                <strong>@role</strong>
+            </div>
+            <partial name="_RoleMenu" />
+        </aside>
+
+        <div class="offcanvas offcanvas-start app-offcanvas" tabindex="-1" id="mobileSidebar" aria-labelledby="mobileSidebarLabel">
+            <div class="offcanvas-header">
+                <div class="sidebar-brand m-0">
+                    <div class="sidebar-brand-mark">CL</div>
+                    <div>
+                        <h5 class="offcanvas-title sidebar-brand-title" id="mobileSidebarLabel">CRM Lite</h5>
+                        <div class="sidebar-brand-subtitle">合同管理平台</div>
+                    </div>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="关闭"></button>
+            </div>
+            <div class="offcanvas-body">
+                <div class="sidebar-role">
+                    <span>@displayName</span>
+                    <strong>@role</strong>
+                </div>
+                <partial name="_RoleMenu" />
+            </div>
+        </div>
+    }
+
+    <div class="app-main">
+        <header class="app-topbar">
+            <div class="d-flex align-items-center gap-3 min-w-0">
+                @if (isAuthenticated)
+                {
+                    <button class="btn btn-outline-secondary btn-icon d-lg-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileSidebar" aria-controls="mobileSidebar" aria-label="打开菜单">
+                        <span aria-hidden="true">☰</span>
+                    </button>
+                }
+                <div class="min-w-0">
+                    <div class="topbar-eyebrow">CRM Lite</div>
+                    <h1 class="topbar-title">@pageTitle</h1>
+                </div>
+            </div>
+            <div class="topbar-actions">
+                @if (isAuthenticated)
+                {
+                    <div class="topbar-user d-none d-sm-flex">
+                        <span>@displayName</span>
+                        <strong>@role</strong>
+                    </div>
+                    <form asp-area="" asp-controller="Account" asp-action="Logout" method="post" class="mb-0">
+                        @Html.AntiForgeryToken()
+                        <button class="btn btn-outline-secondary btn-sm" type="submit">退出登录</button>
+                    </form>
+                }
+                else
+                {
+                    <a class="btn btn-primary btn-sm" asp-area="" asp-controller="Account" asp-action="Login">登录</a>
+                }
+            </div>
+        </header>
+
+        <main role="main" class="app-content">
             @RenderBody()
         </main>
     </div>
+</div>
 
-    <footer class="border-top footer text-muted"></footer>
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
-    @await RenderSectionAsync("Scripts", required: false)
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+<script src="~/js/site.js" asp-append-version="true"></script>
+@await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

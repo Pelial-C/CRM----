@@ -1,0 +1,49 @@
+@functions {
+    private bool IsActive(params string[] paths)
+    {
+        var currentPath = Context.Request.Path.Value ?? "/";
+        return paths.Any(path => currentPath.Equals(path, StringComparison.OrdinalIgnoreCase));
+    }
+
+    private string LinkClass(params string[] paths)
+    {
+        return IsActive(paths) ? "sidebar-link active" : "sidebar-link";
+    }
+}
+
+<div class="sidebar-section-title">功能菜单</div>
+<nav class="sidebar-nav" aria-label="主菜单">
+    @if (User.IsInRole("Admin"))
+    {
+        <a class="@LinkClass("/Admin/Dashboard", "/Admin/Dashboard/Index")" asp-area="Admin" asp-controller="Dashboard" asp-action="Index"><span>管理员首页</span></a>
+        <a class="@LinkClass("/Customer", "/Customer/Index")" asp-area="" asp-controller="Customer" asp-action="Index"><span>客户管理</span></a>
+        <a class="@LinkClass("/Contact", "/Contact/Index")" asp-area="" asp-controller="Contact" asp-action="Index"><span>联系人管理</span></a>
+        <a class="@LinkClass("/Contract", "/Contract/Index")" asp-area="" asp-controller="Contract" asp-action="Index"><span>合同管理</span></a>
+        <a class="@LinkClass("/Contract/Detail")" asp-area="" asp-controller="Contract" asp-action="Index"><span>回款管理</span></a>
+        <a class="@LinkClass("/Admin/User", "/Admin/User/Index")" asp-area="Admin" asp-controller="User" asp-action="Index"><span>用户管理</span></a>
+        <a class="sidebar-link disabled" href="#" aria-disabled="true"><span>基础数据</span><small>后续</small></a>
+    }
+    else if (User.IsInRole("Sales"))
+    {
+        <a class="@LinkClass("/Sales/Dashboard", "/Sales/Dashboard/Index")" asp-area="Sales" asp-controller="Dashboard" asp-action="Index"><span>销售首页</span></a>
+        <a class="@LinkClass("/Customer", "/Customer/Index")" asp-area="" asp-controller="Customer" asp-action="Index"><span>我的客户</span></a>
+        <a class="@LinkClass("/Contact", "/Contact/Index")" asp-area="" asp-controller="Contact" asp-action="Index"><span>联系人管理</span></a>
+        <a class="@LinkClass("/Contract", "/Contract/Index")" asp-area="" asp-controller="Contract" asp-action="Index"><span>合同管理</span></a>
+        <a class="@LinkClass("/Contract/Detail")" asp-area="" asp-controller="Contract" asp-action="Index"><span>回款登记</span></a>
+        <a class="sidebar-link disabled" href="#" aria-disabled="true"><span>合同到期提醒</span><small>后续</small></a>
+    }
+    else if (User.IsInRole("EnterpriseUser"))
+    {
+        <a class="@LinkClass("/Enterprise/Dashboard", "/Enterprise/Dashboard/Index")" asp-area="Enterprise" asp-controller="Dashboard" asp-action="Index"><span>企业首页</span></a>
+        <a class="@LinkClass("/Customer", "/Customer/Index")" asp-area="" asp-controller="Customer" asp-action="Index"><span>客户信息查看</span></a>
+        <a class="@LinkClass("/Contract", "/Contract/Index")" asp-area="" asp-controller="Contract" asp-action="Index"><span>合同信息查看</span></a>
+        <a class="@LinkClass("/Contract/Detail")" asp-area="" asp-controller="Contract" asp-action="Index"><span>回款计划查看</span></a>
+    }
+    else if (User.IsInRole("CustomerUser"))
+    {
+        <a class="@LinkClass("/CustomerPortal/Dashboard", "/CustomerPortal/Dashboard/Index")" asp-area="CustomerPortal" asp-controller="Dashboard" asp-action="Index"><span>客户门户首页</span></a>
+        <a class="@LinkClass("/CustomerPortal/Contracts", "/CustomerPortal/Contracts/Index")" asp-area="CustomerPortal" asp-controller="Contracts" asp-action="Index"><span>我的合同</span></a>
+        <a class="sidebar-link disabled" href="#" aria-disabled="true"><span>我的回款计划</span><small>后续</small></a>
+        <a class="sidebar-link disabled" href="#" aria-disabled="true"><span>企业联系人</span><small>后续</small></a>
+    }
+</nav>

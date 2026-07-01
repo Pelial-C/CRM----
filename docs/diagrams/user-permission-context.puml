@@ -1,0 +1,59 @@
+@startuml
+title 用户权限上下文
+
+skinparam classAttributeIconSize 0
+
+class AppUser <<AggregateRoot>> {
+  +Id
+  +UserName
+  +PasswordHash
+  +DisplayName
+  +Role
+  +IsActive
+  +RelatedCustomerId
+  +RelatedSalesUserId
+  +SetPasswordHash()
+  +SetActive()
+}
+
+class AppRole <<AggregateRoot>> {
+  +Id
+  +Role
+  +Name
+  +Description
+}
+
+enum UserRole {
+  Admin
+  Sales
+  EnterpriseUser
+  CustomerUser
+}
+
+class Customer <<AggregateRoot>> {
+  +Id
+  +Name
+  +OwnerUserId
+}
+
+class Contract <<AggregateRoot>> {
+  +Id
+  +ContractNo
+  +OwnerUserId
+}
+
+AppUser --> UserRole
+AppRole --> UserRole
+AppUser ..> Customer : RelatedCustomerId
+AppUser ..> AppUser : RelatedSalesUserId
+Customer ..> AppUser : OwnerUserId
+Contract ..> AppUser : OwnerUserId
+
+note bottom of UserRole
+Admin：全部管理权限
+Sales：维护自己负责的数据
+EnterpriseUser：企业内部只读用户
+CustomerUser：外部客户门户用户
+end note
+
+@enduml

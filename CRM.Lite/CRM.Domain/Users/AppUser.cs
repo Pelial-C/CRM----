@@ -44,6 +44,19 @@ public class AppUser : AggregateRoot<int>
         UpdatedAt = DateTime.Now;
     }
 
+    public void UpdateProfile(string displayName, string? email, string? phone, UserRole role, int? relatedCustomerId = null)
+    {
+        if (string.IsNullOrWhiteSpace(displayName)) throw new BusinessException("显示名称不能为空");
+        if (relatedCustomerId.HasValue && relatedCustomerId.Value <= 0) throw new BusinessException("关联客户ID无效");
+
+        DisplayName = displayName.Trim();
+        Email = string.IsNullOrWhiteSpace(email) ? null : email.Trim();
+        Phone = string.IsNullOrWhiteSpace(phone) ? null : phone.Trim();
+        Role = role;
+        RelatedCustomerId = relatedCustomerId;
+        UpdatedAt = DateTime.Now;
+    }
+
     public void SetActive(bool isActive)
     {
         IsActive = isActive;

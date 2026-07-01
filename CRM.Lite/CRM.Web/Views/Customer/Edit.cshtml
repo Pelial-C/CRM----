@@ -4,58 +4,64 @@
     ViewData["Title"] = "编辑客户";
 }
 
-<h2 class="mb-3">编辑客户</h2>
+<div class="page-header">
+    <div>
+        <h2 class="page-title">编辑客户</h2>
+        <p class="page-subtitle">更新客户基础资料、地址和备注信息。</p>
+    </div>
+</div>
 
-<form asp-action="Edit" method="post" class="card border-0 shadow-sm">
+<form asp-action="Edit" method="post">
     @Html.AntiForgeryToken()
     <input asp-for="Id" type="hidden" />
     <input asp-for="OwnerUserId" type="hidden" />
-    <div class="card-body">
+    <div class="form-section">
+        <h3 class="form-section-title">客户资料</h3>
         <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
         <div class="row g-3">
-            <div class="col-md-6">
+            <div class="col-12 col-md-6">
                 <label asp-for="Name" class="form-label">企业名称</label>
                 <input asp-for="Name" class="form-control" />
                 <span asp-validation-for="Name" class="text-danger"></span>
             </div>
-            <div class="col-md-6">
+            <div class="col-12 col-md-6">
                 <label asp-for="CreditCode" class="form-label">统一社会信用代码</label>
                 <input asp-for="CreditCode" class="form-control" />
                 <span asp-validation-for="CreditCode" class="text-danger"></span>
             </div>
-            <div class="col-md-4">
+            <div class="col-12 col-md-4">
                 <label asp-for="Industry" class="form-label">行业</label>
                 <input asp-for="Industry" class="form-control" />
                 <span asp-validation-for="Industry" class="text-danger"></span>
             </div>
-            <div class="col-md-2">
+            <div class="col-12 col-md-2">
                 <label asp-for="Province" class="form-label">省</label>
                 <input asp-for="Province" class="form-control" />
                 <span asp-validation-for="Province" class="text-danger"></span>
             </div>
-            <div class="col-md-2">
+            <div class="col-12 col-md-2">
                 <label asp-for="City" class="form-label">市</label>
                 <input asp-for="City" class="form-control" />
                 <span asp-validation-for="City" class="text-danger"></span>
             </div>
-            <div class="col-md-2">
+            <div class="col-12 col-md-2">
                 <label asp-for="District" class="form-label">区</label>
                 <input asp-for="District" class="form-control" />
                 <span asp-validation-for="District" class="text-danger"></span>
             </div>
-            <div class="col-md-12">
+            <div class="col-12">
                 <label asp-for="DetailAddress" class="form-label">详细地址</label>
                 <input asp-for="DetailAddress" class="form-control" />
                 <span asp-validation-for="DetailAddress" class="text-danger"></span>
             </div>
-            <div class="col-md-12">
+            <div class="col-12">
                 <label asp-for="Remark" class="form-label">备注</label>
                 <textarea asp-for="Remark" class="form-control" rows="3"></textarea>
                 <span asp-validation-for="Remark" class="text-danger"></span>
             </div>
         </div>
     </div>
-    <div class="card-footer bg-white d-flex gap-2">
+    <div class="form-actions">
         <button class="btn btn-primary" type="submit">保存</button>
         <a class="btn btn-outline-secondary" asp-action="Index">返回</a>
     </div>

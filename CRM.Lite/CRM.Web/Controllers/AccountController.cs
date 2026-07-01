@@ -52,7 +52,7 @@ public class AccountController : Controller
 
         if (!user.IsActive)
         {
-            ModelState.AddModelError(string.Empty, "该用户已被停用，请联系管理员");
+            ModelState.AddModelError(string.Empty, "该账号已被禁用，请联系管理员");
             return View(model);
         }
 

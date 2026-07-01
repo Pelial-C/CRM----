@@ -9,16 +9,23 @@
     var contacts = ViewBag.Contacts as List<ContactSelectDto> ?? new List<ContactSelectDto>();
 }
 
-<h2 class="mb-3">编辑合同</h2>
+<div class="page-header">
+    <div>
+        <h2 class="page-title">编辑合同</h2>
+        <p class="page-subtitle">更新合同基础信息、客户联系人和合同明细。</p>
+    </div>
+</div>
 
 <form asp-action="Edit" method="post" id="contractForm">
     @Html.AntiForgeryToken()
     <input asp-for="Id" type="hidden" />
     <input asp-for="Status" type="hidden" />
     <input asp-for="OwnerUserId" type="hidden" />
-    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
-    <div class="row g-3">
+    <div class="form-section">
+        <h3 class="form-section-title">合同基础信息</h3>
+        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+        <div class="row g-3">
         <div class="col-md-3">
             <label asp-for="ContractNo" class="form-label">合同编号</label>
             <input asp-for="ContractNo" class="form-control" />
@@ -130,41 +137,46 @@
             <textarea asp-for="Remark" class="form-control" rows="3"></textarea>
             <span asp-validation-for="Remark" class="text-danger"></span>
         </div>
+        </div>
     </div>
 
     <div class="alert alert-danger mt-3 d-none" id="clientError"></div>
 
-    <div class="d-flex justify-content-between align-items-center mt-4 mb-2">
-        <h5 class="mb-0">合同明细</h5>
-        <button type="button" class="btn btn-sm btn-outline-primary" id="addItem">添加明细</button>
-    </div>
-    <div class="table-responsive">
-        <table class="table align-middle" id="itemsTable">
-            <thead class="table-light">
-                <tr>
-                    <th>产品或服务名称</th>
-                    <th style="width: 140px;">数量</th>
-                    <th style="width: 160px;">单价</th>
-                    <th style="width: 160px;">小计</th>
-                    <th style="width: 90px;">操作</th>
-                </tr>
-            </thead>
-            <tbody>
-                @for (var i = 0; i < Model.Items.Count; i++)
-                {
-                    <tr>
-                        <td><input name="Items[@i].ProductName" value="@Model.Items[i].ProductName" class="form-control product-name" /></td>
-                        <td><input name="Items[@i].Quantity" value="@Model.Items[i].Quantity" class="form-control quantity" type="number" min="1" /></td>
-                        <td><input name="Items[@i].UnitPrice" value="@Model.Items[i].UnitPrice" class="form-control unit-price" type="number" min="0.01" step="0.01" /></td>
-                        <td><input name="Items[@i].Subtotal" value="@Model.Items[i].Subtotal" class="form-control subtotal" readonly /></td>
-                        <td><button type="button" class="btn btn-sm btn-outline-danger remove-item">删除</button></td>
-                    </tr>
-                }
-            </tbody>
-        </table>
+    <div class="app-card mb-3">
+        <div class="app-card-header d-flex justify-content-between align-items-center gap-2">
+            <h3 class="form-section-title mb-0">合同明细</h3>
+            <button type="button" class="btn btn-sm btn-outline-primary" id="addItem">添加明细</button>
+        </div>
+        <div class="app-card-body p-0">
+            <div class="table-responsive">
+                <table class="table align-middle app-table" id="itemsTable">
+                    <thead>
+                        <tr>
+                            <th>产品或服务名称</th>
+                            <th style="width: 140px;">数量</th>
+                            <th style="width: 160px;">单价</th>
+                            <th style="width: 160px;">小计</th>
+                            <th style="width: 90px;">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for (var i = 0; i < Model.Items.Count; i++)
+                        {
+                            <tr>
+                                <td><input name="Items[@i].ProductName" value="@Model.Items[i].ProductName" class="form-control product-name" /></td>
+                                <td><input name="Items[@i].Quantity" value="@Model.Items[i].Quantity" class="form-control quantity" type="number" min="1" /></td>
+                                <td><input name="Items[@i].UnitPrice" value="@Model.Items[i].UnitPrice" class="form-control unit-price" type="number" min="0.01" step="0.01" /></td>
+                                <td><input name="Items[@i].Subtotal" value="@Model.Items[i].Subtotal" class="form-control subtotal" readonly /></td>
+                                <td><button type="button" class="btn btn-sm btn-outline-danger remove-item">删除</button></td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
 
-    <div class="mt-4 d-flex gap-2">
+    <div class="form-actions">
         <button type="submit" class="btn btn-primary">保存</button>
         <a asp-action="Detail" asp-route-id="@Model.Id" class="btn btn-outline-secondary">返回详情</a>
     </div>

@@ -1,4 +1,5 @@
 using CRM.Domain.Shared.Exceptions;
+using CRM.Domain.Customers.Events;
 using CRM.Domain.ValueObjects;
 
 namespace CRM.Domain.Customers;
@@ -21,18 +22,22 @@ public class Customer : AggregateRoot<int>
     public Customer(string name, string? creditCode, string? industry, Address address, string? remark = null)
     {
         UpdateInfo(name, creditCode, industry, address, remark);
+        AddDomainEvent(new CustomerCreatedEvent(Id, Name, DateTime.Now));
     }
 
     public Contact AddContact(string name, string? phone, string? title, string? email = null, bool isKeyDecisionMaker = false)
     {
         if (IsDeleted) throw new BusinessException("已删除客户不能新增联系人");
-        if (_contacts.Any(c => c.Name == name && (string.IsNullOrWhiteSpace(phone) || c.Phone == phone)))
+        var normalizedName = name.Trim();
+        var normalizedPhone = string.IsNullOrWhiteSpace(phone) ? null : phone.Trim();
+        if (_contacts.Any(c => c.Name == normalizedName && c.Phone == normalizedPhone))
         {
             throw new BusinessException("同一客户下联系人姓名和手机号不能重复");
         }
 
         var contact = new Contact(name, phone, title, email, isKeyDecisionMaker);
         _contacts.Add(contact);
+        AddDomainEvent(new ContactAddedEvent(Id, Name, contact.Name, contact.Phone, DateTime.Now));
         return contact;
     }
 

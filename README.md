@@ -117,6 +117,7 @@ dotnet ef database update -p CRM.Infrastructure -s CRM.Web
 ```
 
 更完整的校验、认证和多端设计见 `docs/validation-and-auth-design.md` 与 `docs/auth-and-portals.md`。
+用户管理、权限矩阵和多用户登录验收方式见 `docs/auth-and-users.md`。
 
 ## 成员分工
 

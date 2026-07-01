@@ -1,5 +1,6 @@
 using CRM.Domain.Shared.Enums;
 using CRM.Domain.Shared.Exceptions;
+using CRM.Domain.Contracts.Events;
 
 namespace CRM.Domain.Contracts;
 
@@ -77,6 +78,7 @@ public class Contract : AggregateRoot<int>
             cabinetNo,
             warningDays,
             remark);
+        AddDomainEvent(new ContractCreatedEvent(Id, ContractNo, CustomerId, TotalAmount, DateTime.Now));
     }
 
     public void UpdateBasicInfo(
@@ -159,10 +161,19 @@ public class Contract : AggregateRoot<int>
         var materializedItems = items.ToList();
         if (materializedItems.Count == 0) throw new BusinessException("合同明细至少包含一项");
 
-        _items.Clear();
-        foreach (var item in materializedItems)
+        var newItems = materializedItems
+            .Select(item => new ContractItem(item.ProductName, item.Quantity, item.UnitPrice))
+            .ToList();
+        var itemTotal = newItems.Sum(i => i.Subtotal);
+        if (itemTotal != TotalAmount)
         {
-            AddItem(item.ProductName, item.Quantity, item.UnitPrice);
+            throw new BusinessException("合同明细金额总和必须等于合同总金额");
+        }
+
+        _items.Clear();
+        foreach (var item in newItems)
+        {
+            _items.Add(item);
         }
     }
 
@@ -227,6 +238,7 @@ public class Contract : AggregateRoot<int>
     {
         if (Status != ContractStatus.Executing) throw new BusinessException("只有执行中合同可以完成");
         Status = ContractStatus.Completed;
+        AddDomainEvent(new ContractCompletedEvent(Id, ContractNo, DateTime.Now));
     }
 
     public void Cancel(string? reason = null)
@@ -235,9 +247,11 @@ public class Contract : AggregateRoot<int>
         {
             throw new BusinessException("当前合同状态不允许作废");
         }
+        if (string.IsNullOrWhiteSpace(reason)) throw new BusinessException("作废合同必须填写原因");
 
         Status = ContractStatus.Cancelled;
-        Remark = string.IsNullOrWhiteSpace(reason) ? Remark : reason.Trim();
+        Remark = reason.Trim();
+        AddDomainEvent(new ContractCancelledEvent(Id, ContractNo, Remark, DateTime.Now));
     }
 
     public void Terminate(string? reason = null)
@@ -270,6 +284,7 @@ public class Contract : AggregateRoot<int>
         }
 
         plan.RecordActualPayment(amount, actualDate);
+        AddDomainEvent(new PaymentRecordedEvent(Id, plan.Id, amount, actualDate, DateTime.Now));
         TryCompleteByPayments();
     }
 

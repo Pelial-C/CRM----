@@ -113,7 +113,7 @@ public class ContactController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    [Authorize(Roles = "Admin,Sales")]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Delete(int id, int customerId)
     {
         await _contactAppService.DeleteAsync(id);

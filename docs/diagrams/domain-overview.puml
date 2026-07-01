@@ -1,0 +1,93 @@
+@startuml
+title CRM Lite 领域模型总览
+
+skinparam packageStyle rectangle
+skinparam classAttributeIconSize 0
+
+package "客户上下文" {
+  class Customer <<AggregateRoot>> {
+    +Name
+    +CreditCode
+    +IsDeleted
+    +OwnerUserId
+    +AddContact()
+    +MarkAsDeleted()
+  }
+
+  class Contact <<Entity>> {
+    +CustomerId
+    +Name
+    +Phone
+    +IsKeyDecisionMaker
+  }
+
+  class Address <<ValueObject>> {
+    +Province
+    +City
+    +District
+    +Detail
+  }
+}
+
+package "合同上下文" {
+  class Contract <<AggregateRoot>> {
+    +ContractNo
+    +TotalAmount
+    +Status
+    +CustomerId
+    +OwnerUserId
+    +ReplaceItems()
+    +RecordPayment()
+  }
+
+  class ContractItem <<Entity>> {
+    +ProductName
+    +Quantity
+    +UnitPrice
+    +Subtotal
+  }
+
+  class PaymentPlan <<Entity>> {
+    +PlanDate
+    +PlanAmount
+    +ActualAmount
+    +Status
+  }
+}
+
+package "用户权限上下文" {
+  class AppUser <<AggregateRoot>> {
+    +UserName
+    +Role
+    +IsActive
+    +RelatedCustomerId
+    +RelatedSalesUserId
+  }
+
+  class AppRole <<AggregateRoot>> {
+    +Role
+    +Name
+    +Description
+  }
+
+  enum UserRole {
+    Admin
+    Sales
+    EnterpriseUser
+    CustomerUser
+  }
+}
+
+Customer "1" o-- "0..*" Contact
+Customer *-- Address
+Contract "1" o-- "1..*" ContractItem
+Contract "1" o-- "0..*" PaymentPlan
+Contract --> Customer : CustomerId
+Contract --> Contact : ContactId
+AppUser --> UserRole
+AppRole --> UserRole
+AppUser ..> Customer : RelatedCustomerId
+Customer ..> AppUser : OwnerUserId
+Contract ..> AppUser : OwnerUserId
+
+@enduml

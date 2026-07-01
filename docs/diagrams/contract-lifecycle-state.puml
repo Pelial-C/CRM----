@@ -1,0 +1,27 @@
+@startuml
+title 合同生命周期状态图
+
+[*] --> Draft : 创建合同
+Draft --> Executing : StartExecution()
+Draft --> Cancelled : Cancel(reason)
+Draft --> Terminated : 不允许
+
+Executing --> Completed : Complete() / 全部回款计划 Paid
+Executing --> Cancelled : Cancel(reason)
+Executing --> Terminated : Terminate(reason)
+
+Completed --> [*]
+Cancelled --> [*]
+Terminated --> [*]
+
+note right of Draft
+Draft 可编辑基础信息、
+合同明细和回款计划。
+end note
+
+note right of Cancelled
+作废必须填写原因；
+已作废合同不能登记回款。
+end note
+
+@enduml

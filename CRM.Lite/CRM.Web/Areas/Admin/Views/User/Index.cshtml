@@ -1,0 +1,86 @@
+@using CRM.Domain.Users
+@model List<AppUser>
+
+@{
+    ViewData["Title"] = "用户管理";
+}
+
+<div class="page-header">
+    <div>
+        <h2 class="page-title">用户管理</h2>
+        <p class="page-subtitle">维护系统登录账号、角色和启停用状态。</p>
+    </div>
+    <div class="page-actions">
+        <a class="btn btn-primary" asp-action="Create">新增用户</a>
+    </div>
+</div>
+
+@if (TempData["Message"] is string message)
+{
+    <div class="alert alert-success">@message</div>
+}
+
+<div class="app-card">
+    <div class="app-card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle app-table">
+                <thead>
+                    <tr>
+                        <th>用户名</th>
+                        <th>显示名称</th>
+                        <th>角色</th>
+                        <th>邮箱</th>
+                        <th>手机号</th>
+                        <th>关联客户ID</th>
+                        <th>状态</th>
+                        <th class="text-end">操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                @if (!Model.Any())
+                {
+                    <tr><td colspan="8"><div class="empty-state">暂无用户数据</div></td></tr>
+                }
+                else
+                {
+                    foreach (var user in Model)
+                    {
+                        <tr>
+                            <td>@user.UserName</td>
+                            <td>@user.DisplayName</td>
+                            <td><span class="status-badge status-info">@user.Role</span></td>
+                            <td>@user.Email</td>
+                            <td>@user.Phone</td>
+                            <td>@(user.RelatedCustomerId?.ToString() ?? "-")</td>
+                            <td>
+                                @if (user.IsActive)
+                                {
+                                    <span class="status-badge status-success">启用</span>
+                                }
+                                else
+                                {
+                                    <span class="status-badge status-danger">禁用</span>
+                                }
+                            </td>
+                            <td class="text-end">
+                                <a class="btn btn-sm btn-outline-primary" asp-action="Edit" asp-route-id="@user.Id">编辑</a>
+                                <form asp-action="SetActive" method="post" class="d-inline" data-confirm="确认切换该用户启用状态？">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="id" value="@user.Id" />
+                                    <input type="hidden" name="isActive" value="@(!user.IsActive)" />
+                                    <button class="btn btn-sm @(user.IsActive ? "btn-outline-warning" : "btn-outline-success")" type="submit">@(user.IsActive ? "禁用" : "启用")</button>
+                                </form>
+                                <form asp-action="ResetPassword" method="post" class="d-inline" data-confirm="确认重置该用户密码？">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="id" value="@user.Id" />
+                                    <button class="btn btn-sm btn-outline-secondary" type="submit">重置密码</button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

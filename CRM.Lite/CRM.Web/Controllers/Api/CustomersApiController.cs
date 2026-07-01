@@ -61,7 +61,7 @@ public class CustomersApiController : ApiControllerBase
     }
 
     [HttpDelete("{id:int}")]
-    [Authorize(Roles = "Admin,Sales")]
+    [Authorize(Roles = "Admin")]
     public async Task<ActionResult<ApiResponse<object>>> Delete(int id)
     {
         await _customerAppService.DeleteAsync(id);

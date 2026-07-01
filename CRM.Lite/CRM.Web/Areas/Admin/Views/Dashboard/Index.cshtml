@@ -4,45 +4,54 @@
     ViewData["Title"] = "管理员首页";
 }
 
-<div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
+<div class="page-header">
     <div>
-        <h2 class="mb-1">管理员首页</h2>
-        <p class="text-muted mb-0">全局客户、合同、回款和到期提醒概览。</p>
+        <h2 class="page-title">管理员首页</h2>
+        <p class="page-subtitle">全局客户、合同、回款和到期提醒概览。</p>
     </div>
-    <div class="text-muted">当前用户：@Model.UserName（@Model.Role）</div>
+    <div class="page-actions text-muted">当前用户：@Model.UserName（@Model.Role）</div>
 </div>
 
 <div class="row g-3">
-    <div class="col-md-3">
-        <div class="card border-0 shadow-sm">
-            <div class="card-body">
-                <div class="text-muted">客户总数</div>
-                <div class="fs-2 fw-bold">@Model.CustomerCount</div>
-            </div>
+    <div class="col-12 col-sm-6 col-xl-3">
+        <div class="stat-card">
+            <div class="stat-label">客户总数</div>
+            <div class="stat-value">@Model.CustomerCount</div>
+            <div class="stat-hint">全部有效客户档案</div>
         </div>
     </div>
-    <div class="col-md-3">
-        <div class="card border-0 shadow-sm">
-            <div class="card-body">
-                <div class="text-muted">合同总数</div>
-                <div class="fs-2 fw-bold">@Model.ContractCount</div>
-            </div>
+    <div class="col-12 col-sm-6 col-xl-3">
+        <div class="stat-card">
+            <div class="stat-label">合同总数</div>
+            <div class="stat-value">@Model.ContractCount</div>
+            <div class="stat-hint">全部合同台账</div>
         </div>
     </div>
-    <div class="col-md-3">
-        <div class="card border-0 shadow-sm">
-            <div class="card-body">
-                <div class="text-muted">待回款计划</div>
-                <div class="fs-2 fw-bold">@Model.PendingPaymentPlanCount</div>
-            </div>
+    <div class="col-12 col-sm-6 col-xl-3">
+        <div class="stat-card">
+            <div class="stat-label">待回款</div>
+            <div class="stat-value">@Model.PendingPaymentPlanCount</div>
+            <div class="stat-hint">未完成回款计划</div>
         </div>
     </div>
-    <div class="col-md-3">
-        <div class="card border-0 shadow-sm">
-            <div class="card-body">
-                <div class="text-muted">即将到期合同</div>
-                <div class="fs-2 fw-bold">@Model.ContractsDueIn30DaysCount</div>
-            </div>
+    <div class="col-12 col-sm-6 col-xl-3">
+        <div class="stat-card">
+            <div class="stat-label">即将到期合同</div>
+            <div class="stat-value">@Model.ContractsDueIn30DaysCount</div>
+            <div class="stat-hint">未来 30 天内到期</div>
+        </div>
+    </div>
+</div>
+
+<div class="app-card mt-4">
+    <div class="app-card-body">
+        <h3 class="form-section-title">快捷入口</h3>
+        <div class="quick-action-grid">
+            <a class="quick-action" asp-area="Admin" asp-controller="User" asp-action="Index">用户管理</a>
+            <a class="quick-action" asp-area="" asp-controller="Customer" asp-action="Index">客户管理</a>
+            <a class="quick-action" asp-area="" asp-controller="Contract" asp-action="Index">合同管理</a>
+            <a class="quick-action" asp-area="" asp-controller="Contract" asp-action="Index">回款管理</a>
+            <a class="quick-action" href="#">基础数据（后续）</a>
         </div>
     </div>
 </div>
