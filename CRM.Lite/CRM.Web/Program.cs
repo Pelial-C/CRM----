@@ -19,8 +19,17 @@ namespace CRM.Web
 
             builder.Services.AddControllersWithViews();
 
+            var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+            if (string.IsNullOrWhiteSpace(connectionString))
+            {
+                throw new InvalidOperationException("ConnectionStrings:DefaultConnection is required.");
+            }
+
             builder.Services.AddDbContext<CrmDbContext>(options =>
-                options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+                options.UseSqlServer(connectionString));
+
+            builder.Services.AddHealthChecks()
+                .AddCheck<HealthChecks.DatabaseHealthCheck>("database");
 
             builder.Services.AddScoped(typeof(IRepository<,>), typeof(EfRepository<,>));
             builder.Services.AddScoped<ICustomerAppService, CustomerAppService>();
@@ -42,9 +51,18 @@ namespace CRM.Web
 
             app.UseAuthorization();
 
+            app.MapHealthChecks("/health");
+
             app.MapControllerRoute(
                 name: "default",
                 pattern: "{controller=Home}/{action=Index}/{id?}");
+
+            if (builder.Configuration.GetValue<bool>("Database:MigrateOnStartup"))
+            {
+                using var scope = app.Services.CreateScope();
+                var dbContext = scope.ServiceProvider.GetRequiredService<CrmDbContext>();
+                dbContext.Database.Migrate();
+            }
 
             app.Run();
         }

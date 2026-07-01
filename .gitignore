@@ -1,0 +1,32 @@
+# Build output
+**/bin/
+**/obj/
+
+# IDE and local workspace
+.vs/
+.vscode/
+.idea/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Logs and temp files
+*.log
+logs/
+tmp/
+temp/
+
+# Publish output
+publish/
+artifacts/
+
+# Secrets and local-only config
+*.Development.json
+appsettings.Local.json
+*.db
+*.sqlite
+
+# OS files
+Thumbs.db
+.DS_Store

@@ -78,10 +78,22 @@ public class ContractController : Controller
             Status = contract.Status,
             CustomerId = contract.CustomerId,
             ContactId = contract.ContactId,
+            PaymentFrequency = (CRM.Domain.Shared.Enums.PaymentFrequency)contract.PaymentFrequency,
+            ServiceType = (CRM.Domain.Shared.Enums.ServiceType)contract.ServiceType,
+            ContractType = (CRM.Domain.Shared.Enums.ContractType)contract.ContractType,
             WarningDays = contract.WarningDays,
             RegionalCompany = contract.RegionalCompany,
             AffiliatedCompany = contract.AffiliatedCompany,
-            Remark = contract.Remark
+            Remark = contract.Remark,
+            Items = contract.Items.Select(i => new ContractItemDto
+            {
+                Id = i.Id,
+                ContractId = i.ContractId,
+                ProductName = i.ProductName,
+                Quantity = i.Quantity,
+                UnitPrice = i.UnitPrice,
+                Subtotal = i.Subtotal
+            }).ToList()
         };
 
         return View(dto);

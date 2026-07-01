@@ -1,8 +1,21 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+@{
+    ViewData["Title"] = "工作台";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="page-head">
+    <div>
+        <h1>CRM Lite 工作台</h1>
+        <p>客户、联系人、合同与回款的统一操作入口。</p>
+    </div>
+</div>
+
+<div class="module-grid">
+    <a asp-controller="Customer" asp-action="Index" class="module-tile">
+        <strong>客户管理</strong>
+        <span>维护企业客户、地址、联系人和客户合同概览。</span>
+    </a>
+    <a asp-controller="Contract" asp-action="Index" class="module-tile">
+        <strong>合同管理</strong>
+        <span>录入合同、明细、回款计划并跟踪履约状态。</span>
+    </a>
 </div>

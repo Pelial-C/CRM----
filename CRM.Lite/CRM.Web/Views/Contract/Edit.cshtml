@@ -1,0 +1,135 @@
+@model CRM.Application.Contracts.Contracts.Dtos.UpdateContractDto
+@{
+    ViewData["Title"] = "编辑合同";
+}
+
+<div class="page-head">
+    <div>
+        <h1>编辑合同</h1>
+        <p>调整合同基础信息与合同明细。</p>
+    </div>
+    <a asp-action="Detail" asp-route-id="@Model.Id" class="btn btn-outline-secondary">返回详情</a>
+</div>
+
+<form asp-action="Edit" method="post" class="form-workspace" id="contractForm">
+    <input asp-for="Id" type="hidden" />
+    <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+    <section class="form-panel">
+        <h2>基础信息</h2>
+        <div class="form-grid">
+            <div>
+                <label asp-for="ContractNo" class="form-label">合同编号</label>
+                <input asp-for="ContractNo" class="form-control" required />
+            </div>
+            <div>
+                <label asp-for="ContractName" class="form-label">合同名称</label>
+                <input asp-for="ContractName" class="form-control" required />
+            </div>
+            <div>
+                <label asp-for="CustomerId" class="form-label">客户 ID</label>
+                <input asp-for="CustomerId" class="form-control" type="number" min="1" required data-contact-source />
+            </div>
+            <div>
+                <label asp-for="ContactId" class="form-label">联系人</label>
+                <select asp-for="ContactId" class="form-select" data-contact-target data-current-contact="@Model.ContactId">
+                    <option value="">加载中</option>
+                </select>
+            </div>
+            <div>
+                <label asp-for="Status" class="form-label">状态</label>
+                <select asp-for="Status" class="form-select">
+                    @foreach (ContractStatus item in Enum.GetValues(typeof(ContractStatus)))
+                    {
+                        <option value="@((int)item)" selected="@(Model.Status == (int)item)">@item</option>
+                    }
+                </select>
+            </div>
+            <div>
+                <label asp-for="TotalAmount" class="form-label">合同金额</label>
+                <input asp-for="TotalAmount" class="form-control" type="number" min="0.01" step="0.01" required />
+            </div>
+            <div>
+                <label asp-for="CabinetNo" class="form-label">合同柜号</label>
+                <input asp-for="CabinetNo" class="form-control" />
+            </div>
+            <div>
+                <label asp-for="SignDate" class="form-label">签订日期</label>
+                <input asp-for="SignDate" class="form-control" type="date" value="@Model.SignDate.ToString("yyyy-MM-dd")" />
+            </div>
+            <div>
+                <label asp-for="StartDate" class="form-label">开始日期</label>
+                <input asp-for="StartDate" class="form-control" type="date" value="@Model.StartDate.ToString("yyyy-MM-dd")" />
+            </div>
+            <div>
+                <label asp-for="EndDate" class="form-label">结束日期</label>
+                <input asp-for="EndDate" class="form-control" type="date" value="@Model.EndDate.ToString("yyyy-MM-dd")" />
+            </div>
+            <div>
+                <label asp-for="WarningDays" class="form-label">到期预警天数</label>
+                <input asp-for="WarningDays" class="form-control" type="number" min="0" />
+            </div>
+        </div>
+    </section>
+
+    <section class="form-panel">
+        <h2>业务属性</h2>
+        <div class="form-grid">
+            <div>
+                <label asp-for="ServiceType" class="form-label">服务类型</label>
+                <select asp-for="ServiceType" asp-items="Html.GetEnumSelectList<ServiceType>()" class="form-select"></select>
+            </div>
+            <div>
+                <label asp-for="ContractType" class="form-label">合同类型</label>
+                <select asp-for="ContractType" asp-items="Html.GetEnumSelectList<ContractType>()" class="form-select"></select>
+            </div>
+            <div>
+                <label asp-for="PaymentFrequency" class="form-label">约定到账频率</label>
+                <select asp-for="PaymentFrequency" asp-items="Html.GetEnumSelectList<PaymentFrequency>()" class="form-select"></select>
+            </div>
+            <div>
+                <label asp-for="RegionalCompany" class="form-label">区域公司</label>
+                <input asp-for="RegionalCompany" class="form-control" />
+            </div>
+            <div>
+                <label asp-for="AffiliatedCompany" class="form-label">所属公司</label>
+                <input asp-for="AffiliatedCompany" class="form-control" />
+            </div>
+            <div class="grid-span-2">
+                <label asp-for="Remark" class="form-label">备注</label>
+                <textarea asp-for="Remark" class="form-control" rows="3"></textarea>
+            </div>
+        </div>
+    </section>
+
+    <section class="form-panel">
+        <div class="section-title">
+            <h2>合同明细</h2>
+            <button type="button" class="btn btn-sm btn-outline-primary" data-add-item>添加明细</button>
+        </div>
+        <div class="editable-table" data-items>
+            <div class="editable-row editable-head">
+                <span>产品/服务</span><span>数量</span><span>单价</span><span></span>
+            </div>
+            @for (var i = 0; i < Model.Items.Count; i++)
+            {
+                <div class="editable-row" data-item-row>
+                    <input name="Items[@i].ProductName" value="@Model.Items[i].ProductName" class="form-control" required />
+                    <input name="Items[@i].Quantity" value="@Model.Items[i].Quantity" class="form-control" type="number" min="1" required />
+                    <input name="Items[@i].UnitPrice" value="@Model.Items[i].UnitPrice" class="form-control" type="number" min="0" step="0.01" required />
+                    <button type="button" class="btn btn-outline-danger" data-remove-row>删除</button>
+                </div>
+            }
+        </div>
+    </section>
+
+    <div class="sticky-actions">
+        <button type="submit" class="btn btn-primary">保存修改</button>
+        <a asp-action="Detail" asp-route-id="@Model.Id" class="btn btn-outline-secondary">取消</a>
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script src="~/js/contract-form.js" asp-append-version="true"></script>
+}

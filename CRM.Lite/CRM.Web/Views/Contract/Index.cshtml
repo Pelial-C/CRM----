@@ -1,0 +1,81 @@
+@model CRM.Application.Contracts.Common.Dtos.PagedResultDto<CRM.Application.Contracts.Contracts.Dtos.ContractDto>
+@{
+    ViewData["Title"] = "合同管理";
+    string StatusText(int status) => Enum.IsDefined(typeof(ContractStatus), status) ? ((ContractStatus)status).ToString() : status.ToString();
+}
+
+<div class="page-head">
+    <div>
+        <h1>合同管理</h1>
+        <p>跟踪合同签订、金额、履约状态和回款计划。</p>
+    </div>
+    <a asp-action="Create" class="btn btn-primary">新建合同</a>
+</div>
+
+<form method="get" class="filter-bar">
+    <div class="filter-field">
+        <label for="keyword">关键词</label>
+        <input id="keyword" type="search" name="keyword" value="@ViewBag.Keyword" class="form-control" placeholder="合同编号、名称、客户" />
+    </div>
+    <div class="filter-field">
+        <label for="status">状态</label>
+        <select id="status" name="status" class="form-select">
+            <option value="">全部状态</option>
+            @foreach (ContractStatus item in Enum.GetValues(typeof(ContractStatus)))
+            {
+                <option value="@((int)item)" selected="@(ViewBag.Status == (int)item)">@item</option>
+            }
+        </select>
+    </div>
+    <div class="filter-actions">
+        <button type="submit" class="btn btn-outline-primary">查询</button>
+        <a asp-action="Index" class="btn btn-outline-secondary">重置</a>
+    </div>
+</form>
+
+<div class="table-surface">
+    <table class="table table-hover align-middle">
+        <thead>
+            <tr>
+                <th>合同编号</th>
+                <th>合同名称</th>
+                <th>客户</th>
+                <th>金额</th>
+                <th>状态</th>
+                <th>签订日期</th>
+                <th class="table-actions">操作</th>
+            </tr>
+        </thead>
+        <tbody>
+        @if (!Model.Items.Any())
+        {
+            <tr>
+                <td colspan="7" class="empty-state">暂无合同记录</td>
+            </tr>
+        }
+        @foreach (var item in Model.Items)
+        {
+            <tr>
+                <td><span class="mono">@item.ContractNo</span></td>
+                <td>@item.ContractName</td>
+                <td>@item.CustomerName</td>
+                <td>@item.TotalAmount.ToString("C")</td>
+                <td><span class="status-pill status-@item.Status">@StatusText(item.Status)</span></td>
+                <td>@item.SignDate.ToString("yyyy-MM-dd")</td>
+                <td class="table-actions">
+                    <a asp-action="Detail" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary">详情</a>
+                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-secondary">编辑</a>
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+</div>
+
+<nav class="pager-row">
+    <span>共 @Model.TotalCount 条，第 @Model.PageIndex / @(Model.TotalPages == 0 ? 1 : Model.TotalPages) 页</span>
+    <div>
+        <a class="btn btn-sm btn-outline-secondary @(Model.HasPreviousPage ? "" : "disabled")" asp-action="Index" asp-route-pageIndex="@(Model.PageIndex - 1)" asp-route-keyword="@ViewBag.Keyword" asp-route-status="@ViewBag.Status">上一页</a>
+        <a class="btn btn-sm btn-outline-secondary @(Model.HasNextPage ? "" : "disabled")" asp-action="Index" asp-route-pageIndex="@(Model.PageIndex + 1)" asp-route-keyword="@ViewBag.Keyword" asp-route-status="@ViewBag.Status">下一页</a>
+    </div>
+</nav>

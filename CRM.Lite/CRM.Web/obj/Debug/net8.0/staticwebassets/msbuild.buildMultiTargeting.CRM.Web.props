@@ -1,3 +1,0 @@
-﻿<Project>
-  <Import Project="..\build\CRM.Web.props" />
-</Project>

@@ -1,0 +1,156 @@
+@model CRM.Application.Contracts.Contracts.Dtos.ContractDto
+@{
+    ViewData["Title"] = "合同详情";
+    string StatusText(int status) => Enum.IsDefined(typeof(ContractStatus), status) ? ((ContractStatus)status).ToString() : status.ToString();
+    string ServiceText(int value) => Enum.IsDefined(typeof(ServiceType), value) ? ((ServiceType)value).ToString() : value.ToString();
+    string ContractTypeText(int value) => Enum.IsDefined(typeof(ContractType), value) ? ((ContractType)value).ToString() : value.ToString();
+    string FrequencyText(int value) => Enum.IsDefined(typeof(PaymentFrequency), value) ? ((PaymentFrequency)value).ToString() : value.ToString();
+}
+
+<div class="page-head">
+    <div>
+        <h1>@Model.ContractName</h1>
+        <p><span class="mono">@Model.ContractNo</span> · @Model.CustomerName</p>
+    </div>
+    <div class="action-row">
+        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-outline-primary">编辑</a>
+        <a asp-action="Index" class="btn btn-outline-secondary">返回</a>
+    </div>
+</div>
+
+<div class="detail-grid">
+    <section class="info-panel">
+        <h2>基础信息</h2>
+        <dl>
+            <dt>合同状态</dt><dd><span class="status-pill status-@Model.Status">@StatusText(Model.Status)</span></dd>
+            <dt>合同金额</dt><dd>@Model.TotalAmount.ToString("C")</dd>
+            <dt>签订日期</dt><dd>@Model.SignDate.ToString("yyyy-MM-dd")</dd>
+            <dt>起止日期</dt><dd>@Model.StartDate.ToString("yyyy-MM-dd") 至 @Model.EndDate.ToString("yyyy-MM-dd")</dd>
+            <dt>合同柜号</dt><dd>@(Model.CabinetNo ?? "-")</dd>
+            <dt>预警天数</dt><dd>@Model.WarningDays 天</dd>
+        </dl>
+    </section>
+    <section class="info-panel">
+        <h2>业务归属</h2>
+        <dl>
+            <dt>客户</dt><dd>@Model.CustomerName</dd>
+            <dt>联系人</dt><dd>@(Model.ContactName ?? "-")</dd>
+            <dt>服务类型</dt><dd>@ServiceText(Model.ServiceType)</dd>
+            <dt>合同类型</dt><dd>@ContractTypeText(Model.ContractType)</dd>
+            <dt>回款频率</dt><dd>@FrequencyText(Model.PaymentFrequency)</dd>
+            <dt>区域/所属公司</dt><dd>@(Model.RegionalCompany ?? "-") / @(Model.AffiliatedCompany ?? "-")</dd>
+        </dl>
+    </section>
+</div>
+
+<section class="table-surface">
+    <div class="section-title">
+        <h2>合同明细</h2>
+    </div>
+    <table class="table align-middle">
+        <thead>
+            <tr><th>产品/服务</th><th>数量</th><th>单价</th><th>小计</th></tr>
+        </thead>
+        <tbody>
+        @if (!Model.Items.Any())
+        {
+            <tr><td colspan="4" class="empty-state">暂无合同明细</td></tr>
+        }
+        @foreach (var item in Model.Items)
+        {
+            <tr>
+                <td>@item.ProductName</td>
+                <td>@item.Quantity</td>
+                <td>@item.UnitPrice.ToString("C")</td>
+                <td>@item.Subtotal.ToString("C")</td>
+            </tr>
+        }
+        </tbody>
+    </table>
+</section>
+
+<section class="table-surface mt-3">
+    <div class="section-title">
+        <h2>回款计划</h2>
+        <button type="button" class="btn btn-sm btn-outline-primary" onclick="generatePlans(@Model.Id)">自动生成计划</button>
+    </div>
+    <table class="table align-middle">
+        <thead>
+            <tr><th>计划日期</th><th>计划金额</th><th>实收金额</th><th>实收日期</th><th>状态</th><th>说明</th><th>操作</th></tr>
+        </thead>
+        <tbody>
+        @if (!Model.PaymentPlans.Any())
+        {
+            <tr><td colspan="7" class="empty-state">暂无回款计划</td></tr>
+        }
+        @foreach (var plan in Model.PaymentPlans)
+        {
+            <tr>
+                <td>@plan.PlanDate.ToString("yyyy-MM-dd")</td>
+                <td>@plan.PlanAmount.ToString("C")</td>
+                <td>@plan.ActualAmount.ToString("C")</td>
+                <td>@(plan.ActualDate?.ToString("yyyy-MM-dd") ?? "-")</td>
+                <td>@plan.Status</td>
+                <td>@plan.Description</td>
+                <td><button type="button" class="btn btn-sm btn-outline-success" onclick="openPayment(@Model.Id,@plan.Id)">登记回款</button></td>
+            </tr>
+        }
+        </tbody>
+    </table>
+</section>
+
+<div class="modal fade" id="paymentModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">登记回款</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="关闭"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="paymentContractId" />
+                <input type="hidden" id="paymentPlanId" />
+                <label class="form-label" for="actualAmount">实收金额</label>
+                <input id="actualAmount" class="form-control" type="number" min="0.01" step="0.01" />
+                <label class="form-label mt-3" for="actualDate">实收日期</label>
+                <input id="actualDate" class="form-control" type="date" value="@DateTime.Today.ToString("yyyy-MM-dd")" />
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-primary" onclick="recordPayment()">保存</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function postJson(url, payload) {
+            return fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            }).then(r => r.json());
+        }
+
+        function generatePlans(contractId) {
+            fetch(`/Contract/GeneratePaymentPlans?contractId=${contractId}`, { method: 'POST' })
+                .then(r => r.json())
+                .then(result => { alert(result.msg); if (result.code === 200) location.reload(); });
+        }
+
+        function openPayment(contractId, planId) {
+            document.getElementById('paymentContractId').value = contractId;
+            document.getElementById('paymentPlanId').value = planId;
+            new bootstrap.Modal(document.getElementById('paymentModal')).show();
+        }
+
+        function recordPayment() {
+            postJson('/Contract/RecordPayment', {
+                contractId: Number(document.getElementById('paymentContractId').value),
+                planId: Number(document.getElementById('paymentPlanId').value),
+                actualAmount: Number(document.getElementById('actualAmount').value),
+                actualDate: document.getElementById('actualDate').value
+            }).then(result => { alert(result.msg); if (result.code === 200) location.reload(); });
+        }
+    </script>
+}
