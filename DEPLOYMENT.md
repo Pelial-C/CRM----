@@ -73,6 +73,12 @@ Stop and status:
 .\scripts\stop-crm-lite.ps1
 ```
 
+Smoke test after deployment:
+
+```powershell
+.\scripts\smoke-test-crm-lite.ps1
+```
+
 Database backup:
 
 ```powershell

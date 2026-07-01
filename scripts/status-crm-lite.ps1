@@ -18,3 +18,14 @@ try {
 } catch {
     Write-Host "Health check failed: $($_.Exception.Message)"
 }
+
+$localAddresses = Get-NetIPAddress -AddressFamily IPv4 -ErrorAction SilentlyContinue |
+    Where-Object { $_.IPAddress -notlike "127.*" -and $_.PrefixOrigin -ne "WellKnown" } |
+    Select-Object -ExpandProperty IPAddress
+
+if ($localAddresses) {
+    Write-Host "LAN URLs:"
+    foreach ($address in $localAddresses) {
+        Write-Host "  http://$address`:$Port"
+    }
+}

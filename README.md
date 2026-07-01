@@ -50,4 +50,5 @@ Quick single-machine deployment on the E drive:
 .\scripts\publish-crm-lite.ps1
 .\scripts\start-crm-lite.ps1
 .\scripts\status-crm-lite.ps1
+.\scripts\smoke-test-crm-lite.ps1
 ```
