@@ -1,0 +1,15 @@
+@{
+    ViewData["Title"] = "无权访问";
+}
+
+<div class="text-center py-5">
+    <h1 class="display-6 text-danger">无权访问</h1>
+    <p class="text-muted">您没有权限访问该页面。请确认当前登录账号的角色，或联系系统管理员。</p>
+    <div class="d-flex justify-content-center gap-2">
+        <a class="btn btn-primary" asp-controller="Home" asp-action="Index">返回首页</a>
+        <form asp-controller="Account" asp-action="Logout" method="post">
+            @Html.AntiForgeryToken()
+            <button class="btn btn-outline-secondary" type="submit">重新登录</button>
+        </form>
+    </div>
+</div>

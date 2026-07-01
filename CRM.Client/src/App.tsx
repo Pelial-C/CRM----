@@ -11,6 +11,9 @@ import ContractCreatePage from './pages/contracts/ContractCreatePage'
 import ContractDetailPage from './pages/contracts/ContractDetailPage'
 import ContractEditPage from './pages/contracts/ContractEditPage'
 import ContractListPage from './pages/contracts/ContractListPage'
+import ApprovalPage from './pages/approvals/ApprovalPage'
+import RiskPage from './pages/risks/RiskPage'
+import ReportPage from './pages/reports/ReportPage'
 import AboutPage from './pages/system/AboutPage'
 
 function App() {
@@ -18,6 +21,7 @@ function App() {
     <Layout>
       <Routes>
         <Route path="/" element={<DashboardPage />} />
+        <Route path="/dashboard" element={<DashboardPage />} />
         <Route path="/customers" element={<CustomerListPage />} />
         <Route path="/customers/create" element={<CustomerCreatePage />} />
         <Route path="/customers/:id" element={<CustomerDetailPage />} />
@@ -28,6 +32,9 @@ function App() {
         <Route path="/contracts/create" element={<ContractCreatePage />} />
         <Route path="/contracts/:id" element={<ContractDetailPage />} />
         <Route path="/contracts/:id/edit" element={<ContractEditPage />} />
+        <Route path="/approvals" element={<ApprovalPage />} />
+        <Route path="/risks" element={<RiskPage />} />
+        <Route path="/reports" element={<ReportPage />} />
         <Route path="/about" element={<AboutPage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

@@ -1,0 +1,65 @@
+@using CRM.Application.Contracts.Contracts.Dtos
+@model ContractDto?
+
+@{
+    ViewData["Title"] = "合同详情";
+}
+
+<h2 class="mb-3">合同详情</h2>
+
+@if (ViewBag.UnboundMessage is string message)
+{
+    <div class="alert alert-warning">@message</div>
+}
+else if (Model == null)
+{
+    <div class="alert alert-warning">合同不存在或无权查看。</div>
+}
+else
+{
+    <div class="card border-0 shadow-sm mb-3">
+        <div class="card-body row g-3">
+            <div class="col-md-4"><strong>合同编号：</strong>@Model.ContractNo</div>
+            <div class="col-md-4"><strong>合同名称：</strong>@Model.ContractName</div>
+            <div class="col-md-4"><strong>合同金额：</strong>@Model.TotalAmount.ToString("N2")</div>
+            <div class="col-md-4"><strong>客户：</strong>@Model.CustomerName</div>
+            <div class="col-md-4"><strong>开始日期：</strong>@Model.StartDate.ToString("yyyy-MM-dd")</div>
+            <div class="col-md-4"><strong>结束日期：</strong>@Model.EndDate.ToString("yyyy-MM-dd")</div>
+            <div class="col-12"><strong>备注：</strong>@Model.Remark</div>
+        </div>
+    </div>
+
+    <h5>回款计划</h5>
+    <div class="table-responsive">
+        <table class="table table-sm align-middle">
+            <thead class="table-light">
+                <tr>
+                    <th>计划日期</th>
+                    <th class="text-end">计划金额</th>
+                    <th class="text-end">实际金额</th>
+                    <th>实际日期</th>
+                    <th>说明</th>
+                </tr>
+            </thead>
+            <tbody>
+            @if (!Model.PaymentPlans.Any())
+            {
+                <tr><td colspan="5" class="text-center text-muted py-3">暂无回款计划</td></tr>
+            }
+            else
+            {
+                foreach (var plan in Model.PaymentPlans)
+                {
+                    <tr>
+                        <td>@plan.PlanDate.ToString("yyyy-MM-dd")</td>
+                        <td class="text-end">@plan.PlanAmount.ToString("N2")</td>
+                        <td class="text-end">@plan.ActualAmount.ToString("N2")</td>
+                        <td>@(plan.ActualDate?.ToString("yyyy-MM-dd") ?? "-")</td>
+                        <td>@plan.Description</td>
+                    </tr>
+                }
+            }
+            </tbody>
+        </table>
+    </div>
+}

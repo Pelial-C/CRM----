@@ -1,0 +1,16 @@
+@{
+    ViewData["Title"] = "客户门户首页";
+    var relatedCustomerId = ViewBag.RelatedCustomerId as string;
+}
+
+<h2 class="mb-3">客户门户首页</h2>
+<p class="text-muted">外部客户用户只能查看与自身企业相关的合同、回款计划和联系人信息。</p>
+
+@if (string.IsNullOrWhiteSpace(relatedCustomerId))
+{
+    <div class="alert alert-warning">当前账号未绑定客户信息，请联系系统管理员。</div>
+}
+
+<div class="d-flex gap-2">
+    <a class="btn btn-primary" asp-area="CustomerPortal" asp-controller="Contracts" asp-action="Index">我的合同</a>
+</div>

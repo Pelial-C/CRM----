@@ -18,6 +18,7 @@ public class Contract : AggregateRoot<int>
     public int CustomerId { get; private set; }
     public string CustomerName { get; private set; } = string.Empty;
     public string PartyAName => CustomerName;
+    public int? OwnerUserId { get; private set; }
     public int? ContactId { get; private set; }
     public string? ContactName { get; private set; }
 
@@ -278,6 +279,13 @@ public class Contract : AggregateRoot<int>
         {
             plan.MarkOverdue(today);
         }
+    }
+
+    public void SetOwner(int? ownerUserId)
+    {
+        if (ownerUserId.HasValue && ownerUserId.Value <= 0) throw new BusinessException("负责人用户ID无效");
+
+        OwnerUserId = ownerUserId;
     }
 
     private void TryCompleteByPayments()

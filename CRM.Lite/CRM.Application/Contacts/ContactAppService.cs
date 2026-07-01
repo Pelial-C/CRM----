@@ -1,5 +1,6 @@
 using CRM.Application.Contracts.Contacts;
 using CRM.Application.Contracts.Contacts.Dtos;
+using CRM.Domain.Contracts;
 using CRM.Domain.Customers;
 using CRM.Domain.Repositories;
 using CRM.Domain.Shared.Exceptions;
@@ -10,10 +11,12 @@ namespace CRM.Application.Contacts;
 public class ContactAppService : IContactAppService
 {
     private readonly IRepository<Customer, int> _customerRepo;
+    private readonly IRepository<Contract, int> _contractRepo;
 
-    public ContactAppService(IRepository<Customer, int> customerRepo)
+    public ContactAppService(IRepository<Customer, int> customerRepo, IRepository<Contract, int> contractRepo)
     {
         _customerRepo = customerRepo;
+        _contractRepo = contractRepo;
     }
 
     public async Task<List<ContactDto>> GetListByCustomerIdAsync(int customerId)
@@ -38,6 +41,7 @@ public class ContactAppService : IContactAppService
         var customer = await _customerRepo.GetByIdAsync(customerId);
         if (customer == null) throw new BusinessException("客户不存在");
         if (customer.IsDeleted) throw new BusinessException("已删除客户不能新增联系人");
+        EnsureContactUnique(customer, input.Name, input.Phone);
 
         var contact = customer.AddContact(input.Name ?? string.Empty, input.Phone, input.Title, input.Email, input.IsKeyDecisionMaker);
         await _customerRepo.UpdateAsync(customer);
@@ -49,6 +53,7 @@ public class ContactAppService : IContactAppService
     {
         var result = await FindContactAsync(input.Id);
         if (result.Customer.IsDeleted) throw new BusinessException("已删除客户不能维护联系人");
+        EnsureContactUnique(result.Customer, input.Name, input.Phone, input.Id);
 
         result.Contact.Update(input.Name ?? string.Empty, input.Phone, input.Title, input.Email, input.IsKeyDecisionMaker);
         await _customerRepo.UpdateAsync(result.Customer);
@@ -58,6 +63,8 @@ public class ContactAppService : IContactAppService
     {
         var result = await FindContactAsync(id);
         if (result.Customer.IsDeleted) throw new BusinessException("已删除客户不能维护联系人");
+        var isUsedByContract = await _contractRepo.Query().AnyAsync(c => c.ContactId == id);
+        if (isUsedByContract) throw new BusinessException("该联系人已被合同使用，不能删除");
 
         result.Customer.RemoveContact(id);
         await _customerRepo.UpdateAsync(result.Customer);
@@ -72,6 +79,18 @@ public class ContactAppService : IContactAppService
 
         var contact = customer.Contacts.First(c => c.Id == id);
         return (customer, contact);
+    }
+
+    private static void EnsureContactUnique(Customer customer, string? name, string? phone, int? excludeId = null)
+    {
+        var normalizedName = (name ?? string.Empty).Trim();
+        var normalizedPhone = string.IsNullOrWhiteSpace(phone) ? null : phone.Trim();
+        var exists = customer.Contacts.Any(c =>
+            (!excludeId.HasValue || c.Id != excludeId.Value) &&
+            c.Name == normalizedName &&
+            (c.Phone ?? string.Empty) == (normalizedPhone ?? string.Empty));
+
+        if (exists) throw new BusinessException("同一客户下联系人姓名和手机号不能重复");
     }
 
     private static ContactDto MapToDto(Contact contact)

@@ -1,0 +1,48 @@
+@using CRM.Application.Contracts.Contracts.Dtos
+@model List<ContractDto>
+
+@{
+    ViewData["Title"] = "我的合同";
+}
+
+<h2 class="mb-3">我的合同</h2>
+
+@if (ViewBag.UnboundMessage is string message)
+{
+    <div class="alert alert-warning">@message</div>
+}
+
+<div class="table-responsive">
+    <table class="table table-hover align-middle">
+        <thead class="table-light">
+            <tr>
+                <th>合同编号</th>
+                <th>合同名称</th>
+                <th>合同金额</th>
+                <th>开始日期</th>
+                <th>结束日期</th>
+                <th class="text-end">操作</th>
+            </tr>
+        </thead>
+        <tbody>
+        @if (!Model.Any())
+        {
+            <tr><td colspan="6" class="text-center text-muted py-4">暂无可查看合同</td></tr>
+        }
+        else
+        {
+            foreach (var contract in Model)
+            {
+                <tr>
+                    <td>@contract.ContractNo</td>
+                    <td>@contract.ContractName</td>
+                    <td>@contract.TotalAmount.ToString("N2")</td>
+                    <td>@contract.StartDate.ToString("yyyy-MM-dd")</td>
+                    <td>@contract.EndDate.ToString("yyyy-MM-dd")</td>
+                    <td class="text-end"><a class="btn btn-sm btn-outline-primary" asp-action="Detail" asp-route-id="@contract.Id">查看</a></td>
+                </tr>
+            }
+        }
+        </tbody>
+    </table>
+</div>

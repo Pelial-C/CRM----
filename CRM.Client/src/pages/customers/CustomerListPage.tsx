@@ -1,131 +1,118 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { Link } from 'react-router-dom'
+import { useMemo, useState } from 'react'
+import { contractApi } from '../../api/contractApi'
 import { customerApi } from '../../api/customerApi'
-import ConfirmButton from '../../components/ConfirmButton'
 import ErrorMessage from '../../components/ErrorMessage'
 import Loading from '../../components/Loading'
 import PageHeader from '../../components/PageHeader'
-import { formatDate } from '../../utils/date'
+import CustomerTable from '../../components/customers/CustomerTable'
 
 const pageSize = 10
 
 function CustomerListPage() {
   const queryClient = useQueryClient()
-  const search = new URLSearchParams(window.location.search)
-  const pageIndex = Number(search.get('page') ?? 1)
-  const keyword = search.get('keyword') ?? ''
-  const industry = search.get('industry') ?? ''
-  const includeDeleted = search.get('includeDeleted') === 'true'
+  const [keyword, setKeyword] = useState('')
+  const [industry, setIndustry] = useState('')
+  const [level, setLevel] = useState('')
+  const [includeDeleted, setIncludeDeleted] = useState(false)
+  const [pageIndex, setPageIndex] = useState(1)
+  const [success, setSuccess] = useState('')
 
-  const { data = [], isLoading, error } = useQuery({
+  const customers = useQuery({
     queryKey: ['customers', keyword, industry, includeDeleted],
     queryFn: () => customerApi.getList({ keyword, industry, includeDeleted }),
   })
+  const contracts = useQuery({
+    queryKey: ['customer-contract-counts'],
+    queryFn: () => contractApi.getList({ pageIndex: 1, pageSize: 1000 }),
+  })
 
-  const totalPages = Math.max(1, Math.ceil(data.length / pageSize))
-  const pageItems = data.slice((pageIndex - 1) * pageSize, pageIndex * pageSize)
+  const contractCounts = useMemo(() => {
+    const result: Record<number, number> = {}
+    for (const contract of contracts.data?.items ?? []) {
+      result[contract.customerId] = (result[contract.customerId] ?? 0) + 1
+    }
+    return result
+  }, [contracts.data?.items])
 
-  const submitSearch = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault()
-    const form = new FormData(event.currentTarget)
-    const params = new URLSearchParams()
-    const nextKeyword = String(form.get('keyword') ?? '').trim()
-    const nextIndustry = String(form.get('industry') ?? '').trim()
-    if (nextKeyword) params.set('keyword', nextKeyword)
-    if (nextIndustry) params.set('industry', nextIndustry)
-    if (form.get('includeDeleted') === 'on') params.set('includeDeleted', 'true')
-    window.location.search = params.toString()
+  const filteredCustomers = useMemo(() => {
+    return (customers.data ?? []).filter((customer) => {
+      const contactCount = customer.contacts?.length ?? 0
+      const customerLevel = contactCount >= 3 ? '战略客户' : contactCount >= 1 ? '重点客户' : '普通客户'
+      return level ? customerLevel === level : true
+    })
+  }, [customers.data, level])
+
+  const totalPages = Math.max(1, Math.ceil(filteredCustomers.length / pageSize))
+  const pageItems = filteredCustomers.slice((pageIndex - 1) * pageSize, pageIndex * pageSize)
+
+  const resetFilters = () => {
+    setKeyword('')
+    setIndustry('')
+    setLevel('')
+    setIncludeDeleted(false)
+    setPageIndex(1)
+  }
+
+  const removeCustomer = async (id: number) => {
+    setSuccess('')
+    await customerApi.remove(id)
+    await queryClient.invalidateQueries({ queryKey: ['customers'] })
+    setSuccess('客户已删除。')
   }
 
   return (
     <>
       <PageHeader
         title="客户管理"
-        description="维护企业客户和联系人"
+        description="维护客户档案、联系人、客户等级和关联合同信息。"
         actions={<Link className="btn btn-primary" to="/customers/create">新增客户</Link>}
       />
-      <form className="page-band mb-3" onSubmit={submitSearch}>
+
+      <div className="filter-panel mb-3">
         <div className="row g-3 align-items-end">
-          <div className="col-md-4">
-            <label className="form-label">企业名称 / 信用代码</label>
-            <input name="keyword" className="form-control" defaultValue={keyword} />
+          <div className="col-12 col-md-4">
+            <label className="form-label">客户名称 / 信用代码</label>
+            <input className="form-control" value={keyword} onChange={(e) => { setKeyword(e.target.value); setPageIndex(1) }} placeholder="输入企业名称或统一社会信用代码" />
           </div>
-          <div className="col-md-3">
+          <div className="col-12 col-md-3">
             <label className="form-label">行业</label>
-            <input name="industry" className="form-control" defaultValue={industry} />
+            <input className="form-control" value={industry} onChange={(e) => { setIndustry(e.target.value); setPageIndex(1) }} placeholder="输入行业关键词" />
           </div>
-          <div className="col-md-3">
-            <div className="form-check mt-4">
-              <input className="form-check-input" id="includeDeleted" name="includeDeleted" type="checkbox" defaultChecked={includeDeleted} />
+          <div className="col-12 col-md-2">
+            <label className="form-label">客户等级</label>
+            <select className="form-select" value={level} onChange={(e) => { setLevel(e.target.value); setPageIndex(1) }}>
+              <option value="">全部等级</option>
+              <option value="战略客户">战略客户</option>
+              <option value="重点客户">重点客户</option>
+              <option value="普通客户">普通客户</option>
+            </select>
+          </div>
+          <div className="col-12 col-md-2">
+            <div className="form-check">
+              <input className="form-check-input" id="includeDeleted" type="checkbox" checked={includeDeleted} onChange={(e) => setIncludeDeleted(e.target.checked)} />
               <label className="form-check-label" htmlFor="includeDeleted">显示已删除客户</label>
             </div>
           </div>
-          <div className="col-md-2">
-            <button className="btn btn-outline-primary w-100" type="submit">搜索</button>
+          <div className="col-12 col-md-1 d-grid">
+            <button className="btn btn-outline-secondary" type="button" onClick={resetFilters}>重置</button>
           </div>
         </div>
-      </form>
-      <ErrorMessage message={error instanceof Error ? error.message : undefined} />
-      {isLoading ? <Loading /> : null}
+      </div>
+
+      <ErrorMessage message={(customers.error ?? contracts.error) instanceof Error ? ((customers.error ?? contracts.error) as Error).message : undefined} />
+      {success ? <div className="alert alert-success">{success}</div> : null}
+      {customers.isLoading ? <Loading /> : null}
+
       <div className="page-band">
-        <div className="table-responsive">
-          <table className="table table-hover">
-            <thead>
-              <tr>
-                <th>企业名称</th>
-                <th>统一社会信用代码</th>
-                <th>行业</th>
-                <th>地址</th>
-                <th>创建时间</th>
-                <th>状态</th>
-                <th>操作</th>
-              </tr>
-            </thead>
-            <tbody>
-              {pageItems.map((customer) => (
-                <tr key={customer.id}>
-                  <td>{customer.name}</td>
-                  <td>{customer.creditCode ?? '-'}</td>
-                  <td>{customer.industry ?? '-'}</td>
-                  <td>{[customer.province, customer.city, customer.district, customer.detailAddress].filter(Boolean).join(' ') || '-'}</td>
-                  <td>{formatDate(customer.creationTime)}</td>
-                  <td>
-                    <span className={`badge badge-fixed ${customer.isDeleted ? 'text-bg-secondary' : 'text-bg-success'}`}>
-                      {customer.isDeleted ? '已删除' : '正常'}
-                    </span>
-                  </td>
-                  <td>
-                    <div className="btn-group btn-group-sm">
-                      <Link className="btn btn-outline-primary" to={`/customers/${customer.id}`}>详情</Link>
-                      <Link className="btn btn-outline-secondary" to={`/customers/${customer.id}/edit`}>编辑</Link>
-                      <ConfirmButton
-                        className="btn btn-outline-danger"
-                        message="确认删除该客户？有关联合同客户将进行逻辑删除。"
-                        disabled={customer.isDeleted}
-                        onConfirm={async () => {
-                          await customerApi.remove(customer.id)
-                          await queryClient.invalidateQueries({ queryKey: ['customers'] })
-                        }}
-                      >
-                        删除
-                      </ConfirmButton>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-        <div className="d-flex justify-content-between align-items-center">
-          <span className="text-secondary">共 {data.length} 条</span>
+        <CustomerTable customers={pageItems} contractCounts={contractCounts} onRemove={removeCustomer} />
+        <div className="d-flex flex-wrap justify-content-between align-items-center gap-2 mt-3">
+          <span className="text-secondary">共 {filteredCustomers.length} 条</span>
           <div className="btn-group">
-            <Link className={`btn btn-outline-secondary btn-sm ${pageIndex <= 1 ? 'disabled' : ''}`} to={`?page=${pageIndex - 1}`}>
-              上一页
-            </Link>
+            <button className="btn btn-outline-secondary btn-sm" disabled={pageIndex <= 1} onClick={() => setPageIndex((current) => current - 1)}>上一页</button>
             <span className="btn btn-outline-secondary btn-sm disabled">{pageIndex} / {totalPages}</span>
-            <Link className={`btn btn-outline-secondary btn-sm ${pageIndex >= totalPages ? 'disabled' : ''}`} to={`?page=${pageIndex + 1}`}>
-              下一页
-            </Link>
+            <button className="btn btn-outline-secondary btn-sm" disabled={pageIndex >= totalPages} onClick={() => setPageIndex((current) => current + 1)}>下一页</button>
           </div>
         </div>
       </div>

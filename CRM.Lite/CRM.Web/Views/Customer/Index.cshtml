@@ -1,10 +1,14 @@
 @{
     ViewData["Title"] = "客户管理";
+    var canManage = User.IsInRole("Admin") || User.IsInRole("Sales");
 }
 
 <div class="d-flex align-items-center justify-content-between mb-3">
     <h2 class="mb-0">客户管理</h2>
-    <a class="btn btn-primary" asp-action="Create">新增客户</a>
+    @if (canManage)
+    {
+        <a class="btn btn-primary" asp-action="Create">新增客户</a>
+    }
 </div>
 
 <div class="row g-2 align-items-end mb-3">
@@ -54,7 +58,7 @@
                 res.data.forEach(function (item) {
                     const status = item.isDeleted ? '<span class="badge bg-danger">已删除/禁用</span>' : '<span class="badge bg-success">正常</span>';
                     const address = [item.province, item.city, item.district, item.detailAddress].filter(Boolean).join('');
-                    const actions = item.isDeleted ? '' : `
+                    const actions = item.isDeleted || '@canManage'.toLowerCase() !== 'true' ? '' : `
                         <a class="btn btn-sm btn-outline-primary" href="/Customer/Edit/${item.id}">编辑</a>
                         <button class="btn btn-sm btn-outline-danger delete-customer" data-id="${item.id}">删除</button>`;
                     rows.append(`<tr>
@@ -73,7 +77,13 @@
         $('#searchCustomer,#includeDeleted').on('click change', loadCustomers);
         $(document).on('click', '.delete-customer', function () {
             if (!confirm('确认删除该客户？存在合同时将按逻辑删除处理。')) return;
-            $.post('/Customer/Delete', { id: $(this).data('id') }, loadCustomers);
+            $.post('/Customer/Delete', { id: $(this).data('id') }, function (res) {
+                if (res && res.code !== 200) {
+                    alert(res.msg || '删除失败');
+                    return;
+                }
+                loadCustomers();
+            });
         });
         loadCustomers();
     </script>

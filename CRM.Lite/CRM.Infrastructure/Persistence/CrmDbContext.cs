@@ -1,5 +1,6 @@
 using CRM.Domain.Contracts;
 using CRM.Domain.Customers;
+using CRM.Domain.Users;
 using Microsoft.EntityFrameworkCore;
 
 namespace CRM.Infrastructure.Persistence;
@@ -16,6 +17,8 @@ public class CrmDbContext : DbContext
     public DbSet<Contract> Contracts => Set<Contract>();
     public DbSet<ContractItem> ContractItems => Set<ContractItem>();
     public DbSet<PaymentPlan> PaymentPlans => Set<PaymentPlan>();
+    public DbSet<AppUser> AppUsers => Set<AppUser>();
+    public DbSet<AppRole> AppRoles => Set<AppRole>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -26,6 +29,8 @@ public class CrmDbContext : DbContext
         ConfigureContract(modelBuilder);
         ConfigureContractItem(modelBuilder);
         ConfigurePaymentPlan(modelBuilder);
+        ConfigureAppUser(modelBuilder);
+        ConfigureAppRole(modelBuilder);
     }
 
     private static void ConfigureCustomer(ModelBuilder modelBuilder)
@@ -42,6 +47,7 @@ public class CrmDbContext : DbContext
         entity.Property(c => c.Industry).HasMaxLength(50);
         entity.Property(c => c.Remark).HasMaxLength(500);
         entity.Property(c => c.IsDeleted).HasDefaultValue(false);
+        entity.Property(c => c.OwnerUserId);
         entity.Property(c => c.CreationTime).IsRequired();
 
         entity.OwnsOne(c => c.Address, address =>
@@ -88,6 +94,7 @@ public class CrmDbContext : DbContext
         entity.Property(c => c.ContractName).IsRequired().HasMaxLength(100);
         entity.Property(c => c.CabinetNo).HasMaxLength(50);
         entity.Property(c => c.CustomerId).IsRequired();
+        entity.Property(c => c.OwnerUserId);
         entity.Property(c => c.CustomerName).IsRequired().HasMaxLength(100);
         entity.Ignore(c => c.PartyAName);
         entity.Property(c => c.ContactId);
@@ -155,5 +162,42 @@ public class CrmDbContext : DbContext
         entity.Property(p => p.ActualAmount).HasColumnType("decimal(18,2)");
         entity.Property(p => p.Status).HasConversion<int>().IsRequired();
         entity.Property(p => p.Description).HasMaxLength(200);
+    }
+
+    private static void ConfigureAppUser(ModelBuilder modelBuilder)
+    {
+        var entity = modelBuilder.Entity<AppUser>();
+
+        entity.ToTable("AppUsers");
+        entity.HasKey(u => u.Id);
+        entity.Property(u => u.Id).ValueGeneratedOnAdd();
+        entity.Property(u => u.UserName).IsRequired().HasMaxLength(50);
+        entity.HasIndex(u => u.UserName).IsUnique();
+        entity.Property(u => u.PasswordHash).IsRequired().HasMaxLength(500);
+        entity.Property(u => u.DisplayName).IsRequired().HasMaxLength(50);
+        entity.Property(u => u.Email).HasMaxLength(100);
+        entity.HasIndex(u => u.Email);
+        entity.Property(u => u.Phone).HasMaxLength(30);
+        entity.Property(u => u.Role).HasConversion<int>().IsRequired();
+        entity.Property(u => u.IsActive).HasDefaultValue(true);
+        entity.Property(u => u.RelatedCustomerId);
+        entity.Property(u => u.RelatedSalesUserId);
+        entity.Property(u => u.CreatedAt).IsRequired();
+        entity.Property(u => u.UpdatedAt);
+        entity.Property(u => u.CreationTime).IsRequired();
+    }
+
+    private static void ConfigureAppRole(ModelBuilder modelBuilder)
+    {
+        var entity = modelBuilder.Entity<AppRole>();
+
+        entity.ToTable("AppRoles");
+        entity.HasKey(r => r.Id);
+        entity.Property(r => r.Id).ValueGeneratedOnAdd();
+        entity.Property(r => r.Role).HasConversion<int>().IsRequired();
+        entity.HasIndex(r => r.Role).IsUnique();
+        entity.Property(r => r.Name).IsRequired().HasMaxLength(50);
+        entity.Property(r => r.Description).HasMaxLength(200);
+        entity.Property(r => r.CreationTime).IsRequired();
     }
 }

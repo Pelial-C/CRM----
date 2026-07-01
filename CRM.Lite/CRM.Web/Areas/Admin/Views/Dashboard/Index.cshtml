@@ -1,0 +1,48 @@
+@model CRM.Web.Areas.Admin.Controllers.AdminDashboardViewModel
+
+@{
+    ViewData["Title"] = "管理员首页";
+}
+
+<div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
+    <div>
+        <h2 class="mb-1">管理员首页</h2>
+        <p class="text-muted mb-0">全局客户、合同、回款和到期提醒概览。</p>
+    </div>
+    <div class="text-muted">当前用户：@Model.UserName（@Model.Role）</div>
+</div>
+
+<div class="row g-3">
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <div class="text-muted">客户总数</div>
+                <div class="fs-2 fw-bold">@Model.CustomerCount</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <div class="text-muted">合同总数</div>
+                <div class="fs-2 fw-bold">@Model.ContractCount</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <div class="text-muted">待回款计划</div>
+                <div class="fs-2 fw-bold">@Model.PendingPaymentPlanCount</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <div class="text-muted">即将到期合同</div>
+                <div class="fs-2 fw-bold">@Model.ContractsDueIn30DaysCount</div>
+            </div>
+        </div>
+    </div>
+</div>

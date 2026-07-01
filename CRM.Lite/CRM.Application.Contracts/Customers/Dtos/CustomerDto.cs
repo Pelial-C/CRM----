@@ -14,6 +14,7 @@ public class CustomerDto
     public string? Industry { get; set; }
     public string? Remark { get; set; }
     public bool IsDeleted { get; set; }
+    public int? OwnerUserId { get; set; }
 
     // 将值对象 Address 展平为普通字符串，方便前端展示
     public string? Province { get; set; }

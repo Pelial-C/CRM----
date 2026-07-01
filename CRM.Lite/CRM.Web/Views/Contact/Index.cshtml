@@ -1,0 +1,83 @@
+@using CRM.Application.Contracts.Contacts.Dtos
+@using CRM.Application.Contracts.Customers.Dtos
+@model List<ContactDto>
+
+@{
+    ViewData["Title"] = "联系人管理";
+    var customers = ViewBag.Customers as List<CustomerSelectDto> ?? new List<CustomerSelectDto>();
+    var customerId = ViewBag.CustomerId as int?;
+    var canEdit = User.IsInRole("Admin") || User.IsInRole("Sales");
+}
+
+<div class="d-flex align-items-center justify-content-between mb-3">
+    <h2 class="mb-0">联系人管理</h2>
+    @if (canEdit)
+    {
+        <a class="btn btn-primary" asp-action="Create" asp-route-customerId="@customerId">新增联系人</a>
+    }
+</div>
+
+<form method="get" class="row g-2 align-items-end mb-3">
+    <div class="col-md-6">
+        <label class="form-label">客户</label>
+        <select name="customerId" class="form-select">
+            <option value="">请选择客户</option>
+            @foreach (var customer in customers)
+            {
+                <option value="@customer.Id" selected="@(customerId == customer.Id)">@customer.Name</option>
+            }
+        </select>
+    </div>
+    <div class="col-md-3">
+        <button class="btn btn-outline-primary" type="submit">查询联系人</button>
+    </div>
+</form>
+
+<div class="table-responsive">
+    <table class="table table-hover align-middle">
+        <thead class="table-light">
+            <tr>
+                <th>姓名</th>
+                <th>职务</th>
+                <th>手机号</th>
+                <th>邮箱</th>
+                <th>关键决策人</th>
+                @if (canEdit)
+                {
+                    <th class="text-end">操作</th>
+                }
+            </tr>
+        </thead>
+        <tbody>
+        @if (!Model.Any())
+        {
+            <tr><td colspan="@(canEdit ? 6 : 5)" class="text-center text-muted py-4">请选择客户查看联系人</td></tr>
+        }
+        else
+        {
+            foreach (var contact in Model)
+            {
+                <tr>
+                    <td>@contact.Name</td>
+                    <td>@contact.Title</td>
+                    <td>@contact.Phone</td>
+                    <td>@contact.Email</td>
+                    <td>@(contact.IsKeyDecisionMaker ? "是" : "否")</td>
+                    @if (canEdit)
+                    {
+                        <td class="text-end">
+                            <a class="btn btn-sm btn-outline-primary" asp-action="Edit" asp-route-id="@contact.Id">编辑</a>
+                            <form asp-action="Delete" method="post" class="d-inline" onsubmit="return confirm('确认删除该联系人？');">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="id" value="@contact.Id" />
+                                <input type="hidden" name="customerId" value="@contact.CustomerId" />
+                                <button class="btn btn-sm btn-outline-danger" type="submit">删除</button>
+                            </form>
+                        </td>
+                    }
+                </tr>
+            }
+        }
+        </tbody>
+    </table>
+</div>

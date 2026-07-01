@@ -11,6 +11,7 @@ public class Customer : AggregateRoot<int>
     public Address Address { get; private set; } = Address.Empty;
     public string? Remark { get; private set; }
     public bool IsDeleted { get; private set; }
+    public int? OwnerUserId { get; private set; }
 
     private readonly List<Contact> _contacts = new();
     public IReadOnlyCollection<Contact> Contacts => _contacts.AsReadOnly();
@@ -25,7 +26,10 @@ public class Customer : AggregateRoot<int>
     public Contact AddContact(string name, string? phone, string? title, string? email = null, bool isKeyDecisionMaker = false)
     {
         if (IsDeleted) throw new BusinessException("已删除客户不能新增联系人");
-        if (_contacts.Any(c => c.Name == name)) throw new BusinessException("联系人姓名不能重复");
+        if (_contacts.Any(c => c.Name == name && (string.IsNullOrWhiteSpace(phone) || c.Phone == phone)))
+        {
+            throw new BusinessException("同一客户下联系人姓名和手机号不能重复");
+        }
 
         var contact = new Contact(name, phone, title, email, isKeyDecisionMaker);
         _contacts.Add(contact);
@@ -56,5 +60,12 @@ public class Customer : AggregateRoot<int>
     public void MarkAsDeleted()
     {
         IsDeleted = true;
+    }
+
+    public void SetOwner(int? ownerUserId)
+    {
+        if (ownerUserId.HasValue && ownerUserId.Value <= 0) throw new BusinessException("负责人用户ID无效");
+
+        OwnerUserId = ownerUserId;
     }
 }

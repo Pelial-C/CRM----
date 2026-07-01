@@ -21,7 +21,7 @@ public class ContractItem : Entity<int>
     {
         if (string.IsNullOrWhiteSpace(productName)) throw new BusinessException("产品或服务名称不能为空");
         if (quantity <= 0) throw new BusinessException("数量必须大于0");
-        if (unitPrice < 0) throw new BusinessException("单价不能为负");
+        if (unitPrice <= 0) throw new BusinessException("单价必须大于0");
 
         ProductName = productName.Trim();
         Quantity = quantity;

@@ -14,6 +14,7 @@ public class ContractDto
     public decimal TotalAmount { get; set; }
     public int Status { get; set; }
     public int CustomerId { get; set; }
+    public int? OwnerUserId { get; set; }
     public string? CustomerName { get; set; }
     public int? ContactId { get; set; }
     public string? ContactName { get; set; }

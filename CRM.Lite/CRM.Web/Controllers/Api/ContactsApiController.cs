@@ -1,11 +1,13 @@
 using CRM.Application.Contracts.Contacts;
 using CRM.Application.Contracts.Contacts.Dtos;
 using CRM.Web.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CRM.Web.Controllers.Api;
 
 [Route("api/contacts")]
+[Authorize(Roles = "Admin,Sales,EnterpriseUser")]
 public class ContactsApiController : ApiControllerBase
 {
     private readonly IContactAppService _contactAppService;
@@ -22,6 +24,7 @@ public class ContactsApiController : ApiControllerBase
     }
 
     [HttpPut("{id:int}")]
+    [Authorize(Roles = "Admin,Sales")]
     public async Task<ActionResult<ApiResponse<object>>> Update(int id, UpdateContactDto input)
     {
         input.Id = id;
@@ -30,6 +33,7 @@ public class ContactsApiController : ApiControllerBase
     }
 
     [HttpDelete("{id:int}")]
+    [Authorize(Roles = "Admin,Sales")]
     public async Task<ActionResult<ApiResponse<object>>> Delete(int id)
     {
         await _contactAppService.DeleteAsync(id);

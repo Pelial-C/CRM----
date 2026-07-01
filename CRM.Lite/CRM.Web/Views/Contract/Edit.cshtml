@@ -11,10 +11,11 @@
 
 <h2 class="mb-3">编辑合同</h2>
 
-<form asp-action="Edit" method="post">
+<form asp-action="Edit" method="post" id="contractForm">
     @Html.AntiForgeryToken()
     <input asp-for="Id" type="hidden" />
     <input asp-for="Status" type="hidden" />
+    <input asp-for="OwnerUserId" type="hidden" />
     <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
     <div class="row g-3">
@@ -31,6 +32,7 @@
         <div class="col-md-4">
             <label asp-for="CabinetNo" class="form-label">合同柜编号</label>
             <input asp-for="CabinetNo" class="form-control" />
+            <span asp-validation-for="CabinetNo" class="text-danger"></span>
         </div>
 
         <div class="col-md-4">
@@ -53,6 +55,7 @@
                     <option value="@contact.ContactId">@contact.ContactName (@contact.Phone)</option>
                 }
             </select>
+            <span asp-validation-for="ContactId" class="text-danger"></span>
         </div>
         <div class="col-md-4">
             <label asp-for="TotalAmount" class="form-label">合同总金额</label>
@@ -63,10 +66,12 @@
         <div class="col-md-3">
             <label asp-for="SignDate" class="form-label">签订日期</label>
             <input asp-for="SignDate" type="date" class="form-control" />
+            <span asp-validation-for="SignDate" class="text-danger"></span>
         </div>
         <div class="col-md-3">
             <label asp-for="StartDate" class="form-label">开始日期</label>
             <input asp-for="StartDate" type="date" class="form-control" />
+            <span asp-validation-for="StartDate" class="text-danger"></span>
         </div>
         <div class="col-md-3">
             <label asp-for="EndDate" class="form-label">结束日期</label>
@@ -87,6 +92,7 @@
                     <option value="@value">@EnumDisplayHelper.PaymentFrequencyText(value)</option>
                 }
             </select>
+            <span asp-validation-for="PaymentFrequency" class="text-danger"></span>
         </div>
         <div class="col-md-4">
             <label asp-for="ServiceType" class="form-label">服务类型</label>
@@ -96,6 +102,7 @@
                     <option value="@value">@EnumDisplayHelper.ServiceTypeText(value)</option>
                 }
             </select>
+            <span asp-validation-for="ServiceType" class="text-danger"></span>
         </div>
         <div class="col-md-4">
             <label asp-for="ContractType" class="form-label">合同类型</label>
@@ -105,21 +112,27 @@
                     <option value="@value">@EnumDisplayHelper.ContractTypeText(value)</option>
                 }
             </select>
+            <span asp-validation-for="ContractType" class="text-danger"></span>
         </div>
 
         <div class="col-md-6">
             <label asp-for="RegionalCompany" class="form-label">区域公司</label>
             <input asp-for="RegionalCompany" class="form-control" />
+            <span asp-validation-for="RegionalCompany" class="text-danger"></span>
         </div>
         <div class="col-md-6">
             <label asp-for="AffiliatedCompany" class="form-label">所属公司</label>
             <input asp-for="AffiliatedCompany" class="form-control" />
+            <span asp-validation-for="AffiliatedCompany" class="text-danger"></span>
         </div>
         <div class="col-12">
             <label asp-for="Remark" class="form-label">备注</label>
             <textarea asp-for="Remark" class="form-control" rows="3"></textarea>
+            <span asp-validation-for="Remark" class="text-danger"></span>
         </div>
     </div>
+
+    <div class="alert alert-danger mt-3 d-none" id="clientError"></div>
 
     <div class="d-flex justify-content-between align-items-center mt-4 mb-2">
         <h5 class="mb-0">合同明细</h5>
@@ -142,7 +155,7 @@
                     <tr>
                         <td><input name="Items[@i].ProductName" value="@Model.Items[i].ProductName" class="form-control product-name" /></td>
                         <td><input name="Items[@i].Quantity" value="@Model.Items[i].Quantity" class="form-control quantity" type="number" min="1" /></td>
-                        <td><input name="Items[@i].UnitPrice" value="@Model.Items[i].UnitPrice" class="form-control unit-price" type="number" min="0" step="0.01" /></td>
+                        <td><input name="Items[@i].UnitPrice" value="@Model.Items[i].UnitPrice" class="form-control unit-price" type="number" min="0.01" step="0.01" /></td>
                         <td><input name="Items[@i].Subtotal" value="@Model.Items[i].Subtotal" class="form-control subtotal" readonly /></td>
                         <td><button type="button" class="btn btn-sm btn-outline-danger remove-item">删除</button></td>
                     </tr>
@@ -193,7 +206,7 @@
             $('#itemsTable tbody').append(`<tr>
                 <td><input class="form-control product-name" /></td>
                 <td><input class="form-control quantity" type="number" min="1" value="1" /></td>
-                <td><input class="form-control unit-price" type="number" min="0" step="0.01" value="0" /></td>
+                <td><input class="form-control unit-price" type="number" min="0.01" step="0.01" value="0.01" /></td>
                 <td><input class="form-control subtotal" readonly value="0.00" /></td>
                 <td><button type="button" class="btn btn-sm btn-outline-danger remove-item">删除</button></td>
             </tr>`);
@@ -201,6 +214,7 @@
         });
 
         $(document).on('click', '.remove-item', function () {
+            if (!confirm('确认删除该合同明细？')) return;
             $(this).closest('tr').remove();
             reindexItems();
         });
@@ -210,5 +224,28 @@
         });
 
         $('#itemsTable tbody tr').each(function () { calculateRow($(this)); });
+
+        $('#contractForm').on('submit', function () {
+            const errors = [];
+            const startDate = $('#StartDate').val();
+            const endDate = $('#EndDate').val();
+            const totalAmount = parseFloat($('#TotalAmount').val()) || 0;
+            if (startDate && endDate && startDate > endDate) errors.push('开始日期不能晚于结束日期');
+            if (totalAmount <= 0) errors.push('合同金额必须大于0');
+            $('#itemsTable tbody tr').each(function () {
+                const productName = $(this).find('.product-name').val();
+                const quantity = parseFloat($(this).find('.quantity').val()) || 0;
+                const unitPrice = parseFloat($(this).find('.unit-price').val()) || 0;
+                if (!productName) errors.push('合同明细产品或服务名称不能为空');
+                if (quantity <= 0) errors.push('合同明细数量必须大于0');
+                if (unitPrice <= 0) errors.push('合同明细单价必须大于0');
+            });
+            if (errors.length > 0) {
+                $('#clientError').removeClass('d-none').html([...new Set(errors)].join('<br />'));
+                return false;
+            }
+            $('#clientError').addClass('d-none').empty();
+            return true;
+        });
     </script>
 }

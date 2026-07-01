@@ -5,11 +5,16 @@
 @{
     ViewData["Title"] = "合同管理";
     var currentStatus = ViewBag.Status as int?;
+    var canManage = User.IsInRole("Admin") || User.IsInRole("Sales");
+    var canCancel = User.IsInRole("Admin");
 }
 
 <div class="d-flex align-items-center justify-content-between mb-3">
     <h2 class="mb-0">合同管理</h2>
-    <a class="btn btn-primary" asp-action="Create">新增合同</a>
+    @if (canManage)
+    {
+        <a class="btn btn-primary" asp-action="Create">新增合同</a>
+    }
 </div>
 
 <form method="get" class="row g-2 align-items-end mb-3">
@@ -73,13 +78,19 @@
                     <td><span class="badge bg-secondary">@EnumDisplayHelper.ContractStatusText(item.Status)</span></td>
                     <td class="text-end">
                         <a class="btn btn-sm btn-outline-secondary" asp-action="Detail" asp-route-id="@item.Id">详情</a>
-                        <a class="btn btn-sm btn-outline-primary" asp-action="Edit" asp-route-id="@item.Id">编辑</a>
-                        <form asp-action="Cancel" method="post" class="d-inline" onsubmit="return confirm('确认作废该合同？作废后不能登记回款。');">
-                            @Html.AntiForgeryToken()
-                            <input type="hidden" name="id" value="@item.Id" />
-                            <input type="hidden" name="reason" value="页面作废" />
-                            <button type="submit" class="btn btn-sm btn-outline-danger">作废</button>
-                        </form>
+                        @if (canManage)
+                        {
+                            <a class="btn btn-sm btn-outline-primary" asp-action="Edit" asp-route-id="@item.Id">编辑</a>
+                            @if (canCancel)
+                            {
+                                <form asp-action="Cancel" method="post" class="d-inline" onsubmit="return confirm('确认作废该合同？作废后不能登记回款。');">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="id" value="@item.Id" />
+                                    <input type="hidden" name="reason" value="页面作废" />
+                                    <button type="submit" class="btn btn-sm btn-outline-danger">作废</button>
+                                </form>
+                            }
+                        }
                     </td>
                 </tr>
             }

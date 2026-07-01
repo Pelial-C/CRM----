@@ -84,10 +84,39 @@ VITE_API_BASE_URL=http://localhost:5268/api
 
 ## 当前限制
 
-- 权限模块暂未完整实现，当前版本以创建时间等审计字段和后续扩展说明代替。
-- 后续可接入 ASP.NET Core Identity，实现用户、角色、权限和 CreatedByName 等字段。
+- 已接入 Cookie Authentication 轻量登录认证，并提供 Admin、Sales、EnterpriseUser、CustomerUser 四类角色。
+- 权限通过 `[Authorize]` 与 `[Authorize(Roles = "...")]` 在 MVC 控制器、API 控制器和 Area 区域落地。
+- Customer Portal 已完成最小只读入口，外部客户更完整的联系人、回款计划隔离页面仍可继续扩展。
 - 基础数据暂以枚举方式实现，后续可扩展为数据字典表。
 - 审批流程、电子签章、附件管理作为后续扩展。
+
+## 多端登录与角色
+
+本系统采用统一登录入口 `/Account/Login`，登录成功后根据用户角色进入不同端：
+
+| 角色 | 端类型 | 登录后入口 | 权限边界 |
+| --- | --- | --- | --- |
+| `Admin` | 管理员端 | `/Admin/Dashboard/Index` | 管理全部用户、客户、联系人、合同、回款和基础数据 |
+| `Sales` | 销售/企业业务端 | `/Sales/Dashboard/Index` | 管理自己负责的客户、联系人、合同和回款 |
+| `EnterpriseUser` | 企业普通用户端 | `/Enterprise/Dashboard/Index` | 查看企业内部业务数据，不允许删除、取消合同或登记回款 |
+| `CustomerUser` | 外部客户端 | `/CustomerPortal/Dashboard/Index` | 只读查看与绑定客户相关的合同信息 |
+
+开发环境会初始化课程设计演示账号，密码使用 `PasswordHasher<AppUser>` 哈希保存：
+
+- 管理员：`admin` / `Admin@123456`
+- 销售：`sales` / `Sales@123456`
+- 企业普通用户：`enterprise` / `Enterprise@123456`
+- 外部客户用户：`customer` / `Customer@123456`
+
+新增迁移：
+
+```powershell
+cd CRM.Lite
+dotnet ef migrations add AddPortalRolesAndOwnershipFields -p CRM.Infrastructure -s CRM.Web
+dotnet ef database update -p CRM.Infrastructure -s CRM.Web
+```
+
+更完整的校验、认证和多端设计见 `docs/validation-and-auth-design.md` 与 `docs/auth-and-portals.md`。
 
 ## 成员分工
 

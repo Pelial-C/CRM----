@@ -1,12 +1,14 @@
 using CRM.Domain.Contracts;
 using CRM.Infrastructure.Persistence;
 using CRM.Web.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace CRM.Web.Controllers.Api;
 
 [Route("api/dashboard")]
+[Authorize(Roles = "Admin,Sales,EnterpriseUser")]
 public class DashboardApiController : ApiControllerBase
 {
     private readonly CrmDbContext _dbContext;

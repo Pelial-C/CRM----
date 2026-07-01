@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import Navbar from './Navbar'
+import AppNavbar from './AppNavbar'
 
 interface LayoutProps {
   children: ReactNode
@@ -8,8 +8,10 @@ interface LayoutProps {
 function Layout({ children }: LayoutProps) {
   return (
     <div className="app-shell">
-      <Navbar />
-      <main className="page-main container-fluid">{children}</main>
+      <AppNavbar />
+      <main className="page-main container-fluid">
+        <div className="page-container">{children}</div>
+      </main>
     </div>
   )
 }

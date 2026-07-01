@@ -40,6 +40,18 @@ public class ContractAppService : IContractAppService
                 c.CustomerName.Contains(searchKey));
         }
 
+        if (!string.IsNullOrWhiteSpace(query.ContractNo))
+        {
+            var contractNo = query.ContractNo.Trim();
+            contracts = contracts.Where(c => c.ContractNo.Contains(contractNo));
+        }
+
+        if (!string.IsNullOrWhiteSpace(query.CustomerName))
+        {
+            var customerName = query.CustomerName.Trim();
+            contracts = contracts.Where(c => c.CustomerName.Contains(customerName));
+        }
+
         if (query.Status.HasValue)
         {
             var status = (ContractStatus)query.Status.Value;
@@ -49,6 +61,31 @@ public class ContractAppService : IContractAppService
         if (query.CustomerId.HasValue && query.CustomerId.Value > 0)
         {
             contracts = contracts.Where(c => c.CustomerId == query.CustomerId.Value);
+        }
+
+        if (query.OwnerUserId.HasValue)
+        {
+            contracts = contracts.Where(c => c.OwnerUserId == query.OwnerUserId.Value);
+        }
+
+        if (query.StartDateFrom.HasValue)
+        {
+            contracts = contracts.Where(c => c.StartDate >= query.StartDateFrom.Value);
+        }
+
+        if (query.StartDateTo.HasValue)
+        {
+            contracts = contracts.Where(c => c.StartDate <= query.StartDateTo.Value);
+        }
+
+        if (query.EndDateFrom.HasValue)
+        {
+            contracts = contracts.Where(c => c.EndDate >= query.EndDateFrom.Value);
+        }
+
+        if (query.EndDateTo.HasValue)
+        {
+            contracts = contracts.Where(c => c.EndDate <= query.EndDateTo.Value);
         }
 
         var totalCount = await contracts.CountAsync();
@@ -68,6 +105,7 @@ public class ContractAppService : IContractAppService
                 TotalAmount = c.TotalAmount,
                 Status = (int)c.Status,
                 CustomerId = c.CustomerId,
+                OwnerUserId = c.OwnerUserId,
                 CustomerName = c.CustomerName,
                 ContactId = c.ContactId,
                 ContactName = c.ContactName,
@@ -104,6 +142,8 @@ public class ContractAppService : IContractAppService
 
     public async Task CreateAsync(CreateContractDto input)
     {
+        ValidateContractInput(input);
+
         if (!await CheckContractNoUniqueAsync(input.ContractNo ?? string.Empty))
         {
             throw new BusinessException("合同编号已存在");
@@ -131,6 +171,7 @@ public class ContractAppService : IContractAppService
             input.CabinetNo,
             input.WarningDays,
             input.Remark);
+        contract.SetOwner(input.OwnerUserId);
 
         var items = input.Items
             .Where(i => !string.IsNullOrWhiteSpace(i.ProductName))
@@ -148,6 +189,8 @@ public class ContractAppService : IContractAppService
 
     public async Task UpdateAsync(UpdateContractDto input)
     {
+        ValidateContractInput(input);
+
         var contract = await _contractRepo.GetByIdAsync(input.Id);
         if (contract == null) throw new BusinessException("合同不存在");
 
@@ -178,6 +221,7 @@ public class ContractAppService : IContractAppService
             input.CabinetNo,
             input.WarningDays,
             input.Remark);
+        contract.SetOwner(input.OwnerUserId);
 
         contract.ReplaceItems(input.Items
             .Where(i => !string.IsNullOrWhiteSpace(i.ProductName))
@@ -190,6 +234,10 @@ public class ContractAppService : IContractAppService
     {
         var contract = await _contractRepo.GetByIdAsync(id);
         if (contract == null) return;
+        if (contract.Status != ContractStatus.Draft)
+        {
+            throw new BusinessException("只有草稿合同可以删除，已流转合同请使用作废或终止");
+        }
 
         await _contractRepo.DeleteAsync(contract);
     }
@@ -205,6 +253,8 @@ public class ContractAppService : IContractAppService
 
     public async Task CancelAsync(int id, string? reason = null)
     {
+        if (string.IsNullOrWhiteSpace(reason)) throw new BusinessException("作废合同必须填写原因");
+
         var contract = await _contractRepo.GetByIdAsync(id);
         if (contract == null) throw new BusinessException("合同不存在");
 
@@ -232,6 +282,8 @@ public class ContractAppService : IContractAppService
 
     public async Task AddPaymentPlanAsync(AddPaymentPlanDto input)
     {
+        if (input.PlanAmount <= 0) throw new BusinessException("计划回款金额必须大于0");
+
         var contract = await _contractRepo.GetByIdAsync(input.ContractId);
         if (contract == null) throw new BusinessException("合同不存在");
 
@@ -241,6 +293,8 @@ public class ContractAppService : IContractAppService
 
     public async Task RecordPaymentAsync(RecordPaymentDto input)
     {
+        if (input.ActualAmount <= 0) throw new BusinessException("实际回款金额必须大于0");
+
         var contract = await _contractRepo.GetByIdAsync(input.ContractId);
         if (contract == null) throw new BusinessException("合同不存在");
 
@@ -301,6 +355,31 @@ public class ContractAppService : IContractAppService
         return contact;
     }
 
+    private static void ValidateContractInput(CreateContractDto input)
+    {
+        if (input.TotalAmount <= 0) throw new BusinessException("合同金额必须大于0");
+        if (input.EndDate < input.StartDate) throw new BusinessException("合同结束日期不能早于开始日期");
+        if (input.SignDate > input.EndDate) throw new BusinessException("签订日期不能晚于合同结束日期");
+        if (input.WarningDays is < 0 or > 365) throw new BusinessException("预警天数必须在0到365之间");
+
+        var items = input.Items.Where(i => !string.IsNullOrWhiteSpace(i.ProductName)).ToList();
+        if (items.Count == 0) throw new BusinessException("合同明细至少包含一项");
+        if (items.Any(i => i.Quantity <= 0)) throw new BusinessException("合同明细数量必须大于0");
+        if (items.Any(i => i.UnitPrice <= 0)) throw new BusinessException("合同明细单价必须大于0");
+
+        var itemTotal = items.Sum(i => i.Quantity * i.UnitPrice);
+        if (Math.Abs(itemTotal - input.TotalAmount) > 0.01m)
+        {
+            throw new BusinessException("合同明细合计金额应与合同总金额一致，允许0.01元以内误差");
+        }
+
+        var paymentPlanTotal = input.PaymentPlans.Sum(p => p.PlanAmount);
+        if (paymentPlanTotal > input.TotalAmount + 0.01m)
+        {
+            throw new BusinessException("回款计划总金额不能超过合同总金额");
+        }
+    }
+
     private static ContractDto MapToDto(Contract contract)
     {
         return new ContractDto
@@ -315,6 +394,7 @@ public class ContractAppService : IContractAppService
             TotalAmount = contract.TotalAmount,
             Status = (int)contract.Status,
             CustomerId = contract.CustomerId,
+            OwnerUserId = contract.OwnerUserId,
             CustomerName = contract.CustomerName,
             ContactId = contract.ContactId,
             ContactName = contract.ContactName,

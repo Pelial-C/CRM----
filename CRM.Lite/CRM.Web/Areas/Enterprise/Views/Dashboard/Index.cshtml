@@ -1,0 +1,19 @@
+@model CRM.Web.Areas.Enterprise.Controllers.EnterpriseDashboardViewModel
+
+@{
+    ViewData["Title"] = "企业首页";
+}
+
+<h2 class="mb-3">企业普通用户端</h2>
+<p class="text-muted">查看客户、合同和回款计划信息，不允许执行删除、作废或登记回款等敏感操作。</p>
+
+<div class="row g-3">
+    <div class="col-md-4"><div class="card shadow-sm border-0"><div class="card-body"><div class="text-muted">客户信息</div><div class="fs-2 fw-bold">@Model.CustomerCount</div></div></div></div>
+    <div class="col-md-4"><div class="card shadow-sm border-0"><div class="card-body"><div class="text-muted">合同信息</div><div class="fs-2 fw-bold">@Model.ContractCount</div></div></div></div>
+    <div class="col-md-4"><div class="card shadow-sm border-0"><div class="card-body"><div class="text-muted">回款计划</div><div class="fs-2 fw-bold">@Model.PaymentPlanCount</div></div></div></div>
+</div>
+
+<div class="mt-4 d-flex gap-2">
+    <a class="btn btn-primary" asp-area="" asp-controller="Customer" asp-action="Index">客户信息查看</a>
+    <a class="btn btn-outline-primary" asp-area="" asp-controller="Contract" asp-action="Index">合同信息查看</a>
+</div>
