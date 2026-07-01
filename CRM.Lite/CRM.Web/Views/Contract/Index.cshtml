@@ -1,11 +1,14 @@
 @model CRM.Application.Contracts.Common.Dtos.PagedResultDto<CRM.Application.Contracts.Contracts.Dtos.ContractDto>
 @{
     ViewData["Title"] = "合同管理";
-    string StatusText(int status) => Enum.IsDefined(typeof(ContractStatus), status) ? ((ContractStatus)status).ToString() : status.ToString();
+    var keyword = ViewBag.Keyword as string ?? "";
+    var selectedStatus = ViewBag.Status as int?;
+    var totalPages = Model.TotalPages == 0 ? 1 : Model.TotalPages;
 }
 
 <div class="page-head">
     <div>
+        <p class="eyebrow">Contracts</p>
         <h1>合同管理</h1>
         <p>跟踪合同签订、金额、履约状态和回款计划。</p>
     </div>
@@ -15,7 +18,7 @@
 <form method="get" class="filter-bar">
     <div class="filter-field">
         <label for="keyword">关键词</label>
-        <input id="keyword" type="search" name="keyword" value="@ViewBag.Keyword" class="form-control" placeholder="合同编号、名称、客户" />
+        <input id="keyword" type="search" name="keyword" value="@keyword" class="form-control" placeholder="合同编号、名称或客户" />
     </div>
     <div class="filter-field">
         <label for="status">状态</label>
@@ -23,18 +26,18 @@
             <option value="">全部状态</option>
             @foreach (ContractStatus item in Enum.GetValues(typeof(ContractStatus)))
             {
-                <option value="@((int)item)" selected="@(ViewBag.Status == (int)item)">@item</option>
+                <option value="@((int)item)" selected="@(selectedStatus == (int)item)">@UiText.GetContractStatusName(item)</option>
             }
         </select>
     </div>
     <div class="filter-actions">
-        <button type="submit" class="btn btn-outline-primary">查询</button>
+        <button type="submit" class="btn btn-primary">查询</button>
         <a asp-action="Index" class="btn btn-outline-secondary">重置</a>
     </div>
 </form>
 
 <div class="table-surface">
-    <table class="table table-hover align-middle">
+    <table class="table data-table align-middle">
         <thead>
             <tr>
                 <th>合同编号</th>
@@ -57,10 +60,10 @@
         {
             <tr>
                 <td><span class="mono">@item.ContractNo</span></td>
-                <td>@item.ContractName</td>
+                <td class="strong-cell">@item.ContractName</td>
                 <td>@item.CustomerName</td>
                 <td>@item.TotalAmount.ToString("C")</td>
-                <td><span class="status-pill status-@item.Status">@StatusText(item.Status)</span></td>
+                <td><span class="status-pill status-@item.Status">@UiText.GetContractStatusName(item.Status)</span></td>
                 <td>@item.SignDate.ToString("yyyy-MM-dd")</td>
                 <td class="table-actions">
                     <a asp-action="Detail" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary">详情</a>
@@ -72,10 +75,10 @@
     </table>
 </div>
 
-<nav class="pager-row">
-    <span>共 @Model.TotalCount 条，第 @Model.PageIndex / @(Model.TotalPages == 0 ? 1 : Model.TotalPages) 页</span>
-    <div>
-        <a class="btn btn-sm btn-outline-secondary @(Model.HasPreviousPage ? "" : "disabled")" asp-action="Index" asp-route-pageIndex="@(Model.PageIndex - 1)" asp-route-keyword="@ViewBag.Keyword" asp-route-status="@ViewBag.Status">上一页</a>
-        <a class="btn btn-sm btn-outline-secondary @(Model.HasNextPage ? "" : "disabled")" asp-action="Index" asp-route-pageIndex="@(Model.PageIndex + 1)" asp-route-keyword="@ViewBag.Keyword" asp-route-status="@ViewBag.Status">下一页</a>
+<nav class="pager-row" aria-label="合同分页">
+    <span>共 @Model.TotalCount 条，第 @Model.PageIndex / @totalPages 页</span>
+    <div class="pager-actions">
+        <a class="btn btn-sm btn-outline-secondary @(Model.HasPreviousPage ? "" : "disabled")" asp-action="Index" asp-route-pageIndex="@(Model.PageIndex - 1)" asp-route-keyword="@keyword" asp-route-status="@selectedStatus">上一页</a>
+        <a class="btn btn-sm btn-outline-secondary @(Model.HasNextPage ? "" : "disabled")" asp-action="Index" asp-route-pageIndex="@(Model.PageIndex + 1)" asp-route-keyword="@keyword" asp-route-status="@selectedStatus">下一页</a>
     </div>
 </nav>

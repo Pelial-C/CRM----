@@ -1,39 +1,56 @@
 @model CRM.Application.Contracts.Common.Dtos.PagedResultDto<CRM.Application.Contracts.Customers.Dtos.CustomerDto>
 @{
-    ViewData["Title"] = "客户列表";
+    ViewData["Title"] = "客户管理";
+    var name = Context.Request.Query["name"].ToString();
+    var industry = Context.Request.Query["industry"].ToString();
+    var totalPages = Model.TotalPages == 0 ? 1 : Model.TotalPages;
 }
 
-<h2>客户列表</h2>
+<div class="page-head">
+    <div>
+        <p class="eyebrow">Customers</p>
+        <h1>客户管理</h1>
+        <p>维护客户主体信息，并从客户详情进入联系人与关联合同。</p>
+    </div>
+    <a asp-action="Create" class="btn btn-primary">新增客户</a>
+</div>
 
-<form method="get" class="row g-2 mb-3">
-    <div class="col-auto">
-        <input type="text" name="name" value="@Context.Request.Query["name"]" class="form-control" placeholder="企业名称" />
+<form method="get" class="filter-bar">
+    <div class="filter-field">
+        <label for="name">企业名称</label>
+        <input id="name" type="search" name="name" value="@name" class="form-control" placeholder="输入企业名称" />
     </div>
-    <div class="col-auto">
-        <input type="text" name="industry" value="@Context.Request.Query["industry"]" class="form-control" placeholder="所属行业" />
+    <div class="filter-field">
+        <label for="industry">所属行业</label>
+        <input id="industry" type="search" name="industry" value="@industry" class="form-control" placeholder="输入行业" />
     </div>
-    <div class="col-auto">
+    <div class="filter-actions">
         <button type="submit" class="btn btn-primary">查询</button>
-    </div>
-    <div class="col-auto">
-        <a asp-action="Create" class="btn btn-success">新增客户</a>
+        <a asp-action="Index" class="btn btn-outline-secondary">重置</a>
     </div>
 </form>
 
-<table class="table table-bordered table-striped">
-    <thead>
-        <tr>
-            <th>序号</th>
-            <th>企业名称</th>
-            <th>统一社会信用代码</th>
-            <th>所属行业</th>
-            <th>地区</th>
-            <th>是否删除</th>
-            <th>创建时间</th>
-            <th>操作</th>
-        </tr>
-    </thead>
-    <tbody>
+<div class="table-surface">
+    <table class="table data-table align-middle">
+        <thead>
+            <tr>
+                <th>序号</th>
+                <th>企业名称</th>
+                <th>统一社会信用代码</th>
+                <th>所属行业</th>
+                <th>地区</th>
+                <th>删除状态</th>
+                <th>创建时间</th>
+                <th class="table-actions">操作</th>
+            </tr>
+        </thead>
+        <tbody>
+        @if (!Model.Items.Any())
+        {
+            <tr>
+                <td colspan="8" class="empty-state">暂无客户记录</td>
+            </tr>
+        }
         @{
             var rowNumber = (Model.PageIndex - 1) * Model.PageSize;
         }
@@ -42,38 +59,29 @@
             rowNumber++;
             <tr>
                 <td>@rowNumber</td>
-                <td>@item.Name</td>
-                <td>@item.CreditCode</td>
-                <td>@item.Industry</td>
-                <td>@item.Province @item.City @item.District</td>
-                <td>@(item.IsDeleted ? "是" : "否")</td>
+                <td class="strong-cell">@item.Name</td>
+                <td><span class="mono">@(!string.IsNullOrWhiteSpace(item.CreditCode) ? item.CreditCode : "-")</span></td>
+                <td>@(!string.IsNullOrWhiteSpace(item.Industry) ? item.Industry : "-")</td>
+                <td>@($"{item.Province} {item.City} {item.District}".Trim())</td>
+                <td><span class="status-pill @(item.IsDeleted ? "status-danger" : "status-muted")">@UiText.YesNo(item.IsDeleted)</span></td>
                 <td>@item.CreationTime.ToString("yyyy-MM-dd")</td>
-                <td>
-                    <a asp-action="Detail" asp-route-id="@item.Id" class="btn btn-sm btn-info">详情</a>
-                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-warning">编辑</a>
-                    <form asp-action="Delete" asp-route-id="@item.Id" method="post" style="display:inline" onsubmit="return confirm('确认删除？')">
-                        <button type="submit" class="btn btn-sm btn-danger">删除</button>
+                <td class="table-actions">
+                    <a asp-action="Detail" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary">详情</a>
+                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-secondary">编辑</a>
+                    <form asp-action="Delete" asp-route-id="@item.Id" method="post" class="inline-form" onsubmit="return confirm('确认删除该客户？')">
+                        <button type="submit" class="btn btn-sm btn-outline-danger">删除</button>
                     </form>
                 </td>
             </tr>
         }
-    </tbody>
-</table>
+        </tbody>
+    </table>
+</div>
 
-<nav>
-    <ul class="pagination">
-        @if (Model.HasPreviousPage)
-        {
-            <li class="page-item">
-                <a class="page-link" asp-action="Index" asp-route-pageIndex="@(Model.PageIndex - 1)" asp-route-name="@Context.Request.Query["name"]" asp-route-industry="@Context.Request.Query["industry"]">上一页</a>
-            </li>
-        }
-        <li class="page-item active"><span class="page-link">@Model.PageIndex / @Model.TotalPages</span></li>
-        @if (Model.HasNextPage)
-        {
-            <li class="page-item">
-                <a class="page-link" asp-action="Index" asp-route-pageIndex="@(Model.PageIndex + 1)" asp-route-name="@Context.Request.Query["name"]" asp-route-industry="@Context.Request.Query["industry"]">下一页</a>
-            </li>
-        }
-    </ul>
+<nav class="pager-row" aria-label="客户分页">
+    <span>共 @Model.TotalCount 条，第 @Model.PageIndex / @totalPages 页</span>
+    <div class="pager-actions">
+        <a class="btn btn-sm btn-outline-secondary @(Model.HasPreviousPage ? "" : "disabled")" asp-action="Index" asp-route-pageIndex="@(Model.PageIndex - 1)" asp-route-name="@name" asp-route-industry="@industry">上一页</a>
+        <a class="btn btn-sm btn-outline-secondary @(Model.HasNextPage ? "" : "disabled")" asp-action="Index" asp-route-pageIndex="@(Model.PageIndex + 1)" asp-route-name="@name" asp-route-industry="@industry">下一页</a>
+    </div>
 </nav>

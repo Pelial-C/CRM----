@@ -1,40 +1,60 @@
+@{
+    var title = ViewData["Title"] as string ?? "CRM Lite";
+    var controller = ViewContext.RouteData.Values["controller"]?.ToString() ?? "";
+    bool IsActive(string target)
+    {
+        return string.Equals(controller, target, StringComparison.OrdinalIgnoreCase) ||
+               (string.Equals(target, "Customer", StringComparison.OrdinalIgnoreCase) &&
+                string.Equals(controller, "Contact", StringComparison.OrdinalIgnoreCase));
+    }
+
+    string NavClass(string target) => IsActive(target) ? "nav-link active" : "nav-link";
+}
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - CRM Lite</title>
+    <title>@title - CRM Lite</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/CRM.Web.styles.css" asp-append-version="true" />
 </head>
 <body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-light border-bottom box-shadow">
-            <div class="container-fluid">
-                <a class="navbar-brand fw-bold" asp-area="" asp-controller="Home" asp-action="Index">CRM Lite</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="mainNav"
+    <header class="app-header">
+        <nav class="navbar navbar-expand-lg app-navbar">
+            <div class="container-fluid content-shell">
+                <a class="app-brand" asp-area="" asp-controller="Home" asp-action="Index" aria-label="CRM Lite 首页">
+                    <span class="brand-mark">CL</span>
+                    <span class="brand-copy">
+                        <strong>CRM Lite</strong>
+                        <small>客户与合同管理</small>
+                    </span>
+                </a>
+                <button class="navbar-toggler app-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav" aria-controls="mainNav"
                         aria-expanded="false" aria-label="切换导航">
                     <span class="navbar-toggler-icon"></span>
                 </button>
-                <div id="mainNav" class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
+                <div id="mainNav" class="collapse navbar-collapse">
+                    <ul class="navbar-nav app-nav-links">
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">工作台</a>
+                            <a class="@NavClass("Home")" asp-area="" asp-controller="Home" asp-action="Index">工作台</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Customer" asp-action="Index">客户管理</a>
+                            <a class="@NavClass("Customer")" asp-area="" asp-controller="Customer" asp-action="Index">客户</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Contract" asp-action="Index">合同管理</a>
+                            <a class="@NavClass("Contract")" asp-area="" asp-controller="Contract" asp-action="Index">合同</a>
                         </li>
                     </ul>
+                    <div class="app-env">本地运行</div>
                 </div>
             </div>
         </nav>
     </header>
+
     <div class="container-fluid content-shell">
-        <main role="main" class="pb-4">
+        <main role="main" class="app-main">
             @RenderBody()
         </main>
     </div>

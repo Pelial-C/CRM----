@@ -5,8 +5,9 @@
 
 <div class="page-head">
     <div>
+        <p class="eyebrow">Edit Contract</p>
         <h1>编辑合同</h1>
-        <p>调整合同基础信息与合同明细。</p>
+        <p>调整合同基础信息、业务属性和合同明细。</p>
     </div>
     <a asp-action="Detail" asp-route-id="@Model.Id" class="btn btn-outline-secondary">返回详情</a>
 </div>
@@ -16,11 +17,16 @@
     <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
 
     <section class="form-panel">
-        <h2>基础信息</h2>
+        <div class="section-title">
+            <div>
+                <p class="eyebrow">Basics</p>
+                <h2>基础信息</h2>
+            </div>
+        </div>
         <div class="form-grid">
             <div>
                 <label asp-for="ContractNo" class="form-label">合同编号</label>
-                <input asp-for="ContractNo" class="form-control" required />
+                <input asp-for="ContractNo" class="form-control mono-input" required />
             </div>
             <div>
                 <label asp-for="ContractName" class="form-label">合同名称</label>
@@ -29,6 +35,7 @@
             <div>
                 <label asp-for="CustomerId" class="form-label">客户 ID</label>
                 <input asp-for="CustomerId" class="form-control" type="number" min="1" required data-contact-source />
+                <span class="field-hint">变更客户 ID 后将重新加载联系人。</span>
             </div>
             <div>
                 <label asp-for="ContactId" class="form-label">联系人</label>
@@ -41,7 +48,7 @@
                 <select asp-for="Status" class="form-select">
                     @foreach (ContractStatus item in Enum.GetValues(typeof(ContractStatus)))
                     {
-                        <option value="@((int)item)" selected="@(Model.Status == (int)item)">@item</option>
+                        <option value="@((int)item)" selected="@(Model.Status == (int)item)">@UiText.GetContractStatusName(item)</option>
                     }
                 </select>
             </div>
@@ -73,19 +80,39 @@
     </section>
 
     <section class="form-panel">
-        <h2>业务属性</h2>
+        <div class="section-title">
+            <div>
+                <p class="eyebrow">Business</p>
+                <h2>业务属性</h2>
+            </div>
+        </div>
         <div class="form-grid">
             <div>
                 <label asp-for="ServiceType" class="form-label">服务类型</label>
-                <select asp-for="ServiceType" asp-items="Html.GetEnumSelectList<ServiceType>()" class="form-select"></select>
+                <select asp-for="ServiceType" class="form-select">
+                    @foreach (ServiceType item in Enum.GetValues(typeof(ServiceType)))
+                    {
+                        <option value="@((int)item)" selected="@(Model.ServiceType == item)">@UiText.GetServiceTypeName(item)</option>
+                    }
+                </select>
             </div>
             <div>
                 <label asp-for="ContractType" class="form-label">合同类型</label>
-                <select asp-for="ContractType" asp-items="Html.GetEnumSelectList<ContractType>()" class="form-select"></select>
+                <select asp-for="ContractType" class="form-select">
+                    @foreach (ContractType item in Enum.GetValues(typeof(ContractType)))
+                    {
+                        <option value="@((int)item)" selected="@(Model.ContractType == item)">@UiText.GetContractTypeName(item)</option>
+                    }
+                </select>
             </div>
             <div>
                 <label asp-for="PaymentFrequency" class="form-label">约定到账频率</label>
-                <select asp-for="PaymentFrequency" asp-items="Html.GetEnumSelectList<PaymentFrequency>()" class="form-select"></select>
+                <select asp-for="PaymentFrequency" class="form-select">
+                    @foreach (PaymentFrequency item in Enum.GetValues(typeof(PaymentFrequency)))
+                    {
+                        <option value="@((int)item)" selected="@(Model.PaymentFrequency == item)">@UiText.GetPaymentFrequencyName(item)</option>
+                    }
+                </select>
             </div>
             <div>
                 <label asp-for="RegionalCompany" class="form-label">区域公司</label>
@@ -104,7 +131,10 @@
 
     <section class="form-panel">
         <div class="section-title">
-            <h2>合同明细</h2>
+            <div>
+                <p class="eyebrow">Items</p>
+                <h2>合同明细</h2>
+            </div>
             <button type="button" class="btn btn-sm btn-outline-primary" data-add-item>添加明细</button>
         </div>
         <div class="editable-table" data-items>
@@ -114,13 +144,14 @@
             @for (var i = 0; i < Model.Items.Count; i++)
             {
                 <div class="editable-row" data-item-row>
-                    <input name="Items[@i].ProductName" value="@Model.Items[i].ProductName" class="form-control" required />
-                    <input name="Items[@i].Quantity" value="@Model.Items[i].Quantity" class="form-control" type="number" min="1" required />
-                    <input name="Items[@i].UnitPrice" value="@Model.Items[i].UnitPrice" class="form-control" type="number" min="0" step="0.01" required />
+                    <input data-field="ProductName" name="Items[@i].ProductName" value="@Model.Items[i].ProductName" class="form-control" required />
+                    <input data-field="Quantity" name="Items[@i].Quantity" value="@Model.Items[i].Quantity" class="form-control" type="number" min="1" required />
+                    <input data-field="UnitPrice" name="Items[@i].UnitPrice" value="@Model.Items[i].UnitPrice" class="form-control" type="number" min="0" step="0.01" required />
                     <button type="button" class="btn btn-outline-danger" data-remove-row>删除</button>
                 </div>
             }
         </div>
+        <p class="panel-note">回款计划在合同详情页生成、追加和登记。</p>
     </section>
 
     <div class="sticky-actions">

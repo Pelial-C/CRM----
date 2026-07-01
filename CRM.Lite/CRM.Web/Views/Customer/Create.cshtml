@@ -3,37 +3,69 @@
     ViewData["Title"] = "新增客户";
 }
 
-<h2>新增客户</h2>
+<div class="page-head">
+    <div>
+        <p class="eyebrow">New Customer</p>
+        <h1>新增客户</h1>
+        <p>建立客户主体档案，后续可在详情页维护联系人和合同。</p>
+    </div>
+    <a asp-action="Index" class="btn btn-outline-secondary">返回列表</a>
+</div>
 
-<form asp-action="Create" method="post">
-    <div class="mb-2">
-        <label asp-for="Name" class="form-label"></label>
-        <input asp-for="Name" class="form-control" />
-        <span asp-validation-for="Name" class="text-danger"></span>
+<form asp-action="Create" method="post" class="form-workspace">
+    <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+    <section class="form-panel">
+        <div class="section-title">
+            <div>
+                <p class="eyebrow">Profile</p>
+                <h2>客户档案</h2>
+            </div>
+        </div>
+        <div class="form-grid">
+            <div class="grid-span-2">
+                <label asp-for="Name" class="form-label">企业名称</label>
+                <input asp-for="Name" class="form-control" autocomplete="organization" />
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+            <div>
+                <label asp-for="CreditCode" class="form-label">统一社会信用代码</label>
+                <input asp-for="CreditCode" class="form-control mono-input" />
+                <span asp-validation-for="CreditCode" class="text-danger"></span>
+            </div>
+            <div>
+                <label asp-for="Industry" class="form-label">所属行业</label>
+                <input asp-for="Industry" class="form-control" />
+            </div>
+            <div>
+                <label asp-for="Province" class="form-label">省份</label>
+                <input asp-for="Province" class="form-control" />
+            </div>
+            <div>
+                <label asp-for="City" class="form-label">城市</label>
+                <input asp-for="City" class="form-control" />
+            </div>
+            <div>
+                <label asp-for="District" class="form-label">区县</label>
+                <input asp-for="District" class="form-control" />
+            </div>
+            <div class="grid-span-3">
+                <label asp-for="DetailAddress" class="form-label">详细地址</label>
+                <input asp-for="DetailAddress" class="form-control" autocomplete="street-address" />
+            </div>
+            <div class="grid-span-3">
+                <label asp-for="Remark" class="form-label">备注</label>
+                <textarea asp-for="Remark" class="form-control" rows="3"></textarea>
+            </div>
+        </div>
+    </section>
+
+    <div class="sticky-actions">
+        <button type="submit" class="btn btn-primary">保存客户</button>
+        <a asp-action="Index" class="btn btn-outline-secondary">取消</a>
     </div>
-    <div class="mb-2">
-        <label asp-for="CreditCode" class="form-label"></label>
-        <input asp-for="CreditCode" class="form-control" />
-        <span asp-validation-for="CreditCode" class="text-danger"></span>
-    </div>
-    <div class="mb-2">
-        <label asp-for="Industry" class="form-label"></label>
-        <input asp-for="Industry" class="form-control" />
-    </div>
-    <div class="row mb-2">
-        <div class="col"><label asp-for="Province" class="form-label"></label><input asp-for="Province" class="form-control" /></div>
-        <div class="col"><label asp-for="City" class="form-label"></label><input asp-for="City" class="form-control" /></div>
-        <div class="col"><label asp-for="District" class="form-label"></label><input asp-for="District" class="form-control" /></div>
-    </div>
-    <div class="mb-2">
-        <label asp-for="DetailAddress" class="form-label"></label>
-        <input asp-for="DetailAddress" class="form-control" />
-    </div>
-    <div class="mb-2">
-        <label asp-for="Remark" class="form-label"></label>
-        <textarea asp-for="Remark" class="form-control" rows="3"></textarea>
-    </div>
-    <div asp-validation-summary="ModelOnly" class="text-danger mb-2"></div>
-    <button type="submit" class="btn btn-primary">提交</button>
-    <a asp-action="Index" class="btn btn-secondary">返回</a>
 </form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
