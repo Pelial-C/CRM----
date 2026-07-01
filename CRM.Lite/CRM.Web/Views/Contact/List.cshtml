@@ -1,41 +1,74 @@
 @model List<CRM.Application.Contracts.Contacts.Dtos.ContactDto>
 @{
-    ViewData["Title"] = "联系人列表";
+    ViewData["Title"] = "联系人";
     var customerId = (int)ViewBag.CustomerId;
+    var name = Context.Request.Query["name"].ToString();
+    var title = Context.Request.Query["title"].ToString();
 }
 
-<h2>联系人列表 <small class="text-muted">客户Id: @customerId</small></h2>
+<div class="page-head">
+    <div>
+        <p class="eyebrow">Contacts</p>
+        <h1>联系人</h1>
+        <p>客户 ID：<span class="mono">@customerId</span></p>
+    </div>
+    <div class="action-row">
+        <a asp-action="Create" asp-route-customerId="@customerId" class="btn btn-primary">新增联系人</a>
+        <a asp-controller="Customer" asp-action="Detail" asp-route-id="@customerId" class="btn btn-outline-secondary">返回客户</a>
+    </div>
+</div>
 
-<a asp-action="Create" asp-route-customerId="@customerId" class="btn btn-success btn-sm mb-2">新增联系人</a>
-<a asp-controller="Customer" asp-action="Detail" asp-route-id="@customerId" class="btn btn-secondary btn-sm mb-2">返回客户详情</a>
+<form method="get" class="filter-bar compact-filter">
+    <input type="hidden" name="customerId" value="@customerId" />
+    <div class="filter-field">
+        <label for="name">姓名</label>
+        <input id="name" type="search" name="name" value="@name" class="form-control" placeholder="输入联系人姓名" />
+    </div>
+    <div class="filter-field">
+        <label for="title">职务</label>
+        <input id="title" type="search" name="title" value="@title" class="form-control" placeholder="输入职务" />
+    </div>
+    <div class="filter-actions">
+        <button type="submit" class="btn btn-primary">查询</button>
+        <a asp-action="List" asp-route-customerId="@customerId" class="btn btn-outline-secondary">重置</a>
+    </div>
+</form>
 
-<table class="table table-bordered table-sm">
-    <thead>
-        <tr>
-            <th>姓名</th>
-            <th>职务</th>
-            <th>手机号</th>
-            <th>邮箱</th>
-            <th>关键决策人</th>
-            <th>操作</th>
-        </tr>
-    </thead>
-    <tbody>
+<div class="table-surface">
+    <table class="table data-table align-middle">
+        <thead>
+            <tr>
+                <th>姓名</th>
+                <th>职务</th>
+                <th>手机号</th>
+                <th>邮箱</th>
+                <th>关键决策人</th>
+                <th class="table-actions">操作</th>
+            </tr>
+        </thead>
+        <tbody>
+        @if (!Model.Any())
+        {
+            <tr>
+                <td colspan="6" class="empty-state">暂无联系人</td>
+            </tr>
+        }
         @foreach (var item in Model)
         {
             <tr>
-                <td>@item.Name</td>
-                <td>@item.Title</td>
-                <td>@item.Phone</td>
-                <td>@item.Email</td>
-                <td>@(item.IsKeyDecisionMaker ? "是" : "否")</td>
-                <td>
-                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-warning">编辑</a>
-                    <form asp-action="Delete" asp-route-id="@item.Id" asp-route-customerId="@customerId" method="post" style="display:inline" onsubmit="return confirm('确认删除？')">
-                        <button type="submit" class="btn btn-sm btn-danger">删除</button>
+                <td class="strong-cell">@item.Name</td>
+                <td>@(!string.IsNullOrWhiteSpace(item.Title) ? item.Title : "-")</td>
+                <td>@(!string.IsNullOrWhiteSpace(item.Phone) ? item.Phone : "-")</td>
+                <td>@(!string.IsNullOrWhiteSpace(item.Email) ? item.Email : "-")</td>
+                <td><span class="status-pill @(item.IsKeyDecisionMaker ? "status-success" : "status-muted")">@UiText.YesNo(item.IsKeyDecisionMaker)</span></td>
+                <td class="table-actions">
+                    <a asp-action="Edit" asp-route-id="@item.Id" asp-route-customerId="@customerId" class="btn btn-sm btn-outline-secondary">编辑</a>
+                    <form asp-action="Delete" asp-route-id="@item.Id" asp-route-customerId="@customerId" method="post" class="inline-form" onsubmit="return confirm('确认删除该联系人？')">
+                        <button type="submit" class="btn btn-sm btn-outline-danger">删除</button>
                     </form>
                 </td>
             </tr>
         }
-    </tbody>
-</table>
+        </tbody>
+    </table>
+</div>

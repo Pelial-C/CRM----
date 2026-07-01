@@ -1,32 +1,32 @@
 @model CRM.Application.Contracts.Contracts.Dtos.ContractDto
 @{
     ViewData["Title"] = "合同详情";
-    string StatusText(int status) => Enum.IsDefined(typeof(ContractStatus), status) ? ((ContractStatus)status).ToString() : status.ToString();
-    string ServiceText(int value) => Enum.IsDefined(typeof(ServiceType), value) ? ((ServiceType)value).ToString() : value.ToString();
-    string ContractTypeText(int value) => Enum.IsDefined(typeof(ContractType), value) ? ((ContractType)value).ToString() : value.ToString();
-    string FrequencyText(int value) => Enum.IsDefined(typeof(PaymentFrequency), value) ? ((PaymentFrequency)value).ToString() : value.ToString();
 }
 
 <div class="page-head">
     <div>
+        <p class="eyebrow">Contract</p>
         <h1>@Model.ContractName</h1>
         <p><span class="mono">@Model.ContractNo</span> · @Model.CustomerName</p>
     </div>
     <div class="action-row">
-        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-outline-primary">编辑</a>
-        <a asp-action="Index" class="btn btn-outline-secondary">返回</a>
+        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">编辑合同</a>
+        <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#cancelModal">作废合同</button>
+        <a asp-action="Index" class="btn btn-outline-secondary">返回列表</a>
     </div>
 </div>
+
+<div id="operationFeedback" class="operation-feedback d-none" role="status"></div>
 
 <div class="detail-grid">
     <section class="info-panel">
         <h2>基础信息</h2>
         <dl>
-            <dt>合同状态</dt><dd><span class="status-pill status-@Model.Status">@StatusText(Model.Status)</span></dd>
+            <dt>合同状态</dt><dd><span class="status-pill status-@Model.Status">@UiText.GetContractStatusName(Model.Status)</span></dd>
             <dt>合同金额</dt><dd>@Model.TotalAmount.ToString("C")</dd>
             <dt>签订日期</dt><dd>@Model.SignDate.ToString("yyyy-MM-dd")</dd>
-            <dt>起止日期</dt><dd>@Model.StartDate.ToString("yyyy-MM-dd") 至 @Model.EndDate.ToString("yyyy-MM-dd")</dd>
-            <dt>合同柜号</dt><dd>@(Model.CabinetNo ?? "-")</dd>
+            <dt>合同周期</dt><dd>@Model.StartDate.ToString("yyyy-MM-dd") 至 @Model.EndDate.ToString("yyyy-MM-dd")</dd>
+            <dt>合同柜号</dt><dd>@(!string.IsNullOrWhiteSpace(Model.CabinetNo) ? Model.CabinetNo : "-")</dd>
             <dt>预警天数</dt><dd>@Model.WarningDays 天</dd>
         </dl>
     </section>
@@ -34,32 +34,42 @@
         <h2>业务归属</h2>
         <dl>
             <dt>客户</dt><dd>@Model.CustomerName</dd>
-            <dt>联系人</dt><dd>@(Model.ContactName ?? "-")</dd>
-            <dt>服务类型</dt><dd>@ServiceText(Model.ServiceType)</dd>
-            <dt>合同类型</dt><dd>@ContractTypeText(Model.ContractType)</dd>
-            <dt>回款频率</dt><dd>@FrequencyText(Model.PaymentFrequency)</dd>
-            <dt>区域/所属公司</dt><dd>@(Model.RegionalCompany ?? "-") / @(Model.AffiliatedCompany ?? "-")</dd>
+            <dt>联系人</dt><dd>@(!string.IsNullOrWhiteSpace(Model.ContactName) ? Model.ContactName : "-")</dd>
+            <dt>服务类型</dt><dd>@UiText.GetServiceTypeName(Model.ServiceType)</dd>
+            <dt>合同类型</dt><dd>@UiText.GetContractTypeName(Model.ContractType)</dd>
+            <dt>回款频率</dt><dd>@UiText.GetPaymentFrequencyName(Model.PaymentFrequency)</dd>
+            <dt>公司归属</dt><dd>@(!string.IsNullOrWhiteSpace(Model.RegionalCompany) ? Model.RegionalCompany : "-") / @(!string.IsNullOrWhiteSpace(Model.AffiliatedCompany) ? Model.AffiliatedCompany : "-")</dd>
         </dl>
     </section>
 </div>
 
 <section class="table-surface">
     <div class="section-title">
-        <h2>合同明细</h2>
+        <div>
+            <p class="eyebrow">Items</p>
+            <h2>合同明细</h2>
+        </div>
     </div>
-    <table class="table align-middle">
+    <table class="table data-table align-middle">
         <thead>
-            <tr><th>产品/服务</th><th>数量</th><th>单价</th><th>小计</th></tr>
+            <tr>
+                <th>产品/服务</th>
+                <th>数量</th>
+                <th>单价</th>
+                <th>小计</th>
+            </tr>
         </thead>
         <tbody>
         @if (!Model.Items.Any())
         {
-            <tr><td colspan="4" class="empty-state">暂无合同明细</td></tr>
+            <tr>
+                <td colspan="4" class="empty-state">暂无合同明细</td>
+            </tr>
         }
         @foreach (var item in Model.Items)
         {
             <tr>
-                <td>@item.ProductName</td>
+                <td class="strong-cell">@item.ProductName</td>
                 <td>@item.Quantity</td>
                 <td>@item.UnitPrice.ToString("C")</td>
                 <td>@item.Subtotal.ToString("C")</td>
@@ -71,17 +81,33 @@
 
 <section class="table-surface mt-3">
     <div class="section-title">
-        <h2>回款计划</h2>
-        <button type="button" class="btn btn-sm btn-outline-primary" onclick="generatePlans(@Model.Id)">自动生成计划</button>
+        <div>
+            <p class="eyebrow">Receivables</p>
+            <h2>回款计划</h2>
+        </div>
+        <div class="action-row">
+            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="generatePlans(@Model.Id)">自动生成计划</button>
+            <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#planModal">新增计划</button>
+        </div>
     </div>
-    <table class="table align-middle">
+    <table class="table data-table align-middle">
         <thead>
-            <tr><th>计划日期</th><th>计划金额</th><th>实收金额</th><th>实收日期</th><th>状态</th><th>说明</th><th>操作</th></tr>
+            <tr>
+                <th>计划日期</th>
+                <th>计划金额</th>
+                <th>实收金额</th>
+                <th>实收日期</th>
+                <th>状态</th>
+                <th>说明</th>
+                <th class="table-actions">操作</th>
+            </tr>
         </thead>
         <tbody>
         @if (!Model.PaymentPlans.Any())
         {
-            <tr><td colspan="7" class="empty-state">暂无回款计划</td></tr>
+            <tr>
+                <td colspan="7" class="empty-state">暂无回款计划</td>
+            </tr>
         }
         @foreach (var plan in Model.PaymentPlans)
         {
@@ -90,14 +116,39 @@
                 <td>@plan.PlanAmount.ToString("C")</td>
                 <td>@plan.ActualAmount.ToString("C")</td>
                 <td>@(plan.ActualDate?.ToString("yyyy-MM-dd") ?? "-")</td>
-                <td>@plan.Status</td>
-                <td>@plan.Description</td>
-                <td><button type="button" class="btn btn-sm btn-outline-success" onclick="openPayment(@Model.Id,@plan.Id)">登记回款</button></td>
+                <td><span class="status-pill plan-status-@plan.Status">@UiText.GetPaymentPlanStatusName(plan.Status)</span></td>
+                <td>@(!string.IsNullOrWhiteSpace(plan.Description) ? plan.Description : "-")</td>
+                <td class="table-actions">
+                    <button type="button" class="btn btn-sm btn-outline-success" onclick="openPayment(@Model.Id,@plan.Id)">登记回款</button>
+                </td>
             </tr>
         }
         </tbody>
     </table>
 </section>
+
+<div class="modal fade" id="planModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">新增回款计划</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="关闭"></button>
+            </div>
+            <div class="modal-body modal-form">
+                <label class="form-label" for="planDate">计划日期</label>
+                <input id="planDate" class="form-control" type="date" value="@DateTime.Today.ToString("yyyy-MM-dd")" />
+                <label class="form-label" for="planAmount">计划金额</label>
+                <input id="planAmount" class="form-control" type="number" min="0.01" step="0.01" />
+                <label class="form-label" for="planDescription">说明</label>
+                <input id="planDescription" class="form-control" placeholder="例如首付款、验收款" />
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-primary" onclick="addPaymentPlan(@Model.Id)">保存计划</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 <div class="modal fade" id="paymentModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog">
@@ -106,17 +157,36 @@
                 <h5 class="modal-title">登记回款</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="关闭"></button>
             </div>
-            <div class="modal-body">
+            <div class="modal-body modal-form">
                 <input type="hidden" id="paymentContractId" />
                 <input type="hidden" id="paymentPlanId" />
                 <label class="form-label" for="actualAmount">实收金额</label>
                 <input id="actualAmount" class="form-control" type="number" min="0.01" step="0.01" />
-                <label class="form-label mt-3" for="actualDate">实收日期</label>
+                <label class="form-label" for="actualDate">实收日期</label>
                 <input id="actualDate" class="form-control" type="date" value="@DateTime.Today.ToString("yyyy-MM-dd")" />
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">取消</button>
-                <button type="button" class="btn btn-primary" onclick="recordPayment()">保存</button>
+                <button type="button" class="btn btn-primary" onclick="recordPayment()">保存回款</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="cancelModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">作废合同</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="关闭"></button>
+            </div>
+            <div class="modal-body modal-form">
+                <label class="form-label" for="cancelReason">作废原因</label>
+                <textarea id="cancelReason" class="form-control" rows="3" placeholder="记录作废原因，便于后续追溯"></textarea>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-danger" onclick="cancelContract(@Model.Id)">确认作废</button>
             </div>
         </div>
     </div>
@@ -124,33 +194,75 @@
 
 @section Scripts {
     <script>
-        function postJson(url, payload) {
-            return fetch(url, {
+        function showFeedback(message, isSuccess) {
+            const feedback = document.getElementById('operationFeedback');
+            feedback.textContent = message || (isSuccess ? '操作成功' : '操作失败');
+            feedback.className = `operation-feedback ${isSuccess ? 'success' : 'danger'}`;
+            window.setTimeout(() => feedback.classList.add('d-none'), 3200);
+        }
+
+        async function postJson(url, payload) {
+            const response = await fetch(url, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
-            }).then(r => r.json());
+            });
+            return response.json();
         }
 
-        function generatePlans(contractId) {
-            fetch(`/Contract/GeneratePaymentPlans?contractId=${contractId}`, { method: 'POST' })
-                .then(r => r.json())
-                .then(result => { alert(result.msg); if (result.code === 200) location.reload(); });
+        async function generatePlans(contractId) {
+            const result = await fetch(`/Contract/GeneratePaymentPlans?contractId=${contractId}`, { method: 'POST' }).then(r => r.json());
+            showFeedback(result.msg, result.code === 200);
+            if (result.code === 200) window.setTimeout(() => location.reload(), 600);
         }
 
         function openPayment(contractId, planId) {
             document.getElementById('paymentContractId').value = contractId;
             document.getElementById('paymentPlanId').value = planId;
-            new bootstrap.Modal(document.getElementById('paymentModal')).show();
+            bootstrap.Modal.getOrCreateInstance(document.getElementById('paymentModal')).show();
         }
 
-        function recordPayment() {
-            postJson('/Contract/RecordPayment', {
+        async function addPaymentPlan(contractId) {
+            const planAmount = Number(document.getElementById('planAmount').value);
+            if (!planAmount || planAmount <= 0) {
+                showFeedback('请输入有效的计划金额', false);
+                return;
+            }
+
+            const result = await postJson('/Contract/AddPaymentPlan', {
+                contractId,
+                planDate: document.getElementById('planDate').value,
+                planAmount,
+                description: document.getElementById('planDescription').value
+            });
+            showFeedback(result.msg, result.code === 200);
+            if (result.code === 200) window.setTimeout(() => location.reload(), 600);
+        }
+
+        async function recordPayment() {
+            const actualAmount = Number(document.getElementById('actualAmount').value);
+            if (!actualAmount || actualAmount <= 0) {
+                showFeedback('请输入有效的实收金额', false);
+                return;
+            }
+
+            const result = await postJson('/Contract/RecordPayment', {
                 contractId: Number(document.getElementById('paymentContractId').value),
                 planId: Number(document.getElementById('paymentPlanId').value),
-                actualAmount: Number(document.getElementById('actualAmount').value),
+                actualAmount,
                 actualDate: document.getElementById('actualDate').value
-            }).then(result => { alert(result.msg); if (result.code === 200) location.reload(); });
+            });
+            showFeedback(result.msg, result.code === 200);
+            if (result.code === 200) window.setTimeout(() => location.reload(), 600);
+        }
+
+        async function cancelContract(contractId) {
+            const result = await postJson('/Contract/Cancel', {
+                id: contractId,
+                reason: document.getElementById('cancelReason').value
+            });
+            showFeedback(result.msg, result.code === 200);
+            if (result.code === 200) window.setTimeout(() => location.reload(), 600);
         }
     </script>
 }
