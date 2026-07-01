@@ -6,7 +6,7 @@
 
 <div class="page-head">
     <div>
-        <p class="eyebrow">Customer</p>
+        <p class="eyebrow">客户详情</p>
         <h1>@Model.Name</h1>
         <p>@(!string.IsNullOrWhiteSpace(Model.Industry) ? Model.Industry : "未填写行业")</p>
     </div>
@@ -37,7 +37,7 @@
 <section class="table-surface">
     <div class="section-title">
         <div>
-            <p class="eyebrow">Contacts</p>
+            <p class="eyebrow">联系人</p>
             <h2>联系人</h2>
         </div>
         <div class="action-row">
@@ -86,7 +86,7 @@
 <section class="table-surface mt-3">
     <div class="section-title">
         <div>
-            <p class="eyebrow">Contracts</p>
+            <p class="eyebrow">关联合同</p>
             <h2>关联合同</h2>
         </div>
         <a asp-controller="Contract" asp-action="Create" class="btn btn-sm btn-primary">新建合同</a>
