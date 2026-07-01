@@ -25,8 +25,23 @@ namespace CRM.Web
                 throw new InvalidOperationException("ConnectionStrings:DefaultConnection is required.");
             }
 
+            var databaseProvider = builder.Configuration.GetValue<string>("Database:Provider") ?? "SqlServer";
+
             builder.Services.AddDbContext<CrmDbContext>(options =>
-                options.UseSqlServer(connectionString));
+            {
+                if (databaseProvider.Equals("Sqlite", StringComparison.OrdinalIgnoreCase))
+                {
+                    options.UseSqlite(connectionString);
+                }
+                else if (databaseProvider.Equals("SqlServer", StringComparison.OrdinalIgnoreCase))
+                {
+                    options.UseSqlServer(connectionString);
+                }
+                else
+                {
+                    throw new InvalidOperationException($"Unsupported database provider: {databaseProvider}");
+                }
+            });
 
             builder.Services.AddHealthChecks()
                 .AddCheck<HealthChecks.DatabaseHealthCheck>("database");
@@ -57,11 +72,26 @@ namespace CRM.Web
                 name: "default",
                 pattern: "{controller=Home}/{action=Index}/{id?}");
 
-            if (builder.Configuration.GetValue<bool>("Database:MigrateOnStartup"))
+            if (builder.Configuration.GetValue<bool>("Database:InitializeOnStartup") ||
+                builder.Configuration.GetValue<bool>("Database:MigrateOnStartup"))
             {
                 using var scope = app.Services.CreateScope();
                 var dbContext = scope.ServiceProvider.GetRequiredService<CrmDbContext>();
-                dbContext.Database.Migrate();
+                if (databaseProvider.Equals("Sqlite", StringComparison.OrdinalIgnoreCase))
+                {
+                    var dataSource = new Microsoft.Data.Sqlite.SqliteConnectionStringBuilder(connectionString).DataSource;
+                    var directory = Path.GetDirectoryName(Path.GetFullPath(dataSource));
+                    if (!string.IsNullOrWhiteSpace(directory))
+                    {
+                        Directory.CreateDirectory(directory);
+                    }
+
+                    dbContext.Database.EnsureCreated();
+                }
+                else
+                {
+                    dbContext.Database.Migrate();
+                }
             }
 
             app.Run();

@@ -7,7 +7,7 @@ CRM Lite is an ASP.NET Core MVC system for customer, contact, contract, and paym
 - .NET 8
 - ASP.NET Core MVC
 - Entity Framework Core
-- SQL Server
+- SQLite by default, SQL Server supported for server deployment
 - Bootstrap and Razor views
 
 ## Local Run
@@ -24,10 +24,20 @@ Open:
 http://localhost:5268
 ```
 
-The default development connection string uses SQL Server LocalDB. Install LocalDB or override the connection string:
+The default connection string uses an SQLite database file on the E drive:
+
+```powershell
+$env:ConnectionStrings__DefaultConnection = "Data Source=E:\crm-lite-data\CrmLite.db"
+$env:Database__Provider = "Sqlite"
+$env:Database__InitializeOnStartup = "true"
+```
+
+For SQL Server deployment:
 
 ```powershell
 $env:ConnectionStrings__DefaultConnection = "Server=YOUR_SQL_SERVER;Database=CrmLiteDb;User Id=YOUR_USER;Password=YOUR_PASSWORD;TrustServerCertificate=True;MultipleActiveResultSets=true"
+$env:Database__Provider = "SqlServer"
+$env:Database__MigrateOnStartup = "true"
 ```
 
 ## Deployment
