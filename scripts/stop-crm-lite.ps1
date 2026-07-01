@@ -10,7 +10,7 @@ foreach ($pidValue in $processIds) {
 }
 
 if ($processIds) {
-    Write-Host "Stopped CRM Lite processes on port ${Port}: $($processIds -join ', ')"
+    Write-Host "Stopped CRM Lite processes on port $Port: $($processIds -join ', ')"
 } else {
     Write-Host "No CRM Lite process found on port $Port"
 }

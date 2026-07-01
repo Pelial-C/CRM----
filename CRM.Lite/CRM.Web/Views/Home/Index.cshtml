@@ -4,52 +4,18 @@
 
 <div class="page-head">
     <div>
-        <p class="eyebrow">CRM Lite</p>
-        <h1>工作台</h1>
-        <p>从客户档案到合同履约，保持同一套数据入口和操作路径。</p>
+        <h1>CRM Lite 工作台</h1>
+        <p>客户、联系人、合同与回款的统一操作入口。</p>
     </div>
 </div>
 
-<section class="module-grid" aria-label="核心模块">
+<div class="module-grid">
     <a asp-controller="Customer" asp-action="Index" class="module-tile">
-        <span class="tile-kicker">Customer</span>
         <strong>客户管理</strong>
-        <span>维护企业客户、地址、联系人，并进入客户详情查看关联合同。</span>
+        <span>维护企业客户、地址、联系人和客户合同概览。</span>
     </a>
     <a asp-controller="Contract" asp-action="Index" class="module-tile">
-        <span class="tile-kicker">Contract</span>
         <strong>合同管理</strong>
-        <span>录入合同、明细和回款计划，跟踪签订、履约与回款状态。</span>
+        <span>录入合同、明细、回款计划并跟踪履约状态。</span>
     </a>
-</section>
-
-<section class="workflow-panel" aria-label="业务流程">
-    <div class="section-title">
-        <div>
-            <p class="eyebrow">Flow</p>
-            <h2>标准业务路径</h2>
-        </div>
-    </div>
-    <div class="flow-steps">
-        <div class="flow-step">
-            <span>01</span>
-            <strong>建立客户</strong>
-            <p>先确认企业名称、信用代码、行业与地址。</p>
-        </div>
-        <div class="flow-step">
-            <span>02</span>
-            <strong>维护联系人</strong>
-            <p>在客户详情中维护联系人和关键决策人。</p>
-        </div>
-        <div class="flow-step">
-            <span>03</span>
-            <strong>录入合同</strong>
-            <p>填写合同信息、业务属性、合同明细与初始回款计划。</p>
-        </div>
-        <div class="flow-step">
-            <span>04</span>
-            <strong>登记回款</strong>
-            <p>在合同详情中生成计划并登记实际回款。</p>
-        </div>
-    </div>
-</section>
+</div>

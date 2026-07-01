@@ -1,97 +1,66 @@
 @model CRM.Application.Contracts.Customers.Dtos.CustomerDetailDto
 @{
     ViewData["Title"] = "客户详情";
-    var address = $"{Model.Province} {Model.City} {Model.District} {Model.DetailAddress}".Trim();
 }
 
-<div class="page-head">
-    <div>
-        <p class="eyebrow">Customer</p>
-        <h1>@Model.Name</h1>
-        <p>@(!string.IsNullOrWhiteSpace(Model.Industry) ? Model.Industry : "未填写行业")</p>
-    </div>
-    <div class="action-row">
-        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">编辑客户</a>
-        <a asp-action="Index" class="btn btn-outline-secondary">返回列表</a>
-    </div>
-</div>
+<h2>客户详情</h2>
 
-<div class="detail-grid">
-    <section class="info-panel">
-        <h2>基础信息</h2>
-        <dl>
-            <dt>企业名称</dt><dd>@Model.Name</dd>
-            <dt>信用代码</dt><dd><span class="mono">@(!string.IsNullOrWhiteSpace(Model.CreditCode) ? Model.CreditCode : "-")</span></dd>
-            <dt>所属行业</dt><dd>@(!string.IsNullOrWhiteSpace(Model.Industry) ? Model.Industry : "-")</dd>
-            <dt>地区地址</dt><dd>@(!string.IsNullOrWhiteSpace(address) ? address : "-")</dd>
-            <dt>删除状态</dt><dd><span class="status-pill @(Model.IsDeleted ? "status-danger" : "status-muted")">@UiText.YesNo(Model.IsDeleted)</span></dd>
-            <dt>创建时间</dt><dd>@Model.CreationTime.ToString("yyyy-MM-dd HH:mm")</dd>
+<div class="card mb-3">
+    <div class="card-body">
+        <dl class="row">
+            <dt class="col-sm-3">企业名称</dt><dd class="col-sm-9">@Model.Name</dd>
+            <dt class="col-sm-3">统一社会信用代码</dt><dd class="col-sm-9">@Model.CreditCode</dd>
+            <dt class="col-sm-3">所属行业</dt><dd class="col-sm-9">@Model.Industry</dd>
+            <dt class="col-sm-3">地区</dt><dd class="col-sm-9">@Model.Province @Model.City @Model.District @Model.DetailAddress</dd>
+            <dt class="col-sm-3">备注</dt><dd class="col-sm-9">@Model.Remark</dd>
+            <dt class="col-sm-3">是否删除</dt><dd class="col-sm-9">@(Model.IsDeleted ? "是" : "否")</dd>
+            <dt class="col-sm-3">创建时间</dt><dd class="col-sm-9">@Model.CreationTime.ToString("yyyy-MM-dd HH:mm")</dd>
         </dl>
-    </section>
-    <section class="info-panel">
-        <h2>备注</h2>
-        <p class="pre-line">@(!string.IsNullOrWhiteSpace(Model.Remark) ? Model.Remark : "暂无备注")</p>
-    </section>
+        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning btn-sm">编辑</a>
+        <a asp-action="Index" class="btn btn-secondary btn-sm">返回列表</a>
+    </div>
 </div>
 
-<section class="table-surface">
-    <div class="section-title">
-        <div>
-            <p class="eyebrow">Contacts</p>
-            <h2>联系人</h2>
-        </div>
-        <div class="action-row">
-            <a asp-controller="Contact" asp-action="List" asp-route-customerId="@Model.Id" class="btn btn-sm btn-outline-secondary">管理联系人</a>
-            <a asp-controller="Contact" asp-action="Create" asp-route-customerId="@Model.Id" class="btn btn-sm btn-primary">新增联系人</a>
-        </div>
-    </div>
-    <table class="table data-table align-middle">
-        <thead>
-            <tr>
-                <th>姓名</th>
-                <th>职务</th>
-                <th>手机号</th>
-                <th>邮箱</th>
-                <th>关键决策人</th>
-                <th class="table-actions">操作</th>
-            </tr>
-        </thead>
-        <tbody>
-        @if (!Model.Contacts.Any())
+<h4>联系人列表</h4>
+<a asp-controller="Contact" asp-action="Create" asp-route-customerId="@Model.Id" class="btn btn-success btn-sm mb-2">新增联系人</a>
+
+<table class="table table-bordered table-sm">
+    <thead>
+        <tr>
+            <th>姓名</th>
+            <th>职务</th>
+            <th>手机号</th>
+            <th>邮箱</th>
+            <th>关键决策人</th>
+            <th>操作</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var c in Model.Contacts)
         {
             <tr>
-                <td colspan="6" class="empty-state">暂无联系人</td>
-            </tr>
-        }
-        @foreach (var contact in Model.Contacts)
-        {
-            <tr>
-                <td class="strong-cell">@contact.Name</td>
-                <td>@(!string.IsNullOrWhiteSpace(contact.Title) ? contact.Title : "-")</td>
-                <td>@(!string.IsNullOrWhiteSpace(contact.Phone) ? contact.Phone : "-")</td>
-                <td>@(!string.IsNullOrWhiteSpace(contact.Email) ? contact.Email : "-")</td>
-                <td><span class="status-pill @(contact.IsKeyDecisionMaker ? "status-success" : "status-muted")">@UiText.YesNo(contact.IsKeyDecisionMaker)</span></td>
-                <td class="table-actions">
-                    <a asp-controller="Contact" asp-action="Edit" asp-route-id="@contact.Id" asp-route-customerId="@Model.Id" class="btn btn-sm btn-outline-secondary">编辑</a>
-                    <form asp-controller="Contact" asp-action="Delete" asp-route-id="@contact.Id" asp-route-customerId="@Model.Id" method="post" class="inline-form" onsubmit="return confirm('确认删除该联系人？')">
-                        <button type="submit" class="btn btn-sm btn-outline-danger">删除</button>
+                <td>@c.Name</td>
+                <td>@c.Title</td>
+                <td>@c.Phone</td>
+                <td>@c.Email</td>
+                <td>@(c.IsKeyDecisionMaker ? "是" : "否")</td>
+                <td>
+                    <a asp-controller="Contact" asp-action="Edit" asp-route-id="@c.Id" asp-route-customerId="@Model.Id" class="btn btn-sm btn-warning">编辑</a>
+                    <form asp-controller="Contact" asp-action="Delete" asp-route-id="@c.Id" asp-route-customerId="@Model.Id" method="post" style="display:inline" onsubmit="return confirm('确认删除？')">
+                        <button type="submit" class="btn btn-sm btn-danger">删除</button>
                     </form>
                 </td>
             </tr>
         }
-        </tbody>
-    </table>
-</section>
+    </tbody>
+</table>
 
-<section class="table-surface mt-3">
-    <div class="section-title">
-        <div>
-            <p class="eyebrow">Contracts</p>
-            <h2>关联合同</h2>
-        </div>
-        <a asp-controller="Contract" asp-action="Create" class="btn btn-sm btn-primary">新建合同</a>
-    </div>
-    <table class="table data-table align-middle">
+<h4>合同列表</h4>
+<p class="text-muted">（合同模块由后端开发二负责，此处预留展示位置）</p>
+
+@if (Model.Contracts.Any())
+{
+    <table class="table table-bordered table-sm">
         <thead>
             <tr>
                 <th>合同编号</th>
@@ -102,22 +71,16 @@
             </tr>
         </thead>
         <tbody>
-        @if (!Model.Contracts.Any())
-        {
-            <tr>
-                <td colspan="5" class="empty-state">暂无关联合同</td>
-            </tr>
-        }
-        @foreach (var contract in Model.Contracts)
-        {
-            <tr>
-                <td><span class="mono">@contract.ContractNo</span></td>
-                <td class="strong-cell">@contract.ContractName</td>
-                <td>@contract.TotalAmount.ToString("C")</td>
-                <td><span class="status-pill status-@contract.Status">@UiText.GetContractStatusName(contract.Status)</span></td>
-                <td>@contract.SignDate.ToString("yyyy-MM-dd")</td>
-            </tr>
-        }
+            @foreach (var c in Model.Contracts)
+            {
+                <tr>
+                    <td>@c.ContractNo</td>
+                    <td>@c.ContractName</td>
+                    <td>@c.TotalAmount</td>
+                    <td>@c.Status</td>
+                    <td>@c.SignDate.ToString("yyyy-MM-dd")</td>
+                </tr>
+            }
         </tbody>
     </table>
-</section>
+}

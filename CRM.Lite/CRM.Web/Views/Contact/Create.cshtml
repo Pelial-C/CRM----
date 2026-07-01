@@ -3,61 +3,34 @@
     ViewData["Title"] = "新增联系人";
 }
 
-<div class="page-head">
-    <div>
-        <p class="eyebrow">New Contact</p>
-        <h1>新增联系人</h1>
-        <p>客户 ID：<span class="mono">@Model.CustomerId</span></p>
-    </div>
-    <a asp-controller="Customer" asp-action="Detail" asp-route-id="@Model.CustomerId" class="btn btn-outline-secondary">返回客户</a>
-</div>
+<h2>新增联系人 <small class="text-muted">客户Id: @Model.CustomerId</small></h2>
 
-<form asp-action="Create" method="post" class="form-workspace">
+<form asp-action="Create" method="post">
     <input type="hidden" asp-for="CustomerId" />
-    <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
-
-    <section class="form-panel narrow-panel">
-        <div class="section-title">
-            <div>
-                <p class="eyebrow">Contact</p>
-                <h2>联系人信息</h2>
-            </div>
-        </div>
-        <div class="form-grid two-column">
-            <div>
-                <label asp-for="Name" class="form-label">姓名</label>
-                <input asp-for="Name" class="form-control" autocomplete="name" />
-                <span asp-validation-for="Name" class="text-danger"></span>
-            </div>
-            <div>
-                <label asp-for="Title" class="form-label">职务</label>
-                <input asp-for="Title" class="form-control" />
-            </div>
-            <div>
-                <label asp-for="Phone" class="form-label">手机号</label>
-                <input asp-for="Phone" class="form-control" autocomplete="tel" />
-                <span asp-validation-for="Phone" class="text-danger"></span>
-            </div>
-            <div>
-                <label asp-for="Email" class="form-label">邮箱</label>
-                <input asp-for="Email" class="form-control" autocomplete="email" />
-                <span asp-validation-for="Email" class="text-danger"></span>
-            </div>
-            <div class="grid-span-2">
-                <label class="check-row">
-                    <input asp-for="IsKeyDecisionMaker" class="form-check-input" />
-                    <span>关键决策人</span>
-                </label>
-            </div>
-        </div>
-    </section>
-
-    <div class="sticky-actions">
-        <button type="submit" class="btn btn-primary">保存联系人</button>
-        <a asp-controller="Customer" asp-action="Detail" asp-route-id="@Model.CustomerId" class="btn btn-outline-secondary">取消</a>
+    <div class="mb-2">
+        <label asp-for="Name" class="form-label"></label>
+        <input asp-for="Name" class="form-control" />
+        <span asp-validation-for="Name" class="text-danger"></span>
     </div>
+    <div class="mb-2">
+        <label asp-for="Title" class="form-label"></label>
+        <input asp-for="Title" class="form-control" />
+    </div>
+    <div class="mb-2">
+        <label asp-for="Phone" class="form-label"></label>
+        <input asp-for="Phone" class="form-control" />
+        <span asp-validation-for="Phone" class="text-danger"></span>
+    </div>
+    <div class="mb-2">
+        <label asp-for="Email" class="form-label"></label>
+        <input asp-for="Email" class="form-control" />
+        <span asp-validation-for="Email" class="text-danger"></span>
+    </div>
+    <div class="mb-2 form-check">
+        <input asp-for="IsKeyDecisionMaker" class="form-check-input" />
+        <label asp-for="IsKeyDecisionMaker" class="form-check-label"></label>
+    </div>
+    <div asp-validation-summary="ModelOnly" class="text-danger mb-2"></div>
+    <button type="submit" class="btn btn-primary">提交</button>
+    <a asp-controller="Customer" asp-action="Detail" asp-route-id="@Model.CustomerId" class="btn btn-secondary">返回</a>
 </form>
-
-@section Scripts {
-    <partial name="_ValidationScriptsPartial" />
-}
