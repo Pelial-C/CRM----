@@ -15,9 +15,20 @@ This project is an ASP.NET Core MVC application targeting .NET 8. It runs with S
 Run from the repository root:
 
 ```powershell
-dotnet restore CRM.Lite\CRM.Lite.sln
-dotnet build CRM.Lite\CRM.Lite.sln --configuration Release
-dotnet publish CRM.Lite\CRM.Web\CRM.Web.csproj --configuration Release --output E:\deploy\crm-lite
+.\scripts\publish-crm-lite.ps1
+```
+
+The default script creates a self-contained Windows x64 deployment at:
+
+```text
+E:\deploy\crm-lite-win-x64
+```
+
+NuGet packages and .NET CLI home are also kept on the E drive:
+
+```text
+E:\nuget-packages
+E:\dotnet-cli-home
 ```
 
 ## Configuration
@@ -46,13 +57,26 @@ $env:Database__MigrateOnStartup = "true"
 ## Run
 
 ```powershell
-dotnet E:\deploy\crm-lite\CRM.Web.dll --urls http://0.0.0.0:5268
+.\scripts\start-crm-lite.ps1
 ```
 
 Health endpoint:
 
 ```text
-/health
+http://localhost:5270/health
+```
+
+Stop and status:
+
+```powershell
+.\scripts\status-crm-lite.ps1
+.\scripts\stop-crm-lite.ps1
+```
+
+Database backup:
+
+```powershell
+.\scripts\backup-crm-lite-data.ps1
 ```
 
 ## Notes

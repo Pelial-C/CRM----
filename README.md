@@ -43,3 +43,11 @@ $env:Database__MigrateOnStartup = "true"
 ## Deployment
 
 See [DEPLOYMENT.md](DEPLOYMENT.md).
+
+Quick single-machine deployment on the E drive:
+
+```powershell
+.\scripts\publish-crm-lite.ps1
+.\scripts\start-crm-lite.ps1
+.\scripts\status-crm-lite.ps1
+```
