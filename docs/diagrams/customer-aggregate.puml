@@ -1,0 +1,66 @@
+@startuml
+title Customer 聚合
+
+skinparam classAttributeIconSize 0
+
+class Customer <<AggregateRoot>> {
+  +Id
+  +Name
+  +CreditCode
+  +Industry
+  +Address
+  +IsDeleted
+  +OwnerUserId
+  +Contacts
+  +UpdateInfo()
+  +AddContact()
+  +RemoveContact()
+  +MarkAsDeleted()
+  +SetOwner()
+}
+
+class Contact <<Entity>> {
+  +Id
+  +CustomerId
+  +Name
+  +Title
+  +Phone
+  +Email
+  +IsKeyDecisionMaker
+  +Update()
+}
+
+class Address <<ValueObject>> {
+  +Province
+  +City
+  +District
+  +Detail
+}
+
+class CustomerCreatedEvent <<DomainEvent>> {
+  +CustomerId
+  +CustomerName
+  +OccurredOn
+}
+
+class ContactAddedEvent <<DomainEvent>> {
+  +CustomerId
+  +CustomerName
+  +ContactName
+  +Phone
+  +OccurredOn
+}
+
+Customer "1" o-- "0..*" Contact
+Customer *-- Address
+Customer ..> CustomerCreatedEvent : records
+Customer ..> ContactAddedEvent : records
+
+note right of Customer
+规则：
+1. 客户名称不能为空
+2. 已删除客户不能新增联系人
+3. 同一客户下联系人姓名 + 手机号不能重复
+end note
+
+@enduml

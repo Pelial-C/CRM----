@@ -1,0 +1,63 @@
+@model CRM.Web.Models.Auth.LoginViewModel
+@inject IWebHostEnvironment Env
+
+@{
+    ViewData["Title"] = "登录";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-7 col-lg-5">
+        <div class="card shadow-sm border-0">
+            <div class="card-body p-4 p-md-5">
+                <div class="text-center mb-4">
+                    <div class="display-6 fw-bold text-primary">企业客户合同管理系统</div>
+                    <p class="text-muted mb-0">统一账号登录入口</p>
+                    <p class="small text-muted mb-0">管理员 / 销售人员 / 企业用户 / 客户用户</p>
+                </div>
+
+                <form asp-action="Login" method="post" novalidate>
+                    @Html.AntiForgeryToken()
+                    <input asp-for="ReturnUrl" type="hidden" />
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                    <div class="mb-3">
+                        <label asp-for="UserName" class="form-label">用户名</label>
+                        <input asp-for="UserName" class="form-control" placeholder="请输入用户名" autofocus />
+                        <span asp-validation-for="UserName" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Password" class="form-label">密码</label>
+                        <input asp-for="Password" class="form-control" placeholder="请输入密码" />
+                        <span asp-validation-for="Password" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-check mb-4">
+                        <input asp-for="RememberMe" class="form-check-input" />
+                        <label asp-for="RememberMe" class="form-check-label">记住我</label>
+                    </div>
+
+                    <button class="btn btn-primary w-100" type="submit">登录</button>
+                </form>
+
+                @if (Env.IsDevelopment())
+                {
+                    <div class="alert alert-info mt-4 small mb-0">
+                        <div class="fw-semibold">开发环境演示账号</div>
+                        <div>演示账号请查看 README.md，不在登录页面暴露真实密码。</div>
+                    </div>
+                }
+            </div>
+        </div>
+        <div class="row g-3 mt-3">
+            <div class="col-sm-6"><div class="card h-100 border-0 shadow-sm"><div class="card-body small"><strong>管理员端</strong><div class="text-muted">管理用户、客户、合同、回款和基础数据。</div></div></div></div>
+            <div class="col-sm-6"><div class="card h-100 border-0 shadow-sm"><div class="card-body small"><strong>销售端</strong><div class="text-muted">维护负责客户、联系人、合同和回款。</div></div></div></div>
+            <div class="col-sm-6"><div class="card h-100 border-0 shadow-sm"><div class="card-body small"><strong>企业用户端</strong><div class="text-muted">企业内部普通用户查看业务数据。</div></div></div></div>
+            <div class="col-sm-6"><div class="card h-100 border-0 shadow-sm"><div class="card-body small"><strong>客户门户端</strong><div class="text-muted">外部客户查看自身企业合同和回款。</div></div></div></div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

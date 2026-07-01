@@ -1,0 +1,22 @@
+@startuml
+title 回款计划状态图
+
+[*] --> Pending : 创建回款计划
+Pending --> PartialPaid : 登记部分回款
+Pending --> Paid : 实际回款 = 计划金额
+Pending --> Overdue : PlanDate < today
+
+PartialPaid --> Paid : 累计实际回款 = 计划金额
+PartialPaid --> Overdue : PlanDate < today 且未结清
+
+Overdue --> PartialPaid : 登记部分回款
+Overdue --> Paid : 实际回款补齐
+
+Paid --> [*]
+
+note right of Paid
+当合同下所有 PaymentPlan
+均为 Paid 时，Contract 自动完成。
+end note
+
+@enduml

@@ -4,9 +4,9 @@ namespace CRM.Application.Contracts.Contacts;
 
 public interface IContactAppService
 {
-    Task<List<ContactDto>> GetListAsync(ContactQueryDto input);
-    Task<ContactDto> GetByIdAsync(int customerId, int contactId);
-    Task CreateAsync(CreateContactDto input);
-    Task UpdateAsync(int customerId, UpdateContactDto input);
-    Task DeleteAsync(int customerId, int contactId);
+    Task<List<ContactDto>> GetListByCustomerIdAsync(int customerId);
+    Task<ContactDto> GetAsync(int id);
+    Task<ContactDto> CreateAsync(int customerId, CreateContactDto input);
+    Task UpdateAsync(UpdateContactDto input);
+    Task DeleteAsync(int id);
 }

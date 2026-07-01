@@ -18,6 +18,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <ProjectReference Include="..\CRM.Domain\CRM.Domain.csproj" />
+    <ProjectReference Include="..\CRM.Application.Contracts\CRM.Application.Contracts.csproj" />
   </ItemGroup>
 
 </Project>

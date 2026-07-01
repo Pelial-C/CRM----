@@ -1,0 +1,239 @@
+@using CRM.Application.Contracts.Contracts.Dtos
+@model ContractDto
+
+@{
+    ViewData["Title"] = "合同详情";
+    var canManage = User.IsInRole("Admin") || User.IsInRole("Sales");
+}
+
+<div class="page-header">
+    <div>
+        <h2 class="page-title">合同详情</h2>
+        <p class="page-subtitle">查看合同基础信息、明细和回款计划。</p>
+    </div>
+    <div class="page-actions">
+        @if (canManage)
+        {
+            <a class="btn btn-outline-primary btn-sm" asp-action="Edit" asp-route-id="@Model.Id">编辑</a>
+        }
+        <a class="btn btn-outline-secondary btn-sm" asp-action="Index">返回列表</a>
+    </div>
+</div>
+
+@if (TempData["Error"] is string errorMessage)
+{
+    <div class="alert alert-danger">@errorMessage</div>
+}
+
+<div class="app-card mb-4">
+    <div class="app-card-body">
+        <div class="row g-3">
+            <div class="col-12 col-md-3"><strong>合同编号：</strong>@Model.ContractNo</div>
+            <div class="col-12 col-md-5"><strong>合同名称：</strong>@Model.ContractName</div>
+            <div class="col-12 col-md-2"><strong>状态：</strong><span class="status-badge status-info">@EnumDisplayHelper.ContractStatusText(Model.Status)</span></div>
+            <div class="col-12 col-md-2"><strong>金额：</strong>@Model.TotalAmount.ToString("N2")</div>
+            <div class="col-12 col-md-3"><strong>客户：</strong>@Model.CustomerName</div>
+            <div class="col-12 col-md-3"><strong>联系人：</strong>@Model.ContactName</div>
+            <div class="col-12 col-md-3"><strong>签订日期：</strong>@Model.SignDate.ToString("yyyy-MM-dd")</div>
+            <div class="col-12 col-md-3"><strong>起止日期：</strong>@Model.StartDate.ToString("yyyy-MM-dd") - @Model.EndDate.ToString("yyyy-MM-dd")</div>
+            <div class="col-12 col-md-3"><strong>回款频率：</strong>@EnumDisplayHelper.PaymentFrequencyText(Model.PaymentFrequency)</div>
+            <div class="col-12 col-md-3"><strong>服务类型：</strong>@EnumDisplayHelper.ServiceTypeText(Model.ServiceType)</div>
+            <div class="col-12 col-md-3"><strong>合同类型：</strong>@EnumDisplayHelper.ContractTypeText(Model.ContractType)</div>
+            <div class="col-12 col-md-3"><strong>预警天数：</strong>@Model.WarningDays</div>
+            <div class="col-12"><strong>备注：</strong>@Model.Remark</div>
+        </div>
+    </div>
+</div>
+
+<div class="app-card mb-4">
+    <div class="app-card-header">
+        <h3 class="form-section-title">合同明细</h3>
+    </div>
+    <div class="app-card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-sm align-middle app-table">
+                <thead>
+                    <tr>
+                        <th>产品或服务名称</th>
+                        <th class="text-end">数量</th>
+                        <th class="text-end">单价</th>
+                        <th class="text-end">小计</th>
+                    </tr>
+                </thead>
+                <tbody>
+                @if (!Model.Items.Any())
+                {
+                    <tr><td colspan="4"><div class="empty-state">暂无明细</div></td></tr>
+                }
+                else
+                {
+                    foreach (var item in Model.Items)
+                    {
+                        <tr>
+                            <td>@item.ProductName</td>
+                            <td class="text-end">@item.Quantity</td>
+                            <td class="text-end">@item.UnitPrice.ToString("N2")</td>
+                            <td class="text-end">@item.Subtotal.ToString("N2")</td>
+                        </tr>
+                    }
+                }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="app-card">
+    <div class="app-card-header d-flex align-items-center justify-content-between gap-2">
+        <h3 class="form-section-title mb-0">回款计划</h3>
+        <div class="page-actions">
+            @if (canManage)
+            {
+                <form asp-action="GeneratePaymentPlans" method="post" data-confirm="确认自动生成回款计划？已有计划时不能重复生成。">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="contractId" value="@Model.Id" />
+                    <button class="btn btn-sm btn-outline-primary" type="submit">自动生成回款计划</button>
+                </form>
+                <button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="modal" data-bs-target="#addPlanModal">新增回款计划</button>
+            }
+        </div>
+    </div>
+    <div class="app-card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-sm align-middle app-table">
+                <thead>
+                    <tr>
+                        <th>计划日期</th>
+                        <th class="text-end">计划金额</th>
+                        <th class="text-end">实际金额</th>
+                        <th>实际日期</th>
+                        <th>状态</th>
+                        <th>说明</th>
+                        @if (canManage)
+                        {
+                            <th class="text-end">操作</th>
+                        }
+                    </tr>
+                </thead>
+                <tbody>
+                @if (!Model.PaymentPlans.Any())
+                {
+                    <tr><td colspan="@(canManage ? 7 : 6)"><div class="empty-state">暂无回款计划</div></td></tr>
+                }
+                else
+                {
+                    foreach (var plan in Model.PaymentPlans)
+                    {
+                        <tr>
+                            <td>@plan.PlanDate.ToString("yyyy-MM-dd")</td>
+                            <td class="text-end">@plan.PlanAmount.ToString("N2")</td>
+                            <td class="text-end">@plan.ActualAmount.ToString("N2")</td>
+                            <td>@(plan.ActualDate?.ToString("yyyy-MM-dd") ?? "-")</td>
+                            <td><span class="status-badge status-warning">@EnumDisplayHelper.PaymentPlanStatusText(plan.Status)</span></td>
+                            <td>@plan.Description</td>
+                            @if (canManage)
+                            {
+                                <td class="text-end">
+                                    <button class="btn btn-sm btn-outline-success record-payment"
+                                            type="button"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#recordPaymentModal"
+                                            data-plan-id="@plan.Id"
+                                            data-plan-amount="@plan.PlanAmount"
+                                            data-actual-amount="@plan.ActualAmount">
+                                        登记回款
+                                    </button>
+                                </td>
+                            }
+                        </tr>
+                    }
+                }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@if (canManage)
+{
+<div class="modal fade" id="addPlanModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <form asp-action="AddPaymentPlan" method="post" class="modal-content">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="ContractId" value="@Model.Id" />
+            <div class="modal-header">
+                <h5 class="modal-title">新增回款计划</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="关闭"></button>
+            </div>
+            <div class="modal-body">
+                <label class="form-label">计划日期</label>
+                <input name="PlanDate" type="date" class="form-control mb-3" value="@DateTime.Today.ToString("yyyy-MM-dd")" required />
+                <label class="form-label">计划金额</label>
+                <input name="PlanAmount" type="number" min="0.01" step="0.01" class="form-control mb-3 plan-amount" required />
+                <label class="form-label">说明</label>
+                <input name="Description" class="form-control" maxlength="200" />
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">取消</button>
+                <button type="submit" class="btn btn-primary">保存</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="modal fade" id="recordPaymentModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <form asp-action="RecordPayment" method="post" class="modal-content">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="ContractId" value="@Model.Id" />
+            <input type="hidden" name="PlanId" id="recordPlanId" />
+            <div class="modal-header">
+                <h5 class="modal-title">登记实际回款</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="关闭"></button>
+            </div>
+            <div class="modal-body">
+                <div class="text-muted small mb-2" id="recordPlanHint"></div>
+                <label class="form-label">实际回款金额</label>
+                <input name="ActualAmount" type="number" min="0.01" step="0.01" class="form-control mb-3 actual-amount" required />
+                <label class="form-label">实际回款日期</label>
+                <input name="ActualDate" type="date" class="form-control" value="@DateTime.Today.ToString("yyyy-MM-dd")" required />
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">取消</button>
+                <button type="submit" class="btn btn-success">登记</button>
+            </div>
+        </form>
+    </div>
+</div>
+}
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        $('.record-payment').on('click', function () {
+            const planId = $(this).data('plan-id');
+            const planAmount = parseFloat($(this).data('plan-amount')) || 0;
+            const actualAmount = parseFloat($(this).data('actual-amount')) || 0;
+            $('#recordPlanId').val(planId);
+            $('#recordPlanHint').text(`计划金额 ${planAmount.toFixed(2)}，已回款 ${actualAmount.toFixed(2)}，剩余 ${(planAmount - actualAmount).toFixed(2)}`);
+        });
+
+        $('#addPlanModal form').on('submit', function () {
+            const amount = parseFloat($(this).find('.plan-amount').val()) || 0;
+            if (amount <= 0) {
+                alert('回款计划金额必须大于0');
+                return false;
+            }
+            return true;
+        });
+
+        $('#recordPaymentModal form').on('submit', function () {
+            const amount = parseFloat($(this).find('.actual-amount').val()) || 0;
+            if (amount <= 0) {
+                alert('实际回款金额必须大于0');
+                return false;
+            }
+            return true;
+        });
+    </script>
+}

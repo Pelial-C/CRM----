@@ -1,79 +1,108 @@
-@model CRM.Application.Contracts.Common.Dtos.PagedResultDto<CRM.Application.Contracts.Customers.Dtos.CustomerDto>
 @{
-    ViewData["Title"] = "客户列表";
+    ViewData["Title"] = "客户管理";
+    var canManage = User.IsInRole("Admin") || User.IsInRole("Sales");
+    var canDelete = User.IsInRole("Admin");
 }
 
-<h2>客户列表</h2>
+<div class="page-header">
+    <div>
+        <h2 class="page-title">客户管理</h2>
+        <p class="page-subtitle">维护客户档案、联系人入口和客户状态。</p>
+    </div>
+    @if (canManage)
+    {
+        <div class="page-actions">
+            <a class="btn btn-primary" asp-action="Create">新增客户</a>
+        </div>
+    }
+</div>
 
-<form method="get" class="row g-2 mb-3">
-    <div class="col-auto">
-        <input type="text" name="name" value="@Context.Request.Query["name"]" class="form-control" placeholder="企业名称" />
+<div class="app-card mb-3">
+    <div class="app-card-body">
+        <div class="row g-3 align-items-end">
+            <div class="col-12 col-md-5">
+                <label class="form-label">关键字</label>
+                <input id="keyword" class="form-control" placeholder="客户名称、信用代码" />
+            </div>
+            <div class="col-12 col-md-3">
+                <div class="form-check">
+                    <input id="includeDeleted" class="form-check-input" type="checkbox" />
+                    <label class="form-check-label" for="includeDeleted">显示已删除客户</label>
+                </div>
+            </div>
+            <div class="col-12 col-md-4">
+                <button class="btn btn-outline-primary btn-sm" id="searchCustomer" type="button">查询</button>
+            </div>
+        </div>
     </div>
-    <div class="col-auto">
-        <input type="text" name="industry" value="@Context.Request.Query["industry"]" class="form-control" placeholder="所属行业" />
-    </div>
-    <div class="col-auto">
-        <button type="submit" class="btn btn-primary">查询</button>
-    </div>
-    <div class="col-auto">
-        <a asp-action="Create" class="btn btn-success">新增客户</a>
-    </div>
-</form>
+</div>
 
-<table class="table table-bordered table-striped">
-    <thead>
-        <tr>
-            <th>序号</th>
-            <th>企业名称</th>
-            <th>统一社会信用代码</th>
-            <th>所属行业</th>
-            <th>地区</th>
-            <th>是否删除</th>
-            <th>创建时间</th>
-            <th>操作</th>
-        </tr>
-    </thead>
-    <tbody>
-        @{
-            var rowNumber = (Model.PageIndex - 1) * Model.PageSize;
-        }
-        @foreach (var item in Model.Items)
-        {
-            rowNumber++;
-            <tr>
-                <td>@rowNumber</td>
-                <td>@item.Name</td>
-                <td>@item.CreditCode</td>
-                <td>@item.Industry</td>
-                <td>@item.Province @item.City @item.District</td>
-                <td>@(item.IsDeleted ? "是" : "否")</td>
-                <td>@item.CreationTime.ToString("yyyy-MM-dd")</td>
-                <td>
-                    <a asp-action="Detail" asp-route-id="@item.Id" class="btn btn-sm btn-info">详情</a>
-                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-warning">编辑</a>
-                    <form asp-action="Delete" asp-route-id="@item.Id" method="post" style="display:inline" onsubmit="return confirm('确认删除？')">
-                        <button type="submit" class="btn btn-sm btn-danger">删除</button>
-                    </form>
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
+<div class="app-card">
+    <div class="app-card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle app-table">
+                <thead>
+                    <tr>
+                        <th>客户名称</th>
+                        <th>信用代码</th>
+                        <th>行业</th>
+                        <th>地址</th>
+                        <th>创建时间</th>
+                        <th>状态</th>
+                        <th class="text-end">操作</th>
+                    </tr>
+                </thead>
+                <tbody id="customerRows"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
 
-<nav>
-    <ul class="pagination">
-        @if (Model.HasPreviousPage)
-        {
-            <li class="page-item">
-                <a class="page-link" asp-action="Index" asp-route-pageIndex="@(Model.PageIndex - 1)" asp-route-name="@Context.Request.Query["name"]" asp-route-industry="@Context.Request.Query["industry"]">上一页</a>
-            </li>
+@section Scripts {
+    <script>
+        function loadCustomers() {
+            $.getJSON('/Customer/GetList', {
+                keyword: $('#keyword').val(),
+                includeDeleted: $('#includeDeleted').is(':checked')
+            }, function (res) {
+                const rows = $('#customerRows');
+                rows.empty();
+                if (!res.data || res.data.length === 0) {
+                    rows.append('<tr><td colspan="7"><div class="empty-state">暂无客户数据</div></td></tr>');
+                    return;
+                }
+                res.data.forEach(function (item) {
+                    const status = item.isDeleted ? '<span class="status-badge status-danger">已删除/禁用</span>' : '<span class="status-badge status-normal">正常</span>';
+                    const address = [item.province, item.city, item.district, item.detailAddress].filter(Boolean).join('');
+                    const canEdit = '@canManage'.toLowerCase() === 'true';
+                    const canDelete = '@canDelete'.toLowerCase() === 'true';
+                    const actions = item.isDeleted || !canEdit ? '' : `
+                        <a class="btn btn-sm btn-outline-primary" href="/Customer/Edit/${item.id}">编辑</a>
+                        ${canDelete ? `<button class="btn btn-sm btn-outline-danger delete-customer" data-id="${item.id}">删除</button>` : ''}`;
+                    rows.append(`<tr>
+                        <td>${item.name || ''}</td>
+                        <td>${item.creditCode || ''}</td>
+                        <td>${item.industry || ''}</td>
+                        <td>${address}</td>
+                        <td>${item.creationTime ? item.creationTime.substring(0, 10) : ''}</td>
+                        <td>${status}</td>
+                        <td class="text-end">${actions}</td>
+                    </tr>`);
+                });
+            });
         }
-        <li class="page-item active"><span class="page-link">@Model.PageIndex / @Model.TotalPages</span></li>
-        @if (Model.HasNextPage)
-        {
-            <li class="page-item">
-                <a class="page-link" asp-action="Index" asp-route-pageIndex="@(Model.PageIndex + 1)" asp-route-name="@Context.Request.Query["name"]" asp-route-industry="@Context.Request.Query["industry"]">下一页</a>
-            </li>
-        }
-    </ul>
-</nav>
+
+        $('#searchCustomer,#includeDeleted').on('click change', loadCustomers);
+        $(document).on('click', '.delete-customer', function () {
+            if (!confirm('确认删除该客户？存在合同时将按逻辑删除处理。')) return;
+            $.post('/Customer/Delete', { id: $(this).data('id') }, function (res) {
+                if (res && res.code !== 200) {
+                    alert(res.msg || '删除失败');
+                    return;
+                }
+                loadCustomers();
+            });
+        });
+        loadCustomers();
+    </script>
+}

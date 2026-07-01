@@ -1,0 +1,39 @@
+@{
+    ViewData["Title"] = "客户门户首页";
+    var relatedCustomerId = ViewBag.RelatedCustomerId as string;
+    var displayName = User.FindFirst("DisplayName")?.Value ?? User.Identity?.Name;
+    var role = User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value;
+}
+
+<div class="page-header">
+    <div>
+        <h2 class="page-title">客户门户首页</h2>
+        <p class="page-subtitle">外部客户用户只能查看与自身企业相关的合同、回款计划和联系人信息。</p>
+    </div>
+    <div class="page-actions text-muted">当前用户：@displayName（@role）</div>
+</div>
+
+@if (string.IsNullOrWhiteSpace(relatedCustomerId))
+{
+    <div class="alert alert-warning">当前账号未绑定客户信息，请联系系统管理员。</div>
+}
+
+<div class="row g-3">
+    @* 当前门户为基础实现，统计值后续可接入 CustomerPortal 应用服务。 *@
+    <div class="col-12 col-sm-6 col-xl-3"><div class="stat-card"><div class="stat-label">我的合同</div><div class="stat-value">-</div><div class="stat-hint">绑定客户合同</div></div></div>
+    <div class="col-12 col-sm-6 col-xl-3"><div class="stat-card"><div class="stat-label">我的回款计划</div><div class="stat-value">-</div><div class="stat-hint">后续独立页面</div></div></div>
+    <div class="col-12 col-sm-6 col-xl-3"><div class="stat-card"><div class="stat-label">已完成合同</div><div class="stat-value">-</div><div class="stat-hint">后续统计接入</div></div></div>
+    <div class="col-12 col-sm-6 col-xl-3"><div class="stat-card"><div class="stat-label">企业联系人</div><div class="stat-value">-</div><div class="stat-hint">后续独立页面</div></div></div>
+</div>
+
+<div class="app-card mt-4">
+    <div class="app-card-body">
+        <h3 class="form-section-title">快捷入口</h3>
+        <div class="quick-action-grid">
+            <a class="quick-action" asp-area="CustomerPortal" asp-controller="Contracts" asp-action="Index">我的合同</a>
+            <a class="quick-action" href="#">我的回款计划（后续）</a>
+            <a class="quick-action" href="#">企业联系人（后续）</a>
+            <a class="quick-action" href="#">客户支持（后续）</a>
+        </div>
+    </div>
+</div>

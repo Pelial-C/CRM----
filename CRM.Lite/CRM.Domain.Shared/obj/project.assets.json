@@ -14,11 +14,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "E:\\大学\\课程学习资料\\大三下\\电子商务网站开发课程设计\\CRM-----onepiece-ops_CustomerContact\\CRM.Lite\\CRM.Domain.Shared\\CRM.Domain.Shared.csproj",
+      "projectUniqueName": "E:\\大学\\课程学习资料\\大三下\\电子商务网站开发课程设计\\CRM-----Tycho_Code_Domain-modeler\\CRM.Lite\\CRM.Domain.Shared\\CRM.Domain.Shared.csproj",
       "projectName": "CRM.Domain.Shared",
-      "projectPath": "E:\\大学\\课程学习资料\\大三下\\电子商务网站开发课程设计\\CRM-----onepiece-ops_CustomerContact\\CRM.Lite\\CRM.Domain.Shared\\CRM.Domain.Shared.csproj",
+      "projectPath": "E:\\大学\\课程学习资料\\大三下\\电子商务网站开发课程设计\\CRM-----Tycho_Code_Domain-modeler\\CRM.Lite\\CRM.Domain.Shared\\CRM.Domain.Shared.csproj",
       "packagesPath": "C:\\Users\\Lenovo\\.nuget\\packages\\",
-      "outputPath": "E:\\大学\\课程学习资料\\大三下\\电子商务网站开发课程设计\\CRM-----onepiece-ops_CustomerContact\\CRM.Lite\\CRM.Domain.Shared\\obj\\",
+      "outputPath": "E:\\大学\\课程学习资料\\大三下\\电子商务网站开发课程设计\\CRM-----Tycho_Code_Domain-modeler\\CRM.Lite\\CRM.Domain.Shared\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "D:\\C\\Visual Studio Shared\\Entity Framework Tools\\NuGet Packages"

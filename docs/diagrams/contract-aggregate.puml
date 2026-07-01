@@ -1,0 +1,66 @@
+@startuml
+title Contract 聚合
+
+skinparam classAttributeIconSize 0
+
+class Contract <<AggregateRoot>> {
+  +Id
+  +ContractNo
+  +ContractName
+  +TotalAmount
+  +Status
+  +CustomerId
+  +OwnerUserId
+  +Items
+  +PaymentPlans
+  +UpdateBasicInfo()
+  +ReplaceItems()
+  +AddPaymentPlan()
+  +RecordPayment()
+  +Cancel()
+  +Complete()
+}
+
+class ContractItem <<Entity>> {
+  +Id
+  +ContractId
+  +ProductName
+  +Quantity
+  +UnitPrice
+  +Subtotal
+}
+
+class PaymentPlan <<Entity>> {
+  +Id
+  +ContractId
+  +PlanDate
+  +PlanAmount
+  +ActualAmount
+  +ActualDate
+  +Status
+  +RecordActualPayment()
+  +MarkOverdue()
+}
+
+class ContractCreatedEvent <<DomainEvent>>
+class PaymentRecordedEvent <<DomainEvent>>
+class ContractCompletedEvent <<DomainEvent>>
+class ContractCancelledEvent <<DomainEvent>>
+
+Contract "1" o-- "1..*" ContractItem
+Contract "1" o-- "0..*" PaymentPlan
+Contract ..> ContractCreatedEvent : records
+Contract ..> PaymentRecordedEvent : records
+Contract ..> ContractCompletedEvent : records
+Contract ..> ContractCancelledEvent : records
+
+note right of Contract
+规则：
+1. 合同编号不能为空
+2. 合同金额必须大于 0
+3. 合同明细金额总和必须等于合同总金额
+4. 作废合同必须填写原因
+5. 全部回款完成后合同自动完成
+end note
+
+@enduml

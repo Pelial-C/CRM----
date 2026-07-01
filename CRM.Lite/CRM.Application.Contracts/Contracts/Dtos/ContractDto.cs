@@ -1,3 +1,5 @@
+using CRM.Domain.Shared.Enums;
+
 namespace CRM.Application.Contracts.Contracts.Dtos;
 
 public class ContractDto
@@ -12,14 +14,15 @@ public class ContractDto
     public decimal TotalAmount { get; set; }
     public int Status { get; set; }
     public int CustomerId { get; set; }
+    public int? OwnerUserId { get; set; }
     public string? CustomerName { get; set; }
     public int? ContactId { get; set; }
     public string? ContactName { get; set; }
-    public int ServiceType { get; set; }
-    public int ContractType { get; set; }
-    public int PaymentFrequency { get; set; }
+    public PaymentFrequency PaymentFrequency { get; set; }
+    public ServiceType ServiceType { get; set; }
+    public ContractType ContractType { get; set; }
     public int WarningDays { get; set; }
-    public string? RegionalCompany {  get; set; }
+    public string? RegionalCompany { get; set; }
     public string? AffiliatedCompany { get; set; }
     public DateTime CreationTime { get; set; }
     public string? Remark { get; set; }

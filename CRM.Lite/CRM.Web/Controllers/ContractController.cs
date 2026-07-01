@@ -1,71 +1,92 @@
-﻿using CRM.Application.Contracts.Contracts;
+using CRM.Application.Contracts.Contracts;
 using CRM.Application.Contracts.Contracts.Dtos;
+using CRM.Application.Contracts.Customers;
+using CRM.Domain.Contracts;
+using CRM.Domain.Shared.Enums;
+using CRM.Domain.Shared.Exceptions;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace CRM.Web.Controllers;
 
+[Authorize(Roles = "Admin,Sales,EnterpriseUser")]
 public class ContractController : Controller
 {
     private readonly IContractAppService _contractAppService;
+    private readonly ICustomerAppService _customerAppService;
 
-    public ContractController(IContractAppService contractAppService)
+    public ContractController(IContractAppService contractAppService, ICustomerAppService customerAppService)
     {
         _contractAppService = contractAppService;
+        _customerAppService = customerAppService;
     }
 
     [HttpGet]
-    public async Task<IActionResult> Index(string? keyword, int? status, int pageIndex = 1, int pageSize = 10)
+    public async Task<IActionResult> Index(string? keyword, int? status, int pageIndex = 1)
     {
-        var query = new GetContractListDto
+        var result = await _contractAppService.GetListAsync(new ContractListQueryDto
         {
             Keyword = keyword,
             Status = status,
+            OwnerUserId = User.IsInRole("Sales") ? GetCurrentUserId() : null,
             PageIndex = pageIndex,
-            PageSize = pageSize
-        };
+            PageSize = 20
+        });
 
-        var result = await _contractAppService.GetListAsync(query);
         ViewBag.Keyword = keyword;
         ViewBag.Status = status;
         return View(result);
     }
 
     [HttpGet]
-    public async Task<IActionResult> Detail(int id)
+    [Authorize(Roles = "Admin,Sales")]
+    public async Task<IActionResult> Create()
     {
-        var contract = await _contractAppService.GetAsync(id);
-        return View(contract);
-    }
-
-    [HttpGet]
-    public IActionResult Create()
-    {
-        return View(new CreateContractDto());
+        await LoadLookupsAsync();
+        return View(new CreateContractDto
+        {
+            SignDate = DateTime.Today,
+            StartDate = DateTime.Today,
+            EndDate = DateTime.Today.AddMonths(12),
+            WarningDays = 30,
+            OwnerUserId = User.IsInRole("Sales") ? GetCurrentUserId() : null,
+            Items = new List<ContractItemDto> { new() { Quantity = 1 } }
+        });
     }
 
     [HttpPost]
+    [ValidateAntiForgeryToken]
+    [Authorize(Roles = "Admin,Sales")]
     public async Task<IActionResult> Create(CreateContractDto input)
     {
-        if (!ModelState.IsValid) return View(input);
+        if (User.IsInRole("Sales")) input.OwnerUserId = GetCurrentUserId();
+        if (!ModelState.IsValid)
+        {
+            await LoadLookupsAsync(input.CustomerId);
+            return View(input);
+        }
 
         try
         {
             await _contractAppService.CreateAsync(input);
             return RedirectToAction(nameof(Index));
         }
-        catch (Exception ex)
+        catch (BusinessException ex)
         {
-            ModelState.AddModelError("", ex.Message);
+            ModelState.AddModelError(string.Empty, ex.Message);
+            await LoadLookupsAsync(input.CustomerId);
             return View(input);
         }
     }
 
     [HttpGet]
+    [Authorize(Roles = "Admin,Sales")]
     public async Task<IActionResult> Edit(int id)
     {
         var contract = await _contractAppService.GetAsync(id);
-
-        var dto = new UpdateContractDto
+        await LoadLookupsAsync(contract.CustomerId);
+        return View(new UpdateContractDto
         {
             Id = contract.Id,
             ContractNo = contract.ContractNo,
@@ -77,93 +98,163 @@ public class ContractController : Controller
             TotalAmount = contract.TotalAmount,
             Status = contract.Status,
             CustomerId = contract.CustomerId,
+            OwnerUserId = contract.OwnerUserId,
             ContactId = contract.ContactId,
+            PaymentFrequency = contract.PaymentFrequency,
+            ServiceType = contract.ServiceType,
+            ContractType = contract.ContractType,
             WarningDays = contract.WarningDays,
             RegionalCompany = contract.RegionalCompany,
             AffiliatedCompany = contract.AffiliatedCompany,
-            Remark = contract.Remark
-        };
-
-        return View(dto);
+            Remark = contract.Remark,
+            Items = contract.Items.Count > 0 ? contract.Items : new List<ContractItemDto> { new() { Quantity = 1 } }
+        });
     }
 
     [HttpPost]
+    [ValidateAntiForgeryToken]
+    [Authorize(Roles = "Admin,Sales")]
     public async Task<IActionResult> Edit(UpdateContractDto input)
     {
-        if (!ModelState.IsValid) return View(input);
+        if (User.IsInRole("Sales")) input.OwnerUserId = GetCurrentUserId();
+        if (!ModelState.IsValid)
+        {
+            await LoadLookupsAsync(input.CustomerId);
+            return View(input);
+        }
 
         try
         {
             await _contractAppService.UpdateAsync(input);
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction(nameof(Detail), new { id = input.Id });
         }
-        catch (Exception ex)
+        catch (BusinessException ex)
         {
-            ModelState.AddModelError("", ex.Message);
+            ModelState.AddModelError(string.Empty, ex.Message);
+            await LoadLookupsAsync(input.CustomerId);
             return View(input);
         }
     }
 
-    [HttpPost]
-    public async Task<IActionResult> Cancel([FromBody] CancelContractDto input)
+    [HttpGet]
+    public async Task<IActionResult> Detail(int id)
     {
-        try
-        {
-            await _contractAppService.CancelAsync(input);
-            return Json(new { code = 200, msg = "合同已作废" });
-        }
-        catch (Exception ex)
-        {
-            return Json(new { code = 400, msg = ex.Message });
-        }
+        var contract = await _contractAppService.GetAsync(id);
+        return View(contract);
     }
 
     [HttpPost]
+    [ValidateAntiForgeryToken]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> Cancel(int id, string? reason)
+    {
+        await _contractAppService.CancelAsync(id, reason);
+        return RedirectToAction(nameof(Index));
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    [Authorize(Roles = "Admin,Sales")]
     public async Task<IActionResult> GeneratePaymentPlans(int contractId)
     {
         try
         {
             await _contractAppService.GeneratePaymentPlansAsync(contractId);
-            return Json(new { code = 200, msg = "回款计划已自动生成" });
         }
-        catch (Exception ex)
+        catch (BusinessException ex)
         {
-            return Json(new { code = 400, msg = ex.Message });
+            TempData["Error"] = ex.Message;
         }
+
+        return RedirectToAction(nameof(Detail), new { id = contractId });
     }
 
     [HttpPost]
-    public async Task<IActionResult> AddPaymentPlan([FromBody] AddPaymentPlanDto input)
+    [ValidateAntiForgeryToken]
+    [Authorize(Roles = "Admin,Sales")]
+    public async Task<IActionResult> AddPaymentPlan(AddPaymentPlanDto input)
     {
-        try
+        if (ModelState.IsValid)
         {
-            await _contractAppService.AddPaymentPlanAsync(input);
-            return Json(new { code = 200, msg = "回款计划已添加" });
+            try
+            {
+                await _contractAppService.AddPaymentPlanAsync(input);
+            }
+            catch (BusinessException ex)
+            {
+                TempData["Error"] = ex.Message;
+            }
         }
-        catch (Exception ex)
+        else
         {
-            return Json(new { code = 400, msg = ex.Message });
+            TempData["Error"] = "回款计划参数校验失败";
         }
+
+        return RedirectToAction(nameof(Detail), new { id = input.ContractId });
     }
 
     [HttpPost]
-    public async Task<IActionResult> RecordPayment([FromBody] RecordPaymentDto input)
+    [ValidateAntiForgeryToken]
+    [Authorize(Roles = "Admin,Sales")]
+    public async Task<IActionResult> RecordPayment(RecordPaymentDto input)
     {
-        try
+        if (ModelState.IsValid)
         {
-            await _contractAppService.RecordPaymentAsync(input);
-            return Json(new { code = 200, msg = "回款登记成功" });
+            try
+            {
+                await _contractAppService.RecordPaymentAsync(input);
+            }
+            catch (BusinessException ex)
+            {
+                TempData["Error"] = ex.Message;
+            }
         }
-        catch (Exception ex)
+        else
         {
-            return Json(new { code = 400, msg = ex.Message });
+            TempData["Error"] = "登记回款参数校验失败";
         }
+
+        return RedirectToAction(nameof(Detail), new { id = input.ContractId });
     }
 
     [HttpGet]
+    [Authorize(Roles = "Admin,Sales")]
     public async Task<IActionResult> GetContactsByCustomerId(int customerId)
     {
         var contacts = await _contractAppService.GetContactsByCustomerIdAsync(customerId);
-        return Json(new { code = 200, data = contacts });
+        return Json(contacts);
+    }
+
+    private async Task LoadLookupsAsync(int? customerId = null)
+    {
+        if (User.IsInRole("Sales"))
+        {
+            var ownerUserId = GetCurrentUserId();
+            var customers = await _customerAppService.GetListAsync(new CRM.Application.Contracts.Customers.Dtos.CustomerQueryDto
+            {
+                OwnerUserId = ownerUserId
+            });
+            ViewBag.Customers = customers.Select(c => new CRM.Application.Contracts.Customers.Dtos.CustomerSelectDto
+            {
+                Id = c.Id,
+                Name = c.Name ?? string.Empty
+            }).ToList();
+        }
+        else
+        {
+            ViewBag.Customers = await _customerAppService.GetSelectListAsync();
+        }
+        ViewBag.Contacts = customerId.HasValue && customerId.Value > 0
+            ? await _contractAppService.GetContactsByCustomerIdAsync(customerId.Value)
+            : new List<ContactSelectDto>();
+        ViewBag.ContractStatuses = Enum.GetValues<ContractStatus>();
+        ViewBag.PaymentFrequencies = Enum.GetValues<PaymentFrequency>();
+        ViewBag.ServiceTypes = Enum.GetValues<ServiceType>();
+        ViewBag.ContractTypes = Enum.GetValues<ContractType>();
+    }
+
+    private int? GetCurrentUserId()
+    {
+        return int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out var userId) ? userId : null;
     }
 }

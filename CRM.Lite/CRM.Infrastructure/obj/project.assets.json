@@ -1492,6 +1492,19 @@
           }
         }
       },
+      "CRM.Application.Contracts/1.0.0": {
+        "type": "project",
+        "framework": ".NETCoreApp,Version=v8.0",
+        "dependencies": {
+          "CRM.Domain.Shared": "1.0.0"
+        },
+        "compile": {
+          "bin/placeholder/CRM.Application.Contracts.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/CRM.Application.Contracts.dll": {}
+        }
+      },
       "CRM.Domain/1.0.0": {
         "type": "project",
         "framework": ".NETCoreApp,Version=v8.0",
@@ -4017,6 +4030,11 @@
         "useSharedDesignerContext.txt"
       ]
     },
+    "CRM.Application.Contracts/1.0.0": {
+      "type": "project",
+      "path": "../CRM.Application.Contracts/CRM.Application.Contracts.csproj",
+      "msbuildProject": "../CRM.Application.Contracts/CRM.Application.Contracts.csproj"
+    },
     "CRM.Domain/1.0.0": {
       "type": "project",
       "path": "../CRM.Domain/CRM.Domain.csproj",
@@ -4030,6 +4048,7 @@
   },
   "projectFileDependencyGroups": {
     "net8.0": [
+      "CRM.Application.Contracts >= 1.0.0",
       "CRM.Domain >= 1.0.0",
       "Microsoft.EntityFrameworkCore >= 8.0.26",
       "Microsoft.EntityFrameworkCore.Design >= 8.0.26",
@@ -4044,11 +4063,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "E:\\大学\\课程学习资料\\大三下\\电子商务网站开发课程设计\\CRM-----onepiece-ops_CustomerContact\\CRM.Lite\\CRM.Infrastructure\\CRM.Infrastructure.csproj",
+      "projectUniqueName": "E:\\大学\\课程学习资料\\大三下\\电子商务网站开发课程设计\\CRM-----Tycho_Code_Domain-modeler\\CRM.Lite\\CRM.Infrastructure\\CRM.Infrastructure.csproj",
       "projectName": "CRM.Infrastructure",
-      "projectPath": "E:\\大学\\课程学习资料\\大三下\\电子商务网站开发课程设计\\CRM-----onepiece-ops_CustomerContact\\CRM.Lite\\CRM.Infrastructure\\CRM.Infrastructure.csproj",
+      "projectPath": "E:\\大学\\课程学习资料\\大三下\\电子商务网站开发课程设计\\CRM-----Tycho_Code_Domain-modeler\\CRM.Lite\\CRM.Infrastructure\\CRM.Infrastructure.csproj",
       "packagesPath": "C:\\Users\\Lenovo\\.nuget\\packages\\",
-      "outputPath": "E:\\大学\\课程学习资料\\大三下\\电子商务网站开发课程设计\\CRM-----onepiece-ops_CustomerContact\\CRM.Lite\\CRM.Infrastructure\\obj\\",
+      "outputPath": "E:\\大学\\课程学习资料\\大三下\\电子商务网站开发课程设计\\CRM-----Tycho_Code_Domain-modeler\\CRM.Lite\\CRM.Infrastructure\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "D:\\C\\Visual Studio Shared\\Entity Framework Tools\\NuGet Packages"
@@ -4069,8 +4088,11 @@
         "net8.0": {
           "targetAlias": "net8.0",
           "projectReferences": {
-            "E:\\大学\\课程学习资料\\大三下\\电子商务网站开发课程设计\\CRM-----onepiece-ops_CustomerContact\\CRM.Lite\\CRM.Domain\\CRM.Domain.csproj": {
-              "projectPath": "E:\\大学\\课程学习资料\\大三下\\电子商务网站开发课程设计\\CRM-----onepiece-ops_CustomerContact\\CRM.Lite\\CRM.Domain\\CRM.Domain.csproj"
+            "E:\\大学\\课程学习资料\\大三下\\电子商务网站开发课程设计\\CRM-----Tycho_Code_Domain-modeler\\CRM.Lite\\CRM.Application.Contracts\\CRM.Application.Contracts.csproj": {
+              "projectPath": "E:\\大学\\课程学习资料\\大三下\\电子商务网站开发课程设计\\CRM-----Tycho_Code_Domain-modeler\\CRM.Lite\\CRM.Application.Contracts\\CRM.Application.Contracts.csproj"
+            },
+            "E:\\大学\\课程学习资料\\大三下\\电子商务网站开发课程设计\\CRM-----Tycho_Code_Domain-modeler\\CRM.Lite\\CRM.Domain\\CRM.Domain.csproj": {
+              "projectPath": "E:\\大学\\课程学习资料\\大三下\\电子商务网站开发课程设计\\CRM-----Tycho_Code_Domain-modeler\\CRM.Lite\\CRM.Domain\\CRM.Domain.csproj"
             }
           }
         }

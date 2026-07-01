@@ -1,22 +1,10 @@
 {
   "Version": 1,
-  "WorkspaceRootPath": "E:\\\u5927\u5B66\\\u8BFE\u7A0B\u5B66\u4E60\u8D44\u6599\\\u5927\u4E09\u4E0B\\\u7535\u5B50\u5546\u52A1\u7F51\u7AD9\u5F00\u53D1\u8BFE\u7A0B\u8BBE\u8BA1\\CRM-----onepiece-ops_CustomerContact\\CRM.Lite\\",
+  "WorkspaceRootPath": "E:\\\u5927\u5B66\\\u8BFE\u7A0B\u5B66\u4E60\u8D44\u6599\\\u5927\u4E09\u4E0B\\\u7535\u5B50\u5546\u52A1\u7F51\u7AD9\u5F00\u53D1\u8BFE\u7A0B\u8BBE\u8BA1\\CRM-----Tycho_Code_Domain-modeler\\CRM.Lite\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{C21569AC-FB44-4E9D-ADD5-74B4DCC204B2}|CRM.Web\\CRM.Web.csproj|e:\\\u5927\u5B66\\\u8BFE\u7A0B\u5B66\u4E60\u8D44\u6599\\\u5927\u4E09\u4E0B\\\u7535\u5B50\u5546\u52A1\u7F51\u7AD9\u5F00\u53D1\u8BFE\u7A0B\u8BBE\u8BA1\\crm-----onepiece-ops_customercontact\\crm.lite\\crm.web\\controllers\\contractcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{C21569AC-FB44-4E9D-ADD5-74B4DCC204B2}|CRM.Web\\CRM.Web.csproj|solutionrelative:crm.web\\controllers\\contractcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{66404662-D5D3-402F-A99C-89E6E153386F}|CRM.Application\\CRM.Application.csproj|e:\\\u5927\u5B66\\\u8BFE\u7A0B\u5B66\u4E60\u8D44\u6599\\\u5927\u4E09\u4E0B\\\u7535\u5B50\u5546\u52A1\u7F51\u7AD9\u5F00\u53D1\u8BFE\u7A0B\u8BBE\u8BA1\\crm-----onepiece-ops_customercontact\\crm.lite\\crm.application\\contracts\\contractappservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{66404662-D5D3-402F-A99C-89E6E153386F}|CRM.Application\\CRM.Application.csproj|solutionrelative:crm.application\\contracts\\contractappservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{A9FAD500-5116-466A-9C8B-583352BC6BF2}|CRM.Domain\\CRM.Domain.csproj|e:\\\u5927\u5B66\\\u8BFE\u7A0B\u5B66\u4E60\u8D44\u6599\\\u5927\u4E09\u4E0B\\\u7535\u5B50\u5546\u52A1\u7F51\u7AD9\u5F00\u53D1\u8BFE\u7A0B\u8BBE\u8BA1\\crm-----onepiece-ops_customercontact\\crm.lite\\crm.domain\\contracts\\contract.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{A9FAD500-5116-466A-9C8B-583352BC6BF2}|CRM.Domain\\CRM.Domain.csproj|solutionrelative:crm.domain\\contracts\\contract.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{C21569AC-FB44-4E9D-ADD5-74B4DCC204B2}|CRM.Web\\CRM.Web.csproj|e:\\\u5927\u5B66\\\u8BFE\u7A0B\u5B66\u4E60\u8D44\u6599\\\u5927\u4E09\u4E0B\\\u7535\u5B50\u5546\u52A1\u7F51\u7AD9\u5F00\u53D1\u8BFE\u7A0B\u8BBE\u8BA1\\crm-----onepiece-ops_customercontact\\crm.lite\\crm.web\\controllers\\customercontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{C21569AC-FB44-4E9D-ADD5-74B4DCC204B2}|CRM.Web\\CRM.Web.csproj|solutionrelative:crm.web\\controllers\\customercontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{C21569AC-FB44-4E9D-ADD5-74B4DCC204B2}|CRM.Web\\CRM.Web.csproj|e:\\\u5927\u5B66\\\u8BFE\u7A0B\u5B66\u4E60\u8D44\u6599\\\u5927\u4E09\u4E0B\\\u7535\u5B50\u5546\u52A1\u7F51\u7AD9\u5F00\u53D1\u8BFE\u7A0B\u8BBE\u8BA1\\crm-----tycho_code_domain-modeler\\crm.lite\\crm.web\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{C21569AC-FB44-4E9D-ADD5-74B4DCC204B2}|CRM.Web\\CRM.Web.csproj|solutionrelative:crm.web\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -35,53 +23,15 @@
             {
               "$type": "Document",
               "DocumentIndex": 0,
-              "Title": "ContractController.cs",
-              "DocumentMoniker": "E:\\\u5927\u5B66\\\u8BFE\u7A0B\u5B66\u4E60\u8D44\u6599\\\u5927\u4E09\u4E0B\\\u7535\u5B50\u5546\u52A1\u7F51\u7AD9\u5F00\u53D1\u8BFE\u7A0B\u8BBE\u8BA1\\CRM-----onepiece-ops_CustomerContact\\CRM.Lite\\CRM.Web\\Controllers\\ContractController.cs",
-              "RelativeDocumentMoniker": "CRM.Web\\Controllers\\ContractController.cs",
-              "ToolTip": "E:\\\u5927\u5B66\\\u8BFE\u7A0B\u5B66\u4E60\u8D44\u6599\\\u5927\u4E09\u4E0B\\\u7535\u5B50\u5546\u52A1\u7F51\u7AD9\u5F00\u53D1\u8BFE\u7A0B\u8BBE\u8BA1\\CRM-----onepiece-ops_CustomerContact\\CRM.Lite\\CRM.Web\\Controllers\\ContractController.cs",
-              "RelativeToolTip": "CRM.Web\\Controllers\\ContractController.cs",
-              "ViewState": "AgIAAGsAAAAAAAAAAAAYwAYAAAAqAAAAAAAAAA==",
+              "Title": "Program.cs",
+              "DocumentMoniker": "E:\\\u5927\u5B66\\\u8BFE\u7A0B\u5B66\u4E60\u8D44\u6599\\\u5927\u4E09\u4E0B\\\u7535\u5B50\u5546\u52A1\u7F51\u7AD9\u5F00\u53D1\u8BFE\u7A0B\u8BBE\u8BA1\\CRM-----Tycho_Code_Domain-modeler\\CRM.Lite\\CRM.Web\\Program.cs",
+              "RelativeDocumentMoniker": "CRM.Web\\Program.cs",
+              "ToolTip": "E:\\\u5927\u5B66\\\u8BFE\u7A0B\u5B66\u4E60\u8D44\u6599\\\u5927\u4E09\u4E0B\\\u7535\u5B50\u5546\u52A1\u7F51\u7AD9\u5F00\u53D1\u8BFE\u7A0B\u8BBE\u8BA1\\CRM-----Tycho_Code_Domain-modeler\\CRM.Lite\\CRM.Web\\Program.cs",
+              "RelativeToolTip": "CRM.Web\\Program.cs",
+              "ViewState": "AgIAAD0AAAAAAAAAAAAUwE0AAAA/AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-06-29T03:44:07.192Z",
+              "WhenOpened": "2026-07-01T15:20:13.172Z",
               "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "ContractAppService.cs",
-              "DocumentMoniker": "E:\\\u5927\u5B66\\\u8BFE\u7A0B\u5B66\u4E60\u8D44\u6599\\\u5927\u4E09\u4E0B\\\u7535\u5B50\u5546\u52A1\u7F51\u7AD9\u5F00\u53D1\u8BFE\u7A0B\u8BBE\u8BA1\\CRM-----onepiece-ops_CustomerContact\\CRM.Lite\\CRM.Application\\Contracts\\ContractAppService.cs",
-              "RelativeDocumentMoniker": "CRM.Application\\Contracts\\ContractAppService.cs",
-              "ToolTip": "E:\\\u5927\u5B66\\\u8BFE\u7A0B\u5B66\u4E60\u8D44\u6599\\\u5927\u4E09\u4E0B\\\u7535\u5B50\u5546\u52A1\u7F51\u7AD9\u5F00\u53D1\u8BFE\u7A0B\u8BBE\u8BA1\\CRM-----onepiece-ops_CustomerContact\\CRM.Lite\\CRM.Application\\Contracts\\ContractAppService.cs",
-              "RelativeToolTip": "CRM.Application\\Contracts\\ContractAppService.cs",
-              "ViewState": "AgIAAHYAAAAAAAAAAAAkwNoAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-06-29T03:42:13.852Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "Contract.cs",
-              "DocumentMoniker": "E:\\\u5927\u5B66\\\u8BFE\u7A0B\u5B66\u4E60\u8D44\u6599\\\u5927\u4E09\u4E0B\\\u7535\u5B50\u5546\u52A1\u7F51\u7AD9\u5F00\u53D1\u8BFE\u7A0B\u8BBE\u8BA1\\CRM-----onepiece-ops_CustomerContact\\CRM.Lite\\CRM.Domain\\Contracts\\Contract.cs",
-              "RelativeDocumentMoniker": "CRM.Domain\\Contracts\\Contract.cs",
-              "ToolTip": "E:\\\u5927\u5B66\\\u8BFE\u7A0B\u5B66\u4E60\u8D44\u6599\\\u5927\u4E09\u4E0B\\\u7535\u5B50\u5546\u52A1\u7F51\u7AD9\u5F00\u53D1\u8BFE\u7A0B\u8BBE\u8BA1\\CRM-----onepiece-ops_CustomerContact\\CRM.Lite\\CRM.Domain\\Contracts\\Contract.cs",
-              "RelativeToolTip": "CRM.Domain\\Contracts\\Contract.cs",
-              "ViewState": "AgIAABgAAAAAAAAAAAAtwEwAAAAZAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-06-29T03:16:31.042Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 3,
-              "Title": "CustomerController.cs",
-              "DocumentMoniker": "E:\\\u5927\u5B66\\\u8BFE\u7A0B\u5B66\u4E60\u8D44\u6599\\\u5927\u4E09\u4E0B\\\u7535\u5B50\u5546\u52A1\u7F51\u7AD9\u5F00\u53D1\u8BFE\u7A0B\u8BBE\u8BA1\\CRM-----onepiece-ops_CustomerContact\\CRM.Lite\\CRM.Web\\Controllers\\CustomerController.cs",
-              "RelativeDocumentMoniker": "CRM.Web\\Controllers\\CustomerController.cs",
-              "ToolTip": "E:\\\u5927\u5B66\\\u8BFE\u7A0B\u5B66\u4E60\u8D44\u6599\\\u5927\u4E09\u4E0B\\\u7535\u5B50\u5546\u52A1\u7F51\u7AD9\u5F00\u53D1\u8BFE\u7A0B\u8BBE\u8BA1\\CRM-----onepiece-ops_CustomerContact\\CRM.Lite\\CRM.Web\\Controllers\\CustomerController.cs",
-              "RelativeToolTip": "CRM.Web\\Controllers\\CustomerController.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABYAAAAiAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-06-29T02:54:49.328Z"
             }
           ]
         }

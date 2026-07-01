@@ -4,7 +4,8 @@ namespace CRM.Application.Contracts.Contacts.Dtos;
 
 public class CreateContactDto
 {
-    [Required(ErrorMessage = "客户Id不能为空")]
+    [Required(ErrorMessage = "客户ID不能为空")]
+    [Range(1, int.MaxValue, ErrorMessage = "客户ID无效")]
     public int CustomerId { get; set; }
 
     [Required(ErrorMessage = "联系人姓名不能为空")]
@@ -16,6 +17,7 @@ public class CreateContactDto
 
     [Phone(ErrorMessage = "手机号格式不正确")]
     [MaxLength(30, ErrorMessage = "手机号不能超过30个字符")]
+    [RegularExpression(@"^$|^1[3-9]\d{9}$", ErrorMessage = "手机号格式不正确")]
     public string? Phone { get; set; }
 
     [EmailAddress(ErrorMessage = "邮箱格式不正确")]

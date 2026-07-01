@@ -1,10 +1,10 @@
-using CRM.Application.Contracts.Common.Dtos;
 using CRM.Application.Contracts.Contracts;
 using CRM.Application.Contracts.Contracts.Dtos;
 using CRM.Domain.Contracts;
 using CRM.Domain.Customers;
 using CRM.Domain.Repositories;
 using CRM.Domain.Shared.Exceptions;
+using Microsoft.EntityFrameworkCore;
 
 namespace CRM.Application.Contracts;
 
@@ -13,81 +13,152 @@ public class ContractAppService : IContractAppService
     private readonly IRepository<Contract, int> _contractRepo;
     private readonly IRepository<Customer, int> _customerRepo;
 
-    public ContractAppService(
-        IRepository<Contract, int> contractRepo,
-        IRepository<Customer, int> customerRepo)
+    public ContractAppService(IRepository<Contract, int> contractRepo, IRepository<Customer, int> customerRepo)
     {
         _contractRepo = contractRepo;
         _customerRepo = customerRepo;
     }
 
-    public async Task<PagedResultDto<ContractDto>> GetListAsync(GetContractListDto input)
+    public async Task<List<ContractDto>> GetListAsync(string? keyword = null)
     {
-        var contracts = await _contractRepo.GetListAsync();
-        var query = contracts.AsEnumerable();
+        var result = await GetListAsync(new ContractListQueryDto { Keyword = keyword, PageSize = 1000 });
+        return result.Items;
+    }
 
-        // 关键字搜索（合同编号、合同名称、客户名称）
-        if (!string.IsNullOrWhiteSpace(input.Keyword))
+    public async Task<PagedResultDto<ContractDto>> GetListAsync(ContractListQueryDto query)
+    {
+        var pageIndex = query.PageIndex <= 0 ? 1 : query.PageIndex;
+        var pageSize = query.PageSize <= 0 ? 20 : Math.Min(query.PageSize, 100);
+        var contracts = _contractRepo.Query().IgnoreAutoIncludes();
+
+        if (!string.IsNullOrWhiteSpace(query.Keyword))
         {
-            var searchKey = input.Keyword.Trim();
-            query = query.Where(c =>
-                c.ContractNo.Contains(searchKey, StringComparison.OrdinalIgnoreCase) ||
-                c.ContractName.Contains(searchKey, StringComparison.OrdinalIgnoreCase) ||
-                c.CustomerName.Contains(searchKey, StringComparison.OrdinalIgnoreCase));
+            var searchKey = query.Keyword.Trim();
+            contracts = contracts.Where(c =>
+                c.ContractNo.Contains(searchKey) ||
+                c.ContractName.Contains(searchKey) ||
+                c.CustomerName.Contains(searchKey));
         }
 
-        // 按状态筛选
-        if (input.Status.HasValue)
+        if (!string.IsNullOrWhiteSpace(query.ContractNo))
         {
-            query = query.Where(c => (int)c.Status == input.Status.Value);
+            var contractNo = query.ContractNo.Trim();
+            contracts = contracts.Where(c => c.ContractNo.Contains(contractNo));
         }
 
-        // 按客户 ID 筛选
-        if (input.CustomerId.HasValue)
+        if (!string.IsNullOrWhiteSpace(query.CustomerName))
         {
-            query = query.Where(c => c.CustomerId == input.CustomerId.Value);
+            var customerName = query.CustomerName.Trim();
+            contracts = contracts.Where(c => c.CustomerName.Contains(customerName));
         }
 
-        // 按创建时间倒序
-        var ordered = query.OrderByDescending(c => c.CreationTime).ToList();
-        var pageIndex = input.PageIndex < 1 ? 1 : input.PageIndex;
-        var pageSize = input.PageSize < 1 ? 10 : input.PageSize;
-        var totalCount = ordered.Count;
+        if (query.Status.HasValue)
+        {
+            var status = (ContractStatus)query.Status.Value;
+            contracts = contracts.Where(c => c.Status == status);
+        }
 
-        var pageItems = ordered
+        if (query.CustomerId.HasValue && query.CustomerId.Value > 0)
+        {
+            contracts = contracts.Where(c => c.CustomerId == query.CustomerId.Value);
+        }
+
+        if (query.OwnerUserId.HasValue)
+        {
+            contracts = contracts.Where(c => c.OwnerUserId == query.OwnerUserId.Value);
+        }
+
+        if (query.StartDateFrom.HasValue)
+        {
+            contracts = contracts.Where(c => c.StartDate >= query.StartDateFrom.Value);
+        }
+
+        if (query.StartDateTo.HasValue)
+        {
+            contracts = contracts.Where(c => c.StartDate <= query.StartDateTo.Value);
+        }
+
+        if (query.EndDateFrom.HasValue)
+        {
+            contracts = contracts.Where(c => c.EndDate >= query.EndDateFrom.Value);
+        }
+
+        if (query.EndDateTo.HasValue)
+        {
+            contracts = contracts.Where(c => c.EndDate <= query.EndDateTo.Value);
+        }
+
+        var totalCount = await contracts.CountAsync();
+        var items = await contracts
+            .OrderByDescending(c => c.CreationTime)
             .Skip((pageIndex - 1) * pageSize)
             .Take(pageSize)
-            .Select(MapToDto)
-            .ToList();
+            .Select(c => new ContractDto
+            {
+                Id = c.Id,
+                ContractNo = c.ContractNo,
+                ContractName = c.ContractName,
+                CabinetNo = c.CabinetNo,
+                SignDate = c.SignDate,
+                StartDate = c.StartDate,
+                EndDate = c.EndDate,
+                TotalAmount = c.TotalAmount,
+                Status = (int)c.Status,
+                CustomerId = c.CustomerId,
+                OwnerUserId = c.OwnerUserId,
+                CustomerName = c.CustomerName,
+                ContactId = c.ContactId,
+                ContactName = c.ContactName,
+                PaymentFrequency = c.PaymentFrequency,
+                ServiceType = c.ServiceType,
+                ContractType = c.ContractType,
+                WarningDays = c.WarningDays,
+                RegionalCompany = c.RegionalCompany,
+                AffiliatedCompany = c.AffiliatedCompany,
+                CreationTime = c.CreationTime,
+                Remark = c.Remark
+            })
+            .ToListAsync();
 
         return new PagedResultDto<ContractDto>
         {
-            Items = pageItems,
             TotalCount = totalCount,
             PageIndex = pageIndex,
-            PageSize = pageSize
+            PageSize = pageSize,
+            Items = items
         };
     }
 
     public async Task<ContractDto> GetAsync(int id)
     {
-        var contract = await GetContractOrThrowAsync(id);
+        var contract = await _contractRepo.GetByIdAsync(id);
+        if (contract == null) throw new BusinessException("合同不存在");
+
+        contract.RefreshOverduePaymentPlans(DateTime.Today);
+        await _contractRepo.UpdateAsync(contract);
+
         return MapToDto(contract);
     }
 
     public async Task CreateAsync(CreateContractDto input)
     {
-        // 从数据库查出客户名和联系人名（不信任前端传值）
-        var (customerName, contactName) = await ResolveCustomerAndContactAsync(
-            input.CustomerId, input.ContactId);
+        ValidateContractInput(input);
+
+        if (!await CheckContractNoUniqueAsync(input.ContractNo ?? string.Empty))
+        {
+            throw new BusinessException("合同编号已存在");
+        }
+
+        var customer = await GetValidCustomerAsync(input.CustomerId);
+        var contact = GetValidContact(customer, input.ContactId);
 
         var contract = new Contract(
-            input.ContractNo ?? "",
-            input.ContractName ?? "",
-            input.CustomerId,
-            customerName,
-            input.ContactId,
-            contactName,
+            input.ContractNo ?? string.Empty,
+            input.ContractName ?? string.Empty,
+            customer.Id,
+            customer.Name,
+            contact?.Id,
+            contact?.Name,
             input.TotalAmount,
             input.SignDate,
             input.StartDate,
@@ -97,18 +168,18 @@ public class ContractAppService : IContractAppService
             input.AffiliatedCompany,
             input.ServiceType,
             input.ContractType,
-            input.Remark,
             input.CabinetNo,
-            input.WarningDays);
+            input.WarningDays,
+            input.Remark);
+        contract.SetOwner(input.OwnerUserId);
 
-        // 添加合同明细
-        foreach (var item in input.Items)
-        {
-            contract.AddItem(item.ProductName ?? "", item.Quantity, item.UnitPrice);
-        }
+        var items = input.Items
+            .Where(i => !string.IsNullOrWhiteSpace(i.ProductName))
+            .Select(i => (i.ProductName ?? string.Empty, i.Quantity, i.UnitPrice))
+            .ToList();
+        contract.ReplaceItems(items);
 
-        // 添加手动录入的回款计划
-        foreach (var plan in input.PaymentPlans)
+        foreach (var plan in input.PaymentPlans.Where(p => p.PlanAmount > 0))
         {
             contract.AddPaymentPlan(plan.PlanDate, plan.PlanAmount, plan.Description);
         }
@@ -118,17 +189,26 @@ public class ContractAppService : IContractAppService
 
     public async Task UpdateAsync(UpdateContractDto input)
     {
-        var contract = await GetContractOrThrowAsync(input.Id);
-        var (customerName, contactName) = await ResolveCustomerAndContactAsync(
-            input.CustomerId, input.ContactId);
+        ValidateContractInput(input);
+
+        var contract = await _contractRepo.GetByIdAsync(input.Id);
+        if (contract == null) throw new BusinessException("合同不存在");
+
+        if (!await CheckContractNoUniqueAsync(input.ContractNo ?? string.Empty, input.Id))
+        {
+            throw new BusinessException("合同编号已存在");
+        }
+
+        var customer = await GetValidCustomerAsync(input.CustomerId);
+        var contact = GetValidContact(customer, input.ContactId);
 
         contract.UpdateBasicInfo(
-            input.ContractNo ?? "",
-            input.ContractName ?? "",
-            input.CustomerId,
-            customerName,
-            input.ContactId,
-            contactName,
+            input.ContractNo ?? string.Empty,
+            input.ContractName ?? string.Empty,
+            customer.Id,
+            customer.Name,
+            contact?.Id,
+            contact?.Name,
             input.TotalAmount,
             input.SignDate,
             input.StartDate,
@@ -138,83 +218,166 @@ public class ContractAppService : IContractAppService
             input.AffiliatedCompany,
             input.ServiceType,
             input.ContractType,
-            input.Remark,
             input.CabinetNo,
-            input.WarningDays);
+            input.WarningDays,
+            input.Remark);
+        contract.SetOwner(input.OwnerUserId);
 
-        contract.ChangeStatus((ContractStatus)input.Status);
-
-        // 替换全部明细（先清后加）
-        var items = input.Items.Select(i => (i.ProductName ?? "", i.Quantity, i.UnitPrice));
-        contract.ReplaceItems(items);
+        contract.ReplaceItems(input.Items
+            .Where(i => !string.IsNullOrWhiteSpace(i.ProductName))
+            .Select(i => (i.ProductName ?? string.Empty, i.Quantity, i.UnitPrice)));
 
         await _contractRepo.UpdateAsync(contract);
     }
 
-    public async Task CancelAsync(CancelContractDto input)
+    public async Task DeleteAsync(int id)
     {
-        var contract = await GetContractOrThrowAsync(input.Id);
-        contract.Cancel(input.Reason);
+        var contract = await _contractRepo.GetByIdAsync(id);
+        if (contract == null) return;
+        if (contract.Status != ContractStatus.Draft)
+        {
+            throw new BusinessException("只有草稿合同可以删除，已流转合同请使用作废或终止");
+        }
+
+        await _contractRepo.DeleteAsync(contract);
+    }
+
+    public async Task StartAsync(int id)
+    {
+        var contract = await _contractRepo.GetByIdAsync(id);
+        if (contract == null) throw new BusinessException("合同不存在");
+
+        contract.StartExecution();
+        await _contractRepo.UpdateAsync(contract);
+    }
+
+    public async Task CancelAsync(int id, string? reason = null)
+    {
+        if (string.IsNullOrWhiteSpace(reason)) throw new BusinessException("作废合同必须填写原因");
+
+        var contract = await _contractRepo.GetByIdAsync(id);
+        if (contract == null) throw new BusinessException("合同不存在");
+
+        contract.Cancel(reason);
+        await _contractRepo.UpdateAsync(contract);
+    }
+
+    public async Task TerminateAsync(int id, string? reason = null)
+    {
+        var contract = await _contractRepo.GetByIdAsync(id);
+        if (contract == null) throw new BusinessException("合同不存在");
+
+        contract.Terminate(reason);
         await _contractRepo.UpdateAsync(contract);
     }
 
     public async Task GeneratePaymentPlansAsync(int contractId)
     {
-        var contract = await GetContractOrThrowAsync(contractId);
+        var contract = await _contractRepo.GetByIdAsync(contractId);
+        if (contract == null) throw new BusinessException("合同不存在");
+
         contract.GeneratePaymentPlans();
         await _contractRepo.UpdateAsync(contract);
     }
 
     public async Task AddPaymentPlanAsync(AddPaymentPlanDto input)
     {
-        var contract = await GetContractOrThrowAsync(input.ContractId);
+        if (input.PlanAmount <= 0) throw new BusinessException("计划回款金额必须大于0");
+
+        var contract = await _contractRepo.GetByIdAsync(input.ContractId);
+        if (contract == null) throw new BusinessException("合同不存在");
+
         contract.AddPaymentPlan(input.PlanDate, input.PlanAmount, input.Description);
         await _contractRepo.UpdateAsync(contract);
     }
 
     public async Task RecordPaymentAsync(RecordPaymentDto input)
     {
-        var contract = await GetContractOrThrowAsync(input.ContractId);
+        if (input.ActualAmount <= 0) throw new BusinessException("实际回款金额必须大于0");
+
+        var contract = await _contractRepo.GetByIdAsync(input.ContractId);
+        if (contract == null) throw new BusinessException("合同不存在");
+
         contract.RecordPayment(input.PlanId, input.ActualAmount, input.ActualDate);
         await _contractRepo.UpdateAsync(contract);
+    }
+
+    public async Task RefreshOverduePaymentPlansAsync(int contractId)
+    {
+        var contract = await _contractRepo.GetByIdAsync(contractId);
+        if (contract == null) throw new BusinessException("合同不存在");
+
+        contract.RefreshOverduePaymentPlans(DateTime.Today);
+        await _contractRepo.UpdateAsync(contract);
+    }
+
+    public async Task<bool> CheckContractNoUniqueAsync(string contractNo, int? excludeId = null)
+    {
+        if (string.IsNullOrWhiteSpace(contractNo)) return false;
+
+        var normalized = contractNo.Trim();
+        return !await _contractRepo.Query()
+            .AnyAsync(c => c.ContractNo == normalized && (!excludeId.HasValue || c.Id != excludeId.Value));
     }
 
     public async Task<List<ContactSelectDto>> GetContactsByCustomerIdAsync(int customerId)
     {
         var customer = await _customerRepo.GetByIdAsync(customerId);
-        if (customer == null) return new List<ContactSelectDto>();
+        if (customer == null || customer.IsDeleted) return new List<ContactSelectDto>();
 
-        return customer.Contacts.Select(c => new ContactSelectDto
-        {
-            ContactId = c.Id,
-            ContactName = c.Name,
-            Phone = c.Phone,
-            Email = c.Email
-        }).ToList();
-    }
-    private async Task<Contract> GetContractOrThrowAsync(int id)
-    {
-        var contract = await _contractRepo.GetByIdAsync(id);
-        if (contract == null) throw new BusinessException("合同不存在");
-        return contract;
+        return customer.Contacts
+            .OrderBy(c => c.Id)
+            .Select(c => new ContactSelectDto
+            {
+                ContactId = c.Id,
+                ContactName = c.Name,
+                Phone = c.Phone,
+                Email = c.Email
+            })
+            .ToList();
     }
 
-    private async Task<(string CustomerName, string? ContactName)> ResolveCustomerAndContactAsync(
-        int customerId, int? contactId)
+    private async Task<Customer> GetValidCustomerAsync(int customerId)
     {
         var customer = await _customerRepo.GetByIdAsync(customerId);
-        if (customer == null) throw new BusinessException("客户不存在");
-        if (customer.IsDeleted) throw new BusinessException("客户已删除，不能关联合同");
+        if (customer == null || customer.IsDeleted) throw new BusinessException("客户不存在或已删除");
 
-        string? contactName = null;
-        if (contactId.HasValue)
+        return customer;
+    }
+
+    private static Contact? GetValidContact(Customer customer, int? contactId)
+    {
+        if (!contactId.HasValue) return null;
+
+        var contact = customer.Contacts.FirstOrDefault(c => c.Id == contactId.Value);
+        if (contact == null) throw new BusinessException("联系人不属于所选客户");
+
+        return contact;
+    }
+
+    private static void ValidateContractInput(CreateContractDto input)
+    {
+        if (input.TotalAmount <= 0) throw new BusinessException("合同金额必须大于0");
+        if (input.EndDate < input.StartDate) throw new BusinessException("合同结束日期不能早于开始日期");
+        if (input.SignDate > input.EndDate) throw new BusinessException("签订日期不能晚于合同结束日期");
+        if (input.WarningDays is < 0 or > 365) throw new BusinessException("预警天数必须在0到365之间");
+
+        var items = input.Items.Where(i => !string.IsNullOrWhiteSpace(i.ProductName)).ToList();
+        if (items.Count == 0) throw new BusinessException("合同明细至少包含一项");
+        if (items.Any(i => i.Quantity <= 0)) throw new BusinessException("合同明细数量必须大于0");
+        if (items.Any(i => i.UnitPrice <= 0)) throw new BusinessException("合同明细单价必须大于0");
+
+        var itemTotal = items.Sum(i => i.Quantity * i.UnitPrice);
+        if (Math.Abs(itemTotal - input.TotalAmount) > 0.01m)
         {
-            var contact = customer.Contacts.FirstOrDefault(c => c.Id == contactId.Value);
-            if (contact == null) throw new BusinessException("联系人不属于该客户");
-            contactName = contact.Name;
+            throw new BusinessException("合同明细合计金额应与合同总金额一致，允许0.01元以内误差");
         }
 
-        return (customer.Name, contactName);
+        var paymentPlanTotal = input.PaymentPlans.Sum(p => p.PlanAmount);
+        if (paymentPlanTotal > input.TotalAmount + 0.01m)
+        {
+            throw new BusinessException("回款计划总金额不能超过合同总金额");
+        }
     }
 
     private static ContractDto MapToDto(Contract contract)
@@ -231,12 +394,13 @@ public class ContractAppService : IContractAppService
             TotalAmount = contract.TotalAmount,
             Status = (int)contract.Status,
             CustomerId = contract.CustomerId,
+            OwnerUserId = contract.OwnerUserId,
             CustomerName = contract.CustomerName,
             ContactId = contract.ContactId,
             ContactName = contract.ContactName,
-            ServiceType = (int)contract.ServiceType,
-            ContractType = (int)contract.ContractType,
-            PaymentFrequency = (int)contract.PaymentFrequency,
+            PaymentFrequency = contract.PaymentFrequency,
+            ServiceType = contract.ServiceType,
+            ContractType = contract.ContractType,
             WarningDays = contract.WarningDays,
             RegionalCompany = contract.RegionalCompany,
             AffiliatedCompany = contract.AffiliatedCompany,

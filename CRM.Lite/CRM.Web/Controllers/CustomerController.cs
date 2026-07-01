@@ -1,9 +1,13 @@
 using CRM.Application.Contracts.Customers;
 using CRM.Application.Contracts.Customers.Dtos;
+using CRM.Domain.Shared.Exceptions;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace CRM.Web.Controllers;
 
+[Authorize(Roles = "Admin,Sales,EnterpriseUser")]
 public class CustomerController : Controller
 {
     private readonly ICustomerAppService _customerAppService;
@@ -14,36 +18,24 @@ public class CustomerController : Controller
     }
 
     [HttpGet]
-    public async Task<IActionResult> Index(string? name, string? industry, int pageIndex = 1, int pageSize = 10)
-    {
-        var query = new CustomerQueryDto
-        {
-            Name = name,
-            Industry = industry,
-            PageIndex = pageIndex,
-            PageSize = pageSize
-        };
-
-        var result = await _customerAppService.GetPagedListAsync(query);
-        return View(result);
-    }
-
-    [HttpGet]
-    public async Task<IActionResult> Detail(int id)
-    {
-        var customer = await _customerAppService.GetDetailAsync(id);
-        return View(customer);
-    }
-
-    [HttpGet]
-    public IActionResult Create()
+    public IActionResult Index()
     {
         return View();
     }
 
+    [HttpGet]
+    [Authorize(Roles = "Admin,Sales")]
+    public IActionResult Create()
+    {
+        return View(new CreateCustomerDto());
+    }
+
     [HttpPost]
+    [ValidateAntiForgeryToken]
+    [Authorize(Roles = "Admin,Sales")]
     public async Task<IActionResult> Create(CreateCustomerDto input)
     {
+        if (User.IsInRole("Sales")) input.OwnerUserId = GetCurrentUserId();
         if (!ModelState.IsValid) return View(input);
 
         try
@@ -51,18 +43,19 @@ public class CustomerController : Controller
             await _customerAppService.CreateAsync(input);
             return RedirectToAction(nameof(Index));
         }
-        catch (Exception ex)
+        catch (BusinessException ex)
         {
-            ModelState.AddModelError("", ex.Message);
+            ModelState.AddModelError(string.Empty, ex.Message);
             return View(input);
         }
     }
 
     [HttpGet]
+    [Authorize(Roles = "Admin,Sales")]
     public async Task<IActionResult> Edit(int id)
     {
         var customer = await _customerAppService.GetByIdAsync(id);
-        var dto = new UpdateCustomerDto
+        return View(new UpdateCustomerDto
         {
             Id = customer.Id,
             Name = customer.Name,
@@ -72,14 +65,17 @@ public class CustomerController : Controller
             City = customer.City,
             District = customer.District,
             DetailAddress = customer.DetailAddress,
-            Remark = customer.Remark
-        };
-        return View(dto);
+            Remark = customer.Remark,
+            OwnerUserId = customer.OwnerUserId
+        });
     }
 
     [HttpPost]
+    [ValidateAntiForgeryToken]
+    [Authorize(Roles = "Admin,Sales")]
     public async Task<IActionResult> Edit(UpdateCustomerDto input)
     {
+        if (User.IsInRole("Sales")) input.OwnerUserId = GetCurrentUserId();
         if (!ModelState.IsValid) return View(input);
 
         try
@@ -87,17 +83,42 @@ public class CustomerController : Controller
             await _customerAppService.UpdateAsync(input);
             return RedirectToAction(nameof(Index));
         }
-        catch (Exception ex)
+        catch (BusinessException ex)
         {
-            ModelState.AddModelError("", ex.Message);
+            ModelState.AddModelError(string.Empty, ex.Message);
             return View(input);
         }
     }
 
+    [HttpGet]
+    public async Task<IActionResult> GetList(string? keyword, bool includeDeleted = false)
+    {
+        var data = await _customerAppService.GetListAsync(new CustomerQueryDto
+        {
+            Keyword = keyword,
+            IncludeDeleted = includeDeleted,
+            OwnerUserId = User.IsInRole("Sales") ? GetCurrentUserId() : null
+        });
+        return Json(new { code = 200, msg = "success", data });
+    }
+
     [HttpPost]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Delete(int id)
     {
-        await _customerAppService.DeleteAsync(id);
-        return RedirectToAction(nameof(Index));
+        try
+        {
+            await _customerAppService.DeleteAsync(id);
+            return Json(new { code = 200, msg = "删除成功" });
+        }
+        catch (BusinessException ex)
+        {
+            return Json(new { code = 400, msg = ex.Message });
+        }
+    }
+
+    private int? GetCurrentUserId()
+    {
+        return int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out var userId) ? userId : null;
     }
 }

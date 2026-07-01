@@ -4,7 +4,7 @@ public class ContactDto
 {
     public int Id { get; set; }
     public int CustomerId { get; set; }
-    public string? Name { get; set; }
+    public string Name { get; set; } = string.Empty;
     public string? Title { get; set; }
     public string? Phone { get; set; }
     public string? Email { get; set; }

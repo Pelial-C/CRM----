@@ -1,13 +1,12 @@
-using CRM.Application.Contracts.Common.Dtos;
-using CRM.Application.Contracts.Contacts.Dtos;
 using CRM.Application.Contracts.Customers;
 using CRM.Application.Contracts.Customers.Dtos;
 using CRM.Domain.Contracts;
 using CRM.Domain.Customers;
 using CRM.Domain.Repositories;
+using CRM.Domain.Shared.Enums;
 using CRM.Domain.Shared.Exceptions;
 using CRM.Domain.ValueObjects;
-using System.Linq.Expressions;
+using Microsoft.EntityFrameworkCore;
 
 namespace CRM.Application.Customers;
 
@@ -22,46 +21,33 @@ public class CustomerAppService : ICustomerAppService
         _contractRepo = contractRepo;
     }
 
-    public async Task<PagedResultDto<CustomerDto>> GetPagedListAsync(CustomerQueryDto input)
+    public Task<List<CustomerDto>> GetListAsync(string? keyword = null)
     {
-        var predicate = BuildPredicate(input);
-
-        var (items, totalCount) = await _customerRepo.GetPagedAsync(predicate, input.PageIndex, input.PageSize);
-
-        var dtos = items.Select(MapToDto).ToList();
-
-        return new PagedResultDto<CustomerDto>
-        {
-            Items = dtos,
-            TotalCount = totalCount,
-            PageIndex = input.PageIndex,
-            PageSize = input.PageSize
-        };
+        return GetListAsync(new CustomerQueryDto { Keyword = keyword });
     }
 
-    public async Task<CustomerDetailDto> GetDetailAsync(int id)
+    public async Task<List<CustomerDto>> GetListAsync(CustomerQueryDto query)
     {
-        var customer = await _customerRepo.GetByIdAsync(id);
-        if (customer == null) throw new BusinessException("客户不存在");
+        var customers = BuildPredicate(query);
+        return await customers
+            .OrderByDescending(c => c.CreationTime)
+            .ThenByDescending(c => c.Id)
+            .Select(c => MapToDto(c))
+            .ToListAsync();
+    }
 
-        var contracts = await _contractRepo.GetListAsync(c => c.CustomerId == id);
-
-        return new CustomerDetailDto
-        {
-            Id = customer.Id,
-            Name = customer.Name,
-            CreditCode = customer.CreditCode,
-            Industry = customer.Industry,
-            Province = customer.Address?.Province,
-            City = customer.Address?.City,
-            District = customer.Address?.District,
-            DetailAddress = customer.Address?.Detail,
-            Remark = customer.Remark,
-            IsDeleted = customer.IsDeleted,
-            CreationTime = customer.CreationTime,
-            Contacts = customer.Contacts.Select(MapContactToDto).ToList(),
-            Contracts = contracts.Select(MapContractToSummaryDto).ToList()
-        };
+    public async Task<List<CustomerSelectDto>> GetSelectListAsync()
+    {
+        return await _customerRepo.Query()
+            .Where(c => !c.IsDeleted)
+            .OrderByDescending(c => c.CreationTime)
+            .ThenByDescending(c => c.Id)
+            .Select(c => new CustomerSelectDto
+            {
+                Id = c.Id,
+                Name = c.Name
+            })
+            .ToListAsync();
     }
 
     public async Task<CustomerDto> GetByIdAsync(int id)
@@ -74,11 +60,12 @@ public class CustomerAppService : ICustomerAppService
 
     public async Task CreateAsync(CreateCustomerDto input)
     {
-        await CheckNameUniqueAsync(input.Name!, null);
+        await CheckCustomerNameUniqueAsync(input.Name ?? string.Empty);
+        await CheckCreditCodeUniqueAsync(input.CreditCode);
 
-        var address = new Address(input.Province, input.City, input.District, input.DetailAddress);
-        var customer = new Customer(input.Name!, input.CreditCode, input.Industry, address, input.Remark);
-
+        var address = new Address(input.Province ?? string.Empty, input.City ?? string.Empty, input.District ?? string.Empty, input.DetailAddress ?? string.Empty);
+        var customer = new Customer(input.Name ?? string.Empty, input.CreditCode, input.Industry, address, input.Remark);
+        customer.SetOwner(input.OwnerUserId);
         await _customerRepo.InsertAsync(customer);
     }
 
@@ -87,11 +74,12 @@ public class CustomerAppService : ICustomerAppService
         var customer = await _customerRepo.GetByIdAsync(input.Id);
         if (customer == null) throw new BusinessException("客户不存在");
 
-        await CheckNameUniqueAsync(input.Name!, input.Id);
+        await CheckCustomerNameUniqueAsync(input.Name ?? string.Empty, input.Id);
+        await CheckCreditCodeUniqueAsync(input.CreditCode, input.Id);
 
-        var address = new Address(input.Province, input.City, input.District, input.DetailAddress);
-        customer.UpdateInfo(input.Name!, input.CreditCode, input.Industry, address, input.Remark);
-
+        var address = new Address(input.Province ?? string.Empty, input.City ?? string.Empty, input.District ?? string.Empty, input.DetailAddress ?? string.Empty);
+        customer.UpdateInfo(input.Name ?? string.Empty, input.CreditCode, input.Industry, address, input.Remark);
+        customer.SetOwner(input.OwnerUserId);
         await _customerRepo.UpdateAsync(customer);
     }
 
@@ -100,77 +88,138 @@ public class CustomerAppService : ICustomerAppService
         var customer = await _customerRepo.GetByIdAsync(id);
         if (customer == null) return;
 
-        var hasContracts = await _contractRepo.AnyAsync(c => c.CustomerId == id);
+        var hasContracts = await _contractRepo.Query().AnyAsync(c => c.CustomerId == id);
+        if (hasContracts) throw new BusinessException("该客户存在关联合同，不能直接删除");
 
-        if (customer.CanDelete(hasContracts))
-        {
-            await _customerRepo.DeleteAsync(customer);
-        }
-        else
-        {
-            customer.MarkAsDeleted();
-            await _customerRepo.UpdateAsync(customer);
-        }
+        customer.MarkAsDeleted();
+        await _customerRepo.UpdateAsync(customer);
     }
 
-    private async Task CheckNameUniqueAsync(string name, int? excludeId)
+    public async Task<CustomerEvaluationDto> EvaluateAsync(int customerId)
     {
-        var trimmed = name.Trim();
-        var exists = await _customerRepo.AnyAsync(c => c.Name == trimmed && (!excludeId.HasValue || c.Id != excludeId.Value));
-        if (exists) throw new BusinessException("企业名称已存在");
+        var customer = await _customerRepo.GetByIdAsync(customerId);
+        if (customer == null) throw new BusinessException("客户不存在");
+        if (customer.IsDeleted) throw new BusinessException("已删除客户不能评估");
+
+        // 获取该客户的所有合同（包含明细和回款计划）
+        var contracts = await _contractRepo.Query()
+            .Where(c => c.CustomerId == customerId)
+            .ToListAsync();
+
+        // 调用领域服务进行评估
+        var evaluationService = new CustomerEvaluationService();
+        var result = evaluationService.Evaluate(customer, contracts);
+
+        // 更新客户等级
+        customer.SetLevel(result.Level);
+        await _customerRepo.UpdateAsync(customer);
+
+        return new CustomerEvaluationDto
+        {
+            CustomerId = customer.Id,
+            CustomerName = customer.Name,
+            Level = result.Level,
+            LevelName = GetLevelName(result.Level),
+            TotalScore = result.TotalScore,
+            ContractAmountScore = result.ContractAmountScore,
+            PaymentTimelinessScore = result.PaymentTimelinessScore,
+            SatisfactionScore = result.SatisfactionScore,
+            Suggestion = result.Suggestion
+        };
     }
 
-    private static Expression<Func<Customer, bool>> BuildPredicate(CustomerQueryDto input)
+    private static string GetLevelName(CustomerLevel level)
     {
-        return c =>
-            (string.IsNullOrWhiteSpace(input.Name) || c.Name.Contains(input.Name.Trim())) &&
-            (string.IsNullOrWhiteSpace(input.Industry) || c.Industry == input.Industry.Trim()) &&
-            (!input.StartTime.HasValue || c.CreationTime >= input.StartTime.Value) &&
-            (!input.EndTime.HasValue || c.CreationTime <= input.EndTime.Value);
+        return level switch
+        {
+            CustomerLevel.Strategic => "战略客户",
+            CustomerLevel.Important => "重点客户",
+            CustomerLevel.Normal => "普通客户",
+            CustomerLevel.Risk => "风险客户",
+            _ => "未评估"
+        };
     }
 
-    private static CustomerDto MapToDto(Customer c)
+    private IQueryable<Customer> BuildPredicate(CustomerQueryDto query)
+    {
+        var customers = _customerRepo.Query();
+
+        if (!query.IncludeDeleted)
+        {
+            customers = customers.Where(c => !c.IsDeleted);
+        }
+
+        if (query.OwnerUserId.HasValue)
+        {
+            customers = customers.Where(c => c.OwnerUserId == query.OwnerUserId.Value);
+        }
+
+        if (!string.IsNullOrWhiteSpace(query.Keyword))
+        {
+            var searchKey = query.Keyword.Trim();
+            customers = customers.Where(c =>
+                c.Name.Contains(searchKey) ||
+                (c.CreditCode != null && c.CreditCode.Contains(searchKey)));
+        }
+
+        if (!string.IsNullOrWhiteSpace(query.Industry))
+        {
+            var industry = query.Industry.Trim();
+            customers = customers.Where(c => c.Industry != null && c.Industry.Contains(industry));
+        }
+
+        return customers;
+    }
+
+    private async Task CheckCustomerNameUniqueAsync(string name, int? excludeId = null)
+    {
+        if (string.IsNullOrWhiteSpace(name)) return;
+
+        var normalized = name.Trim();
+        var exists = await _customerRepo.Query()
+            .AnyAsync(c => c.Name == normalized && (!excludeId.HasValue || c.Id != excludeId.Value));
+
+        if (exists) throw new BusinessException("客户名称已存在");
+    }
+
+    private async Task CheckCreditCodeUniqueAsync(string? creditCode, int? excludeId = null)
+    {
+        if (string.IsNullOrWhiteSpace(creditCode)) return;
+
+        var normalized = creditCode.Trim();
+        var exists = await _customerRepo.Query()
+            .AnyAsync(c => c.CreditCode == normalized && (!excludeId.HasValue || c.Id != excludeId.Value));
+
+        if (exists) throw new BusinessException("统一社会信用代码已存在");
+    }
+
+    private static CustomerDto MapToDto(Customer customer)
     {
         return new CustomerDto
         {
-            Id = c.Id,
-            Name = c.Name,
-            CreditCode = c.CreditCode,
-            Industry = c.Industry,
-            Province = c.Address?.Province,
-            City = c.Address?.City,
-            District = c.Address?.District,
-            DetailAddress = c.Address?.Detail,
-            Remark = c.Remark,
-            IsDeleted = c.IsDeleted,
-            CreationTime = c.CreationTime
-        };
-    }
-
-    private static ContactDto MapContactToDto(Contact c)
-    {
-        return new ContactDto
-        {
-            Id = c.Id,
-            CustomerId = c.CustomerId,
-            Name = c.Name,
-            Title = c.Title,
-            Phone = c.Phone,
-            Email = c.Email,
-            IsKeyDecisionMaker = c.IsKeyDecisionMaker
-        };
-    }
-
-    private static ContractSummaryDto MapContractToSummaryDto(Contract c)
-    {
-        return new ContractSummaryDto
-        {
-            Id = c.Id,
-            ContractNo = c.ContractNo,
-            ContractName = c.ContractName,
-            TotalAmount = c.TotalAmount,
-            Status = (int)c.Status,
-            SignDate = c.SignDate
+            Id = customer.Id,
+            Name = customer.Name,
+            CreditCode = customer.CreditCode,
+            Industry = customer.Industry,
+            Remark = customer.Remark,
+            IsDeleted = customer.IsDeleted,
+            OwnerUserId = customer.OwnerUserId,
+            Level = customer.Level,
+            Province = customer.Address.Province,
+            City = customer.Address.City,
+            District = customer.Address.District,
+            DetailAddress = customer.Address.Detail,
+            CreationTime = customer.CreationTime,
+            Contacts = customer.Contacts.Select(c => new CustomerContactDto
+            {
+                Id = c.Id,
+                CustomerId = c.CustomerId,
+                Name = c.Name,
+                Title = c.Title,
+                Phone = c.Phone,
+                Email = c.Email,
+                IsKeyDecisionMaker = c.IsKeyDecisionMaker
+            }).ToList()
         };
     }
 }
