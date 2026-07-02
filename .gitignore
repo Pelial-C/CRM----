@@ -1,0 +1,13 @@
+.vs/
+bin/
+obj/
+*.user
+*.suo
+*.log
+*.db
+node_modules/
+dist/
+.env
+.env.local
+CRM.Client/node_modules/
+CRM.Client/dist/
