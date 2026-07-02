@@ -1,0 +1,104 @@
+@startuml
+title CRM Lite 系统架构图
+
+skinparam componentStyle rectangle
+skinparam packageStyle rectangle
+skinparam linetype ortho
+skinparam shadowing false
+skinparam component {
+  BackgroundColor #FFFFFF
+  BorderColor #374151
+  FontColor #111827
+}
+skinparam database {
+  BackgroundColor #F9FAFB
+  BorderColor #374151
+}
+
+actor "管理员" as Admin
+actor "销售人员" as Sales
+actor "企业用户" as Enterprise
+actor "客户用户" as CustomerUser
+
+node "Browser" {
+  component "React 前端\nCRM.Client" as ReactClient
+  component "MVC/Razor 页面\nAdmin/Sales/Enterprise/CustomerPortal" as RazorViews
+}
+
+node "ASP.NET Core 后端\nCRM.Web" {
+  component "AccountController\nCookie 认证" as Auth
+  component "MVC Controllers\n后端页面入口" as MvcControllers
+  component "API Controllers\n/api/*" as ApiControllers
+  component "Model Binding\nValidation\nApiResponse" as WebModels
+}
+
+package "Application 层\nCRM.Application" {
+  component "CustomerAppService" as CustomerService
+  component "ContactAppService" as ContactService
+  component "ContractAppService" as ContractService
+}
+
+package "Domain 层\nCRM.Domain / CRM.Domain.Shared" {
+  component "Customer 聚合\nCustomer / Contact / Address" as CustomerDomain
+  component "Contract 聚合\nContract / ContractItem / PaymentPlan" as ContractDomain
+  component "User 权限模型\nAppUser / AppRole / UserRole" as UserDomain
+  component "业务规则与领域事件" as DomainRules
+}
+
+package "Infrastructure 层\nCRM.Infrastructure" {
+  component "EfRepository" as Repository
+  component "CrmDbContext" as DbContext
+  component "EF Core Migrations" as Migrations
+}
+
+database "SQL Server\nCrmLiteDb" as SqlServer
+
+Admin --> RazorViews
+Sales --> RazorViews
+Enterprise --> RazorViews
+CustomerUser --> RazorViews
+
+Admin --> ReactClient
+Sales --> ReactClient
+Enterprise --> ReactClient
+CustomerUser --> ReactClient
+
+ReactClient --> ApiControllers : HTTP JSON\nwith cookie
+RazorViews --> MvcControllers : form/page request
+RazorViews --> Auth : login/logout
+
+Auth --> DbContext : read AppUsers
+MvcControllers --> CustomerService
+MvcControllers --> ContactService
+MvcControllers --> ContractService
+ApiControllers --> WebModels
+ApiControllers --> CustomerService
+ApiControllers --> ContactService
+ApiControllers --> ContractService
+
+CustomerService --> Repository
+ContactService --> Repository
+ContractService --> Repository
+Repository --> DbContext
+DbContext --> SqlServer
+Migrations --> SqlServer
+
+CustomerService --> CustomerDomain
+ContactService --> CustomerDomain
+ContractService --> ContractDomain
+Auth --> UserDomain
+CustomerDomain --> DomainRules
+ContractDomain --> DomainRules
+UserDomain --> DomainRules
+
+note right of ReactClient
+React handles the main SPA pages.
+API base path is /api.
+end note
+
+note right of RazorViews
+The current project is a mixed architecture:
+backend Razor pages and React pages coexist.
+end note
+
+@enduml

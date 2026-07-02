@@ -1,0 +1,131 @@
+@startuml
+title CRM Lite ER 图
+
+hide circle
+skinparam linetype ortho
+skinparam entity {
+  BackgroundColor #FFFFFF
+  BorderColor #4B5563
+  FontColor #111827
+}
+
+entity "Customers" as Customers {
+  * Id : int <<PK>>
+  --
+  Name : nvarchar(100) <<unique>>
+  CreditCode : nvarchar(50) <<unique nullable>>
+  Industry : nvarchar(50)
+  Province : nvarchar(50)
+  City : nvarchar(50)
+  District : nvarchar(50)
+  DetailAddress : nvarchar(200)
+  Remark : nvarchar(500)
+  IsDeleted : bit
+  OwnerUserId : int <<nullable>>
+  CreationTime : datetime2
+}
+
+entity "Contacts" as Contacts {
+  * Id : int <<PK>>
+  --
+  CustomerId : int <<FK>>
+  Name : nvarchar(50)
+  Title : nvarchar(50)
+  Phone : nvarchar(30)
+  Email : nvarchar(100)
+  IsKeyDecisionMaker : bit
+}
+
+entity "Contracts" as Contracts {
+  * Id : int <<PK>>
+  --
+  ContractNo : nvarchar(50) <<unique>>
+  ContractName : nvarchar(100)
+  CabinetNo : nvarchar(50)
+  CustomerId : int <<FK>>
+  CustomerName : nvarchar(100)
+  OwnerUserId : int <<nullable>>
+  ContactId : int <<FK nullable>>
+  ContactName : nvarchar(50)
+  RegionalCompany : nvarchar(100)
+  AffiliatedCompany : nvarchar(100)
+  TotalAmount : decimal(18,2)
+  Status : int
+  ServiceType : int
+  ContractType : int
+  PaymentFrequency : int
+  Remark : nvarchar(500)
+  CreationTime : datetime2
+}
+
+entity "ContractItems" as ContractItems {
+  * Id : int <<PK>>
+  --
+  ContractId : int <<FK>>
+  ProductName : nvarchar(100)
+  Quantity : int
+  UnitPrice : decimal(18,2)
+  Subtotal : decimal(18,2)
+}
+
+entity "PaymentPlans" as PaymentPlans {
+  * Id : int <<PK>>
+  --
+  ContractId : int <<FK>>
+  PlanDate : datetime2
+  PlanAmount : decimal(18,2)
+  ActualAmount : decimal(18,2)
+  ActualDate : datetime2 <<nullable>>
+  Status : int
+  Description : nvarchar(200)
+}
+
+entity "AppUsers" as AppUsers {
+  * Id : int <<PK>>
+  --
+  UserName : nvarchar(50) <<unique>>
+  PasswordHash : nvarchar(500)
+  DisplayName : nvarchar(50)
+  Email : nvarchar(100)
+  Phone : nvarchar(30)
+  Role : int
+  IsActive : bit
+  RelatedCustomerId : int <<nullable>>
+  RelatedSalesUserId : int <<nullable>>
+  CreatedAt : datetime2
+  UpdatedAt : datetime2 <<nullable>>
+  CreationTime : datetime2
+}
+
+entity "AppRoles" as AppRoles {
+  * Id : int <<PK>>
+  --
+  Role : int <<unique>>
+  Name : nvarchar(50)
+  Description : nvarchar(200)
+  CreationTime : datetime2
+}
+
+Customers ||--o{ Contacts : CustomerId\nCascade
+Customers ||--o{ Contracts : CustomerId\nRestrict
+Contacts ||--o{ Contracts : ContactId\nSetNull
+Contracts ||--|{ ContractItems : ContractId\nCascade
+Contracts ||--o{ PaymentPlans : ContractId\nCascade
+
+AppUsers }o..|| Customers : RelatedCustomerId
+AppUsers }o..|| AppUsers : RelatedSalesUserId
+Customers }o..|| AppUsers : OwnerUserId
+Contracts }o..|| AppUsers : OwnerUserId
+AppUsers }o..|| AppRoles : Role
+
+note right of Customers
+Address is an owned value object
+mapped into Customers columns.
+end note
+
+note bottom of AppRoles
+Role stores UserRole enum value:
+Admin, Sales, EnterpriseUser, CustomerUser.
+end note
+
+@enduml
